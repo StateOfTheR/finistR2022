@@ -1,0 +1,34 @@
+---
+title: "FinistR : bootcamp R à Brocéliande"
+date: "du 22 au 26 août 2022"
+output: 
+  html_document:
+   toc: true
+   toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+library(tidyverse)
+```
+
+## Où ? Quand ?
+
+L'atelier Finist'R 2022 -- ou *bootcamp R* du groupe  [State Of The R](https://stateofther.github.io/)  se tiendra à la [station biologique de Paimpont](https://paimpont.univ-rennes1.fr/) du **22 au 26 août 2022**.
+
+<iframe src="https://www.google.com/maps/place/Biology+Station+-+University+of+Rennes+1/@48.0034027,-2.3694398,11z/data=!4m5!3m4!1s0x480fb26a315ea6b5:0x1f048894aa81345b!8m2!3d48.0034027!4d-2.2293641" width="600" height="450" frameborder="0" style="border:0" allowfullscreen></iframe>
+
+
+
+Il s'agit de la sixième édition de l'atelier Finist'R. Cet atelier réunit annuellement un groupe de chercheurs, ingénieurs, doctorants, tous utilisateurs avancés de `R` et dévelopeurs de paquets pour explorer les dernières fonctionalités du logiciel et les nouvelles pratiques de développement. A l'issu de l'atelier le collectif produit une synthèse de cette veille logiciel de manière à progresser collectivement dans l'utilisation du logiciel mais surtout dans la production d'outils statistiques à destination de la communauté.
+
+Le résultat de cette semaine sera posté au fur et à mesure  [sur cette page](https://stateofther.github.io/finistR2022/index.html)
+
+## Participants
+Emré Anakok, Julie Aubert,  Pierre Barbillon, Anna Bonnet, Saint-Clair Chabert, Félix Cheysson, Julien Chiquet, Anaig De Walshe,  Sophie Donnet, Marie-Pierre Etienne, Pierre Gloaguen, Marina Gomtsyana,  Tam Le Minh, Mahendra Mariadassou, Tristan Mary-Huard, Aurélie Mercadier, Cédric Midoux, Isabelle Sanchez, Mary Savino.
+
+
+
+
+
+

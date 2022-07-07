@@ -1,0 +1,15 @@
+name: "Finist'R, édition 2022"
+output_dir: "./build"
+navbar:
+ title: "Finist'R 2022"
+ left:
+  - text: ""
+    icon: fa-github
+    href: https://github.com/StateOfTheR/finistR2022
+    
+
+
+output:
+  html_document:
+    theme: flatly
+    highlight: tango

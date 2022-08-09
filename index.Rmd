@@ -45,8 +45,8 @@ https://www.rstudio.com/conference/2022/keynotes/applied-machine-learning/
 ### Ecosystème RStudio
 
 - Rstudio addins
--- Comment en Programmer ?
--- Revue des addins existants qui peuvent être pertinent pour nous. 
+  - Comment en Programmer ?
+  - Revue des addins existants qui peuvent être pertinent pour nous. 
 Intégration de shiny gadget dans les addins.
 http://rstudio.github.io/rstudioaddins/
 https://github.com/daattali/addinslist
@@ -67,10 +67,10 @@ https://smltar.com/
 https://www.paulamoraga.com/book-geospatial/
 
 
-### Reproductibilité, travail collaborative
+### Reproductibilité, travail collaboratif
 
 - Utilisation pratique de docker
--                         l'intégration continue
+- L'intégration continue en pratique
 - Ecosystème target
 https://docs.ropensci.org/targets/
 https://wlandau.github.io/targetopia/
@@ -82,9 +82,9 @@ https://www.rstudio.com/conference/2022/keynotes/collaborate-with-quarto/
 ### Graphiques et visualisation
 
 - Visualisation de réseaux ou sorties des modèles sbm/lbm
-
-https://lrouviere.github.io/TUTO_GRAPHES/index.html
-https://datastorm-open.github.io/visNetwork/
+https://lrouviere.github.io/TUTO_GRAPHES/index.html 
+ 
+  - package visNetwork https://datastorm-open.github.io/visNetwork/
 
 ### Parallélisation, gestion mémoire ...
 

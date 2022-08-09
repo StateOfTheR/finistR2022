@@ -28,6 +28,71 @@ Le résultat de cette semaine sera posté au fur et à mesure  [sur cette page](
 Emré Anakok, Julie Aubert,  Pierre Barbillon, Anna Bonnet, Saint-Clair Chabert, Félix Cheysson, Julien Chiquet, Anaig De Walshe,  Sophie Donnet, Marie-Pierre Etienne, Pierre Gloaguen, Marina Gomtsyana,  Tam Le Minh, Mahendra Mariadassou, Tristan Mary-Huard, Aurélie Mercadier, Cédric Midoux, Isabelle Sanchez, Mary Savino.
 
 
+## Idées à explorer
+
+### Machine Learning
+
+- Comprendre et apprendre à utiliser les outils de différenciation automatique
+- Manipuler les auto-encodeurs variationnels
+- Manipuler les réseaux de neurones bayésiens
+- Faire le point sur l'évolution des packages (version R de Torch, tidymodels)
+https://torch.mlverse.org/docs/news/index.html
+https://tidymodels.tidymodels.org/index.html
+https://www.rstudio.com/conference/2022/keynotes/applied-machine-learning/
+
+- Intégrer sklearn dans un workflow mixte R/python
+
+### Ecosystème RStudio
+
+- Rstudio addins
+-- Comment en Programmer ?
+-- Revue des addins existants qui peuvent être pertinent pour nous. 
+Intégration de shiny gadget dans les addins.
+http://rstudio.github.io/rstudioaddins/
+https://github.com/daattali/addinslist
+
+- La différence entre le Pipe de maggritR %>% et celui de R (4.1+) |>
+
+### Shiny
+
+https://www.rstudio.com/conference/2022/keynotes/past-future-shiny/
+
+### Webscrapping et Analyse de texte
+
+https://smltar.com/
+
+
+### Analyse de données spatialisées
+
+https://www.paulamoraga.com/book-geospatial/
+
+
+### Reproductibilité, travail collaborative
+
+- Utilisation pratique de docker
+-                         l'intégration continue
+- Ecosystème target
+https://docs.ropensci.org/targets/
+https://wlandau.github.io/targetopia/
+
+- quarto
+https://www.rstudio.com/blog/announcing-quarto-a-new-scientific-and-technical-publishing-system/
+https://www.rstudio.com/conference/2022/keynotes/collaborate-with-quarto/
+
+### Graphiques et visualisation
+
+- Visualisation de réseaux ou sorties des modèles sbm/lbm
+
+https://lrouviere.github.io/TUTO_GRAPHES/index.html
+https://datastorm-open.github.io/visNetwork/
+
+### Parallélisation, gestion mémoire ...
+
+- Nouveautés autour du package future
+https://www.futureverse.org/
+
+
+
 
 
 

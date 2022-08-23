@@ -57,4 +57,72 @@ x <- torch_tensor(x)
 
 
 
-# Exemple Tristan
+## Exemple régression multivariée
+
+
+Cet exemple a été réalisé à partir du blog [torch for optimization](https://blogs.rstudio.com/ai/posts/2021-04-22-torch-for-optimization/)
+
+
+```{r}
+rm(list=ls())
+library(tidyverse)
+library(torch)
+
+
+## Generate the data
+X <- cbind(rep(1,100),matrix(rnorm(1000),100,10))
+Beta.true <- rnorm(11)
+Y <- X%*%Beta.true + rnorm(100)
+n <- nrow(X)
+
+## Declare the loss function
+Theta <- torch_tensor(rep(1,12) %>% as.matrix, requires_grad = TRUE)
+X.tensor <- torch_tensor(X)
+LogLik <- function(theta){
+  n*torch_log(theta[12]) + torch_square(torch_norm(Y-torch_matmul(X.tensor,theta[1:11])))/(2*torch_square(theta[12]))
+}
+LogLik(Theta)
+
+## Check with an R equivalent
+LogLik.r <- function(theta){
+  n*log(theta[12]) + sum((Y-X%*%theta[1:11])**2)/(2*theta[12])
+}
+LogLik.r(as.matrix(rep(1,12)))
+
+
+## Specify the optimization parameters
+num_iterations <- 1000
+lr <- 0.01
+optimizer <- optim_adam(Theta,lr)
+
+## Optimization step description
+calc_loss <- function() {
+  
+  optimizer$zero_grad()
+  value <- LogLik(Theta)
+  cat("Value is: ", as.numeric(value), "\n")
+
+  value$backward()
+  value
+}
+
+## Run the optimization
+for (i in 1:num_iterations) {
+  optimizer$step(calc_loss)
+}
+
+## Compare the coef estimates with the ones of lm 
+Res <- lm(Y ~ X[,-1] )
+Res$coefficients
+
+plot(Res$coefficients,as.numeric(Theta)[-12])
+abline(a=0,b=1,col=2)
+
+## Compare the variances
+summary(Res)$sigma**2
+Theta[12]
+```
+
+
+ 
+

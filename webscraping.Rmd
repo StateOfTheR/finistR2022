@@ -15,6 +15,9 @@ library(httr) # GET function
 ```
 
 # Préambule
+
+L'objectif de ce tutoriel est de créer une liste des outils (essentiellement packages R) développés par un groupe de personnes à partir de leurs adresses email ou identifiants.
+
 ## Web scraping et text mining
 
 ### L'extraction automatique de contenu web ou web scraping
@@ -29,7 +32,7 @@ Le text mining consiste à structurer du texte pour en sortir du contenu. Des te
 
 https://www.tidytextmining.com/tidytext.html
 
-# Objectif du tuto : créer une liste des outils (essentiellement packages R) développés par un groupe de personnes
+# Récupération de packages par web scraping
 
 Notre objectif est d'établir une liste de packages R développés par un groupe de personnes défini à partir de dépôts R ou git.
 

@@ -11,7 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Sources
 
--  [Le tuto de Colin Fay](https://colinfay.me/docker-r-reproducibility/)
+- [La documentation officielle](https://docs.docker.com/get-started/)
+- [Le tuto de Colin Fay](https://colinfay.me/docker-r-reproducibility/)
 - Le blog [Putain de Code](https://putaindecode.io/articles/introduction-a-docker/)
 
 ### Objectif
@@ -21,13 +22,14 @@ Le principe est de créer un **environnement contrôlé** (appelé container). O
 - le système d'exploitation (Linux dans une version donnée), 
 - la version du language (R 2.3.0 par exemple)
 - les packages utiles dans une version donnée
+- peut également contenir des scripts, données, ...
 
 ### Quand cela est-il utile? 
 
 C'est utile si j'ai écrit des codes/packages/scripts et que je veux 
-- les faire tourner sur une autre machine mais ayant les mêmes caractéristiques que les miennes (si tant est que je ne sois pas sousWindows)
-- tester mes programmes sur d'autres versions de Linux/R. 
-
+- les faire tourner sur une autre machine mais ayant les mêmes caractéristiques que les miennes (si tant est que je ne sois pas sous Windows)
+- tester mes programmes sur d'autres versions de Linux/R.
+- cristalliser une analyse pour la partager et/ou y revenir dans plusieurs années
 
 ### Installation
 
@@ -46,6 +48,7 @@ D'abord il faut installer docker, c'est à dire le programme qui va nous service
 
 Créer un docker consiste à créer un fichier texte (sans extension) nommé Dockerfile contenant la "recette" de l'image. Cette recette commence généralement par faire appel à une image déjà prête puis à la modifier. L'appel à l'image existante se fait via l'instruction FROM, les modifications se feront via des instructions RUN. Un exemple (tiré du blog de Colin Fay) :
 
+```
 FROM rocker/r-ver:3.4.4
 RUN mkdir /home/analysis
 RUN R -e "options(repos = \
@@ -53,6 +56,7 @@ RUN R -e "options(repos = \
   install.packages('tidystringdist')"
   
 La première ligne fait appel à une image qui va contenir la version 3.4.4 de R (dans un environnement linux). Cette image se trouve dans un catalogue d'images disponibles en ligne, cf le paragraphe suivant. La deuxième ligne permet, dans l'environnement virtuel (le container), de créer un répertoire *analysis* à la racine, et la troisième d'installer le package R "tydistringdist" dans la version disponible à la date 2019-01-06 dans R.    
+```
 
 ## Où trouver un Docker déjà prêt
 
@@ -88,16 +92,9 @@ WORKDIR :
 
 EXPOSE : 
 
-## Comment exécuter ses propres codes dans un dockerR 
 
-## 
+## Schéma récapitulatif
 
-
-
-
-
-
-
-## Including Plots
+![](docker.drawio.png)
 
   

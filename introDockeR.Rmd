@@ -35,11 +35,12 @@ C'est utile si j'ai écrit des codes/packages/scripts et que je veux
 D'abord il faut installer docker, c'est à dire le programme qui va nous service à créer le conteneur. 
 
  - Sous Linux, l'instruction `sudo snap install docker`  fonctionne. 
-Des instructions plus détaillées sont fournies [ici](https://www.simplilearn.com/tutorials/docker-tutorial/how-to-install-docker-on-ubuntu)
+ Des instructions plus détaillées sont fournies [ici](https://www.simplilearn.com/tutorials/docker-tutorial/how-to-install-docker-on-ubuntu).
+ Avec cette installation, aucune interface n'est fournie. Il faudrait lancer docker en ligne de commande et éditer les fichiers dans un éditeur quelconque. 
 
- - Sous Windows.... * to complete* 
-
-Avec cette installation, aucune interface n'est fournie. Il faudrait lancer docker en ligne de commande et éditer les fichiers dans un éditeur quelconque. 
+ - Sous Windows, il faut installer Docker Desktop sur le site éponyme, [https://www.docker.com/products/docker-desktop/].
+ Ensuite, à l'ouverture de l'application, vous serez invités à installer la mise à jour pour le kernel Linux, disponible [ici](https://aka.ms/wsl2kernel) en cliquant sur `WSL2 Linux kernel update package for x64 machines`, nécessaire pour le bon fonctionnement de Docker Desktop.
+ Des intructions détaillées sont disponibles [ici](https://docs.docker.com/desktop/install/windows-install/).
 
 ### Créer son docker
 
@@ -55,8 +56,19 @@ La première ligne fait appel à une image qui va contenir la version 3.4.4 de R
 
 ## Où trouver un Docker déjà prêt
 
-- Il existe 
+[Docker Hub](https://hub.docker.com/) est un dépôt distant similaire à GitHub pour le partage des images Docker (voir par exemple le dépôt de [``stateofther''](https://hub.docker.com/u/stateofther)).
 
+Pour importer une image Docker, il suffit d'utiliser la commande `docker pull USERNAME/IMAGENAME:TAG` correspondant à l'image `USERNAME/IMAGENAME:TAG` que l'on souhaite importer.
+
+Pour déposer une image sur Docker Hub, il faut d'abord créer son compte pour créer son propre dépôt.
+Ensuite, il faut s'assurer que son image possède un nom de la forme `USERNAME/IMAGENAME`.
+Si besoin, il est possible de créer une copie de l'image avec un nom adéquat via `docker tag IMAGENAME USERNAME/IMAGENAME`.
+Ensuite, l'image peut être déposée sur Docker Hub via `docker push USERNAME/IMAGENAME:TAG`.
+
+Le `TAG` qui est ajouté en fin de nom permet de spécifier la version de l'image déposée ou de l'image à importer, par exemple `stateofther/r-finistr2021:0.7`.
+
+Lors de l'écriture d'un fichier `Dockerfile` pour la création d'une image Docker, au lieu de partir de rien, on récupère en général une image pré-existante à partir de laquelle commencer, via la commande  `FROM` (cf la section suivante).
+En pratique, `FROM` récupère l'image sur Docker Hub, dans le dépôt correspondant.
 
 ## Comment modifier un docker
 

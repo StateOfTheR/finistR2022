@@ -1,0 +1,28 @@
+---
+title: "autodiff"
+author: "finistere2022"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exploration de `{{torch}}` pour la différentiation automatique
+
+## Installation 
+
+Le package [`torch`]() permet de faire de la différentiation automatique à condition de réécrire son code avec les fonctions de `torch`. Il est basé sur la libraire C++ `libtorch` fourni dans PyTorch. Contrairement à d'anciennes versions, torch ne **fait pas** appel à python et ne nécessite pas reticulate. L'installation en est d'autant plus simple: 
+
+```{r, eval = FALSE}
+install.packages(torch)
+```
+
+Lors de la première utilisation, `torch` vous demandera de télécharger des fichiers supplémentaires via: 
+
+```{r}
+torch::install_torch() ## si vous avez un GPU compatible avec CUDA
+## torch::install_torch(type = "cpu") ## sinon
+```
+

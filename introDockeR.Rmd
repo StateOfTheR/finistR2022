@@ -9,19 +9,56 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Sources
+### Sources
 
--  Le tuto de Colin Fay: https://colinfay.me/docker-r-reproducibility/
-- 
+-  [Le tuto de Colin Fay](https://colinfay.me/docker-r-reproducibility/)
+- Le blog [Putain de Code](https://putaindecode.io/articles/introduction-a-docker/)
 
-## Principe
+### Objectif
+
+Le principe est de créer un **environnement contrôlé** (appelé container). On entend par environnement 
+
+- le système d'exploitation (Linux dans une version donnée), 
+- la version du language (R 2.3.0 par exemple)
+- les packages utiles dans une version donnée
 
 ### Quand cela est-il utile? 
 
+C'est utile si j'ai écrit des codes/packages/scripts et que je veux 
+- les faire tourner sur une autre machine mais ayant les mêmes caractéristiques que les miennes (si tant est que je ne sois pas sousWindows)
+- tester mes programmes sur d'autres versions de Linux/R. 
+
+
+### Installation
+
+
+D'abord il faut installer docker, c'est à dire le programme qui va nous service à créer le conteneur. 
+
+ - Sous Linux, l'instruction `sudo snap install docker`  fonctionne. 
+Des instructions plus détaillées sont fournies [ici](https://www.simplilearn.com/tutorials/docker-tutorial/how-to-install-docker-on-ubuntu)
+
+ - Sous Windows.... * to complete* 
+
+Avec cette installation, aucune interface n'est fournie. Il faudrait lancer docker en ligne de commande et éditer les fichiers dans un éditeur quelconque. 
+
+### Créer son docker
+
+Ca se passe en deux parties. 
+
+- Une recette qui sera écrite dans un fichier .txt  et qui d
 
 ## Où trouver un Docker déjà prêt
 
+- Il existe 
+
 ## Comment créer son propre docker
+
+## Comment modifier un docker
+
+## Comment exécuter ses propres codes dans un dockerR 
+
+## 
+
 
 
 

@@ -26,3 +26,12 @@ torch::install_torch() ## si vous avez un GPU compatible avec CUDA
 ## torch::install_torch(type = "cpu") ## sinon
 ```
 
+`torch` est surtout utilisé pour des applications en ML/IA mais on peut aussi l'utiliser pour des calculs de gradients, hessiennes et de l'optimisation dans des modèles plus simples. On va l'illustrer ici pour de la régression logistique. 
+
+## Régression logistique avec `torch`
+
+On va adopter un simple modèle de régression logistique:
+
+$$
+Y_i \sim \mathcal{B}(\sigma(x_i)) \quad \text{avec} \quad \sigma(x) = \frac{1}{1 + e^{-x}}
+$$

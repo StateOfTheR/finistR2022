@@ -7,8 +7,54 @@ output:
     df_print: paged
 ---
 
+```{r}
+library(tidyverse)
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+x |> 
+   mean()
+
+```
+
+# Ecriture de fonctions :
+
+```{r}
+function(x) x + 1 
+\(x) x + 1
+
+quote(x |> 
+   mean())
+
+quote (x %>%
+   mean())
+```
+
+## --- Time difference ---
+
+```{r}
+Time_old <- sapply(1:1000, function(k)
+  {start.time <- Sys.time()
+mtcars %>% 
+   lm(mpg ~ disp, data = .)
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+return(time.taken)})
+
+Time_new <- sapply(1:1000, function(k)
+  {start.time <- Sys.time()
+mtcars |> 
+   (function(x) lm(mpg ~ cyl, data = x))()
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+return(time.taken)})
+
+meanTime_new <- mean(Time_new);meanTime_old <- mean(Time_old)
+sdTime_new <- sd(Time_new);sdTime_old <- sd(Time_old)
 ```
 
 # R et le chaînage d'opérations
@@ -136,3 +182,45 @@ L'IDE RStudio fait l'objet d'un travail de développement intense. Sur les derni
 # Apprentissage de git
 
 L'apprentissage de git, notamment la gestion des branches, est souvent considéré comme complexe malgré la profusion de ressources existantes (par exemple: [git manual](https://git-scm.com/docs/user-manual.html)). Des interfaces ludiques existent pour (re)-découvrir et s'entraîner à la gestion des branches. Nous avons exploré [Learning branching](https://learngitbranching.js.org/).
+
+# Addins
+
+```{r}
+
+reorder_library <- function() {
+# Recupère le contenu du script courant
+script <- rstudioapi::getActiveDocumentContext()$contents
+# Identifie les lignes avec des appels à library()
+indice_library <- stringr::str_which(
+string = script,
+pattern = "library\\([:alnum:]+\\)"
+)
+# on les remplace par une section avec le nom du package
+rng_library <- Map(c, Map(c, indice_library, 1), Map(c, indice_library, 80))
+rstudioapi::modifyRange(
+location = rng_library, # position des library() dans le script
+text = stringr::str_replace(
+string = script[indice_library],
+pattern = "library\\(([:alnum:]+)\\)",
+replacement = "# \\1 ----"
+)
+)
+# on les place les appels à library() en début de script
+rstudioapi::insertText(
+location = c(1, 1), # début du script
+text = stringr::str_c(c(
+"\n# Packages ----",
+script[indice_library]
+), collapse = "\n")
+)
+return(invisible())
+}
+
+
+library(readr)
+moi <- "ok"
+library(dplyr)
+toi <- 15
+library(ggplot2)
+nous <- 17
+```

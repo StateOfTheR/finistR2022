@@ -33,5 +33,18 @@ torch::install_torch() ## si vous avez un GPU compatible avec CUDA
 On va adopter un simple modèle de régression logistique:
 
 $$
-Y_i \sim \mathcal{B}(\sigma(x_i)) \quad \text{avec} \quad \sigma(x) = \frac{1}{1 + e^{-x}}
+Y_i \sim \mathcal{B}(\sigma(\theta^T x_i)) \quad \text{avec} \quad \sigma(x) = \frac{1}{1 + e^{-x}}
 $$
+
+Le but est d'estimer $\theta$ et éventuellement les erreurs associées. On commence par générer des données. 
+
+```{r}
+set.seed(42)
+n <- 100
+p <- 5
+X <- matrix(rnorm(n = n*p), ncol = p, nrow = n)
+beta <- seq(-2, 2, length.out = p)
+probs <- (X %*% beta) %>% as.vector()
+Y <- rbernoulli(n = n, p = probs) + 0L
+```
+

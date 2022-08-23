@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 _Le web scraping (parfois appelé harvesting) est une technique d'extraction du contenu de sites Web, via un script ou un programme, dans le but de le transformer pour permettre son utilisation dans un autre contexte._ (source : https://fr.wikipedia.org/wiki/Web_scraping)
 
-Le package `httr` permet de travailler avec des URLs et HTTP.
+Le package `httr` permet de travailler avec des URLs et HTTP (https://httr.r-lib.org/). Il permet d'écrire des requêtes web avec la fonction `GET()` et retourne un objet json à inspecter et retravailler. Il peut être utiliser en lien avec le package `curl` (https://jeroen.cran.dev/curl/) et `jsonlite` (https://cran.r-project.org/web/packages/jsonlite/). Ce dernier est utile pour manipuler les objets liste json souvent complexes.
 
 #### Fouille de texte ou text mining
 
@@ -51,6 +51,7 @@ bpi <- BiocPkgTools::biocPkgList()
 bpi_int <- purrr::map (emails_int, function(x) grep(x, bpi$`Maintainer`))
 pkgs_bioc <- bpi[unique(unlist(bpi_int)),]
 ```
+
 Pour Bioconductor, on ne peut récupérer que les packages pour lesquels l'adresse email du mainteneur fait partie de la liste d'emails recherchées.
 
 Autres dépôts :
@@ -70,11 +71,84 @@ rop_content <- xml2::read_html(httr::content(rop, "text"))
 web_page <- read_html()
 ```
 
-```{r, eval = FALSE}
-username = "hadley"
-had_ghrepos <- httr::GET("https://api.github.com/users/username/repos")
-http_type(rop)
-rop_content <- xml2::read_html(httr::content(rop, "text"))
+### Dépôts github
 
-web_page <- read_html()
+L'objectif est de récupérer pour un utilisateur donné la liste de ses dépots github (publics) puis de faire un tri sur ceux écrits en langage R.
+
+On utilise pour cela l' API github permettant d'écrire des requêtes web: https://docs.github.com/en/rest.
+
+Petit défaut, la requête web demande de connaitre l'identifiant github moins pratique que l'adresse email plus standardisée.
+
+```{r, eval = FALSE}
+# recuperation des repositories (publics) github d'un utilisateur
+ghrepos <- httr::GET("https://api.github.com/users/andreamrau/repos")
+
+# type de l'objet récupéré: une liste json
+httr::http_type(ghrepos)
+
+# status de la requête (réussi ou pas)
+httr::http_status(ghrepos)
+
+# nombre de repos récupérés
+lg_repo<-length(httr::content(ghrepos))
+lg_repo
+
+# nom de chaque repo + langage utilisé
+for (i in seq(1,lg_repo)){
+  print(httr::content(ghrepos)[[i]]$name)
+  print(httr::content(ghrepos)[[i]]$language)
+}
+
+# Possibilité de faire un tri sur les dépots contenant du R et de récupérer 
+# la description et d'autres informations
+# Exemple sur 1 depot contenant du R, recherche du fichier DESCRIPTION
+# Si on trouve ce fichier dans un depot contenant du langage R, 
+# c'est que c'est un package (à automatiser)
+onerepo<-httr::GET("https://api.github.com/repos/andreamrau/padma/contents/")
+
+grep("DESCRIPTION",httr::content(onerepo))
+
+#rop_content <- xml2::read_html(httr::content(ghrepos, "text"))
 ```
+
+A noter que Ropensci impose que les packages déposés chez eux, un fois approuvés, aient un depot sur leur profil github. Il est donc possible de parcourir, par une requête web, tous les fichiers DESCRIPTION des depots github de Ropensci à la recherche des emails utilisateurs:
+
+```{r,eval=FALSE}
+# Récupérer les noms des depots github de ropensci
+ghrepos <- httr::GET("https://api.github.com/users/ropensci/repos")
+# créer un vecteur contenant les noms de tous les depots
+opname<-list()
+for (i in seq(1,length(httr::content(ghrepos)))){
+  opname[[i]]<-httr::content(ghrepos)[[i]]$name
+}
+
+# Rechercher un pattern dans chaque fichier DESCRIPTION
+# utiliser grep()
+# parcourir le vecteur des noms de depots 
+# + GET() sur le contenu des fichiers DESCRIPTION
+#test<-GET(paste0("https://raw.githubusercontent.com/ropensci/",
+#                 opname[[3]],
+#                 "/master/DESCRIPTION")
+          
+ldesc<-purrr::map(opname,function(x)
+                          content(
+                            GET(paste0("https://raw.githubusercontent.com/ropensci/",
+                                x,
+                                "/master/DESCRIPTION"))))  
+
+emails_int <- c("andrea.rau@inrae.fr",
+                "nathalie.vialaneix@inrae.fr",
+                "camille.piponiot@gmail.com")
+
+resgrep <- purrr::map (emails_int, function(x) grep(x, ldesc))
+
+```
+
+
+### Dépots gitlab
+
+Avec l'instance gitlab de la forgemia, c'est un peu plus compliqué. Il faudrait créer un token d'authentification pour pouvoir faire des requêtes sur l'API gitlab.
+
+La démarche est néanmoins la même: https://docs.gitlab.com/ee/api/api_resources.html
+
+Le préfixe des requêtes est  `https://forgemia.inra.fr/api/v4/`.

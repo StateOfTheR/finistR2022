@@ -13,7 +13,82 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # R et le chaînage d'opérations
 
-Le chaînage d'opérations est disponible depuis plusieurs années via le pipe `%>%` de `{{maggritr}}`. R 4.0 a introduit un opérateur de pipe natif `|>`
+Le chaînage d'opérations est disponible depuis plusieurs années via le pipe `%>%` de `{{maggritr}}`. R 4.1.+ a introduit un opérateur de pipe natif `|>`.
+
+Cet opérateur séquentiel fonctionne de la même manière que le `%>%` usuel.
+
+```{r pipe_magritr}
+library(magrittr)
+10:15 %>% # Pour le vecteur 10:15
+  sqrt() %>% # On prend la racine carrée, puis
+  mean() %>% # On calcule la moyenne
+  round(digits = 2) # On arrondit
+```
+
+```{r pipe_natif}
+# Maintenant, avec le pipe "natif"
+10:15 |> # Pour le vecteur 10:15
+  sqrt() |> # On prend la racine carrée, puis
+  mean() |> # On calcule la moyenne
+  round(digits = 2) # On arrondit
+```
+
+## Différences entre le ` %>% ` et le ` |> `
+
+Une première question naturelle est "Quelle est la différence?".
+La différence fondamentale est que `%>%` est une *fonction* qui s'écrit `%>%(LHS, RHS)` où `RHS` est  une fonction et `LHS` est une expression `R` quelconque, alors que le `|>` est un simple raccourci syntaxique , i.e. `a |> f()` est interprété **exactement** comme `f(a)`.
+
+Cette simplification fait que ce dernier est plus efficace.
+
+Par exemple, sur notre suite d'opérations simples:
+
+```{r pipe_benchmark_simple}
+library(microbenchmark) # Pour la comparaison
+microbenchmark(native = {10:15 |>
+    sqrt() |> 
+    mean() |> 
+    round(digits = 2)},
+    magritr = {10:15 %>%
+        sqrt() %>%
+        mean() %>%
+        round(digits = 2)}) %>% 
+  summary()
+```
+
+Cependant, en pratique, dans l'usage classique impliquant des tableaux de données, ce gain est négligeable au vu des différentes manipulations (notamment les copies des tableaux) effectuées.
+
+```{r pipe_benchmark_complexe}
+library(dplyr) # Pour la manipulation de data.frame
+microbenchmark(native = iris |>
+                 select_if(is.numeric) |>
+                 mutate_all(sqrt) |> 
+                 summarise_all(mean) |>
+                 summarise_all(round, digits = 2),
+               magritr = iris %>% 
+                 select_if(is.numeric) %>% 
+                 mutate_all(sqrt) %>%  
+                 summarise_all(mean) %>% 
+                 summarise_all(round, digits = 2)) %>% 
+  summary()
+```
+
+Cette subtilité peut induire des comportements insidieux, notamment dans la manipulation d'expressions de `R`, où l'on préferera sans doute le `|>` natif qui reproduit exactement le `R` de base.
+
+Par exemple, si on reproduire le code suivant de manière séquentielle:
+```{r pipe_quote_a_reproduire}
+quote(print("Hello"))
+```
+
+on procéderait classiquement à:
+
+```{r}
+"Hello" |> 
+  print() |> 
+  quote()
+```
+
+
+
 
 # Nouveautés dans RStudio
 

@@ -44,7 +44,7 @@ D'abord il faut installer docker, c'est à dire le programme qui va nous service
 
 ### Créer son docker
 
-Créer un docker consiste à créer un fichier texte (sans extension) docker contenant la "recette" de l'image. Cette recette commence généralement par faire appel à une image déjà prête puis à la modifier. L'appel à l'image existante se fait via l'instruction FROM, les modifications se feront via des instructions RUN. Un exemple (tiré du blog de Colin Fay) :
+Créer un docker consiste à créer un fichier texte (sans extension) nommé Dockerfile contenant la "recette" de l'image. Cette recette commence généralement par faire appel à une image déjà prête puis à la modifier. L'appel à l'image existante se fait via l'instruction FROM, les modifications se feront via des instructions RUN. Un exemple (tiré du blog de Colin Fay) :
 
 FROM rocker/r-ver:3.4.4
 RUN mkdir /home/analysis
@@ -52,7 +52,7 @@ RUN R -e "options(repos = \
   list(CRAN = 'http://mran.revolutionanalytics.com/snapshot/2019-01-06/')); \
   install.packages('tidystringdist')"
   
-La première ligne fait appel à une image qui va contenir la version 3.4.4 de R (dans un environnement linux). Cette image se trouve dans un catalogue d'images disponibles en ligne, cf le paragraphe suivant. La deuxième ligne permet, dans l'environnement virtuel (le container), de créer un répertoire *analysis* à la racine, et la troisième d'installer le package R "tydistringdist" dans R.    
+La première ligne fait appel à une image qui va contenir la version 3.4.4 de R (dans un environnement linux). Cette image se trouve dans un catalogue d'images disponibles en ligne, cf le paragraphe suivant. La deuxième ligne permet, dans l'environnement virtuel (le container), de créer un répertoire *analysis* à la racine, et la troisième d'installer le package R "tydistringdist" dans la version disponible à la date 2019-01-06 dans R.    
 
 ## Où trouver un Docker déjà prêt
 

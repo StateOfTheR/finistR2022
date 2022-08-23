@@ -137,6 +137,68 @@ f 423f7a1 Add git8 rebase merge illustration
 
 ```
 
+Ensuite, on peut modifier les messages de commit 
+
+```{r messages_commit}
+# This is a combination of 3 commits.
+# This is the 1st commit message:
+
+Add git8 merge bifucation illustration
+
+# This is the commit message #2:
+
+Add git8 rebase  illustration
+
+# The commit message #3 will be skipped:
+
+# Add git8 rebase merge illustration
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Tue Aug 23 11:32:14 2022 +0200
+#
+# interactive rebase in progress; onto cefde40
+
+```
+
+Si on sauve ce fichier et qu'on quitte, on a réécrit l'histoire 
+
+```{r log_history_res}
+commit 5d107f70b48a6344e8bd8c07eb0e4683b572b924 (HEAD -> rebase)
+Author: Marie-Pierre Etienne <marie-pierre.etienne@agrocampus-ouest.fr>
+Date:   Tue Aug 23 11:54:53 2022 +0200
+
+    Git rebase interactive mode redaction
+
+commit 339f67470bbc5aee4fe737eb049a61c4212a405b
+Author: Marie-Pierre Etienne <marie-pierre.etienne@agrocampus-ouest.fr>
+Date:   Tue Aug 23 11:32:14 2022 +0200
+
+    Add git8 merge bifucation illustration
+    
+    Add git8 rebase  illustration
+
+commit d3ae968e4961f636c55a67e4d630574798154f3c
+Author: Marie-Pierre Etienne <marie-pierre.etienne@agrocampus-ouest.fr>
+Date:   Tue Aug 23 11:27:54 2022 +0200
+
+    git rebase fast forward
+
+commit 2a0b55e1ebba204c94126d51b72bacd1f8f0e0d0 (origin/master, master)
+Author: Marie-Pierre Etienne <marie-pierre.etienne@agrocampus-ouest.fr>
+Date:   Tue Aug 23 09:34:53 2022 +0200
+
+    Add build directory to .gitignore
+
+commit cefde40f7516ff8877bca4a6cebc910a14dd7d15
+Author: Marie-Pierre Etienne <marie-pierre.etienne@agrocampus-ouest.fr>
+Date:   Tue Aug 23 09:34:12 2022 +0200
+
+    Remove build directory automatically created on the gh-pages branch
+```
 
 
+# Important
+
+Bien sur en réécrivant l'histoire on modifie le passé. Comme dans retour vers le futur,  modifier le passé va affecter toutes les personnes concernées par ce passé. On doit donc etre très prudent avec cette approche. **On ne rebase jamais master !!!!** On ne peut réécrire l'histoire que pour des branches simples qui n'ont pas d'enfant.
 

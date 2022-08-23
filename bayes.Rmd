@@ -17,9 +17,11 @@ knitr::opts_chunk$set(echo = TRUE)
 Les packages utiles sont: 
 ```{r packages, message = FALSE,class.source = 'fold-show'}
 library(rjags)
+library(rstan)
 library(ggplot2)
 library(ggmcmc)
 ``` 
+
 
 On considère les données dans le fichier `myOrange.Rdata` qui sont des données (simulées) de croissance d'orangers.  
 
@@ -31,7 +33,7 @@ g
 ``` 
 
 
-
+# Jags section
 
 ## 1. Modèle non linéaire à effets fixes
 
@@ -370,4 +372,8 @@ U <- as.list(as.data.frame(theta[,4:6]))
 models<- do.call(paste, c(U, sep = ""))  
 table(models)/length(models)*100
 ``` 
+
+# Stan section
+
+# Nimble section
 

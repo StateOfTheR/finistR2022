@@ -58,4 +58,85 @@ git merge test
 
 # Pour aller plus loin
 
-Le rebase permet de réécrire toute l'histoire des commits. 
+Le rebase permet de réécrire toute l'histoire des commits. Si l'on souhaite modifier les 5 derniers commits. Par exemple dans la branche rebase voici l'historique des 5 derniers commits.
+
+```{r log, eval=FALSE, echo = TRUE}
+metienne@RMATHMPE20:~/git/finistR2022$ git log -n 5 --oneline
+423f7a1 (HEAD -> rebase) Add git8 rebase merge illustration
+3ebd174 Add git8 rebase  illustration
+a535bf1 Add git8 merge bifucation illustration
+d3ae968 git rebase fast forward
+2a0b55e (origin/master, master) Add build directory to .gitignore
+```
+
+
+Il m'a fallu 3 commits pour ajouter les images, je n'ai pas envie de garder cet historique inutile, je voudrais un seul commit qui inclut toutes les images. je peux utiliser rebase pour faire ceci. La commande suivante, demande rentrer dans un mode de rebase automatique à partir pour les 5 derniers commits.
+
+```{r rebase_i}
+git rebase --interactive HEAD~5
+```
+
+On a alors accès aux derniers commits ouvert dans un éditeur de texte (attention ils sont dans l'ordre inverse, le plus récent en bas). Pour réécrire l'histoire il suffit de modifier le mot clé pick par une des propositions ci dessous.
+
+```{r rebase_inter_res, echo = TRUE}
+pick 2a0b55e Add build directory to .gitignore
+pick d3ae968 git rebase fast forward
+pick a535bf1 Add git8 merge bifucation illustration
+pick 3ebd174 Add git8 rebase  illustration
+pick 423f7a1 Add git8 rebase merge illustration
+
+# Rebase cefde40..423f7a1 onto 3ebd174 (5 commands)
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup <commit> = like "squash", but discard this commit's log message
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+                               [ Read 31 lines ]
+^G Get Help  ^O Write Out ^W Where Is  ^K Cut Text  ^J Justify   ^C Cur Pos
+^X Exit      ^R Read File ^\ Replace   ^U Paste Text^T To Spell  ^_ Go To Line
+
+```
+
+
+
+Pour ne faire qu'un seul commit de mes 3 ajouts de fichier, je vais utiliser ` squash`
+
+
+```{r rebase_inter_res, echo = TRUE}
+pick 2a0b55e Add build directory to .gitignore
+pick d3ae968 git rebase fast forward
+pick a535bf1 Add git8 merge bifucation illustration
+s 3ebd174 Add git8 rebase  illustration
+f 423f7a1 Add git8 rebase merge illustration
+
+# Rebase cefde40..423f7a1 onto 3ebd174 (5 commands)
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup <commit> = like "squash", but discard this commit's log message
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+                               [ Read 31 lines ]
+^G Get Help  ^O Write Out ^W Where Is  ^K Cut Text  ^J Justify   ^C Cur Pos
+^X Exit      ^R Read File ^\ Replace   ^U Paste Text^T To Spell  ^_ Go To Line
+
+```
+
+
+
+

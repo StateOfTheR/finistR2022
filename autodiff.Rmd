@@ -21,12 +21,18 @@ install.packages(torch)
 
 Lors de la première utilisation, `torch` vous demandera de télécharger des fichiers supplémentaires via: 
 
-```{r}
+```{r, eval = FALSE}
 torch::install_torch() ## si vous avez un GPU compatible avec CUDA
 ## torch::install_torch(type = "cpu") ## sinon
 ```
 
 `torch` est surtout utilisé pour des applications en ML/IA mais on peut aussi l'utiliser pour des calculs de gradients, hessiennes et de l'optimisation dans des modèles plus simples. On va l'illustrer ici pour de la régression logistique. 
+
+```{r}
+library(tidyverse)
+library(torch)
+```
+
 
 ## Régression logistique avec `torch`
 
@@ -39,24 +45,180 @@ $$
 Le but est d'estimer $\theta$ et éventuellement les erreurs associées. On commence par générer des données. 
 
 ```{r}
-set.seed(42)
+set.seed(45)
 n <- 100
-p <- 5
+p <- 3
 X <- matrix(rnorm(n = n*p), ncol = p, nrow = n)
-beta <- seq(-2, 2, length.out = p)
-probs <- (X %*% beta) %>% as.vector()
-Y <- rbernoulli(n = n, p = probs) + 0L
+theta <- rnorm(3) %>% round(digits = 2)
+probs <- (X %*% theta) %>% as.vector()
+Y <- rbernoulli(n = n, p = probs) + 0.
 ```
 
 `torch` fonctionne avec ses propres types numériques, qu'il faut créer avec la fonction `torch_tensor()`.
 
 ```{r}
-x <- torch_tensor(x)
+x <- torch_tensor(X)
+y <- torch_tensor(Y)
+```
+
+On écrit ensuite la fonction de vraisemblance
+
+```{r}
+logistic_loss <- function(theta, x, y) {
+  if (!is(theta, "torch_tensor")) {
+    stop("theta must be a torch tensor")
+  }
+  odds <- torch_matmul(x, theta)
+  log_lik <- torch_dot(y, odds) - torch_sum(torch_log(1 + torch_exp(odds)))
+  return(-log_lik)
+}
+```
+
+avant de vérifier qu'elle fonctionne:
+
+```{r}
+logistic_loss(theta = torch_tensor(theta), x = x, y = y)
+```
+
+On veut ensuite définir une fonction objective à maximiser (qui ne dépend que de `theta`):
+
+```{r}
+eval_loss <- function(theta, verbose = TRUE) {
+    loss <- logistic_loss(theta, x, y)
+    if (verbose) {
+        cat(paste(theta |> as.numeric(), collapse=", "), ": ", as.numeric(loss), "\n")
+    }
+    return(loss)
+}
 ```
 
 
+et vérifier qu'elle fonctionne
+
+```{r}
+eval_loss(torch_tensor(theta), verbose = FALSE)
+```
+
+On vérifie que la fonction fonctionne correctement:
+
+```{r}
+eval_loss_grad(theta)
+```
+
+On 
+
+```{r}
+theta_grad <- torch_tensor(rep(0, length(theta)), requires_grad = TRUE)
+optimizer <- optim_rprop(theta_grad)
 
 
+## Optimization step description
+calc_loss <- function() {
+  optimizer$zero_grad()
+  loss <- eval_loss(theta_grad, verbose = FALSE)
+  ## cat("Loss is: ", as.numeric(loss), "\n")
+  loss$backward()
+  loss
+}
+
+## Run the optimization
+num_iterations <- 100
+loss <- vector("numeric", length = num_iterations)
+for (i in 1:num_iterations) {
+  loss[i] <- optimizer$step(calc_loss) %>% as.numeric()
+}
+```
+
+On vérifie que la perte diminue au cours du temps.
+
+```{r}
+plot(1:num_iterations, -loss)
+```
+
+On constate que notre optimiseur aboutit au même résultat que `glm()`
+
+```{r}
+tibble(
+  torch = theta_grad |> as.numeric(),
+  glm   = glm(Y ~ 0 + X, family = "binomial") |> coefficients()
+)
+```
+
+## Exemple régression multivariée
+
+
+Cet exemple a été réalisé à partir du blog [torch for optimization](https://blogs.rstudio.com/ai/posts/2021-04-22-torch-for-optimization/)
+
+
+```{r}
+rm(list=ls())
+library(tidyverse)
+library(torch)
+
+
+## Generate the data
+X <- cbind(rep(1,100),matrix(rnorm(1000),100,10))
+Beta.true <- rnorm(11)
+Y <- X%*%Beta.true + rnorm(100)
+n <- nrow(X)
+
+## Declare the loss function
+Theta <- torch_tensor(rep(1,12) %>% as.matrix, requires_grad = TRUE)
+X.tensor <- torch_tensor(X)
+LogLik <- function(theta){
+  n*torch_log(theta[12]) + torch_square(torch_norm(Y-torch_matmul(X.tensor,theta[1:11])))/(2*torch_square(theta[12]))
+}
+LogLik(Theta)
+
+## Check with an R equivalent
+LogLik.r <- function(theta){
+  n*log(theta[12]) + sum((Y-X%*%theta[1:11])**2)/(2*theta[12])
+}
+LogLik.r(as.matrix(rep(1,12)))
+
+
+## Specify the optimization parameters
+num_iterations <- 1000
+lr <- 0.01
+optimizer <- optim_adam(Theta,lr)
+
+## Optimization step description
+calc_loss <- function() {
+  
+  optimizer$zero_grad()
+  value <- LogLik(Theta)
+  value$backward()
+  value
+}
+
+## Run the optimization
+LogLik.hist <- rep(NA,num_iterations)
+for (i in 1:num_iterations) {
+  LogLik.hist[i] <- optimizer$step(calc_loss) %>% as.numeric
+}
+
+## How does the loss function behave ?
+plot(LogLik.hist,cex=0.4)
+
+## Are the gradients at 0 ?
+Theta$grad
+
+## Compare the coef estimates with the ones of lm 
+Res <- lm(Y ~ X[,-1] )
+Res$coefficients
+
+plot(Res$coefficients,as.numeric(Theta)[-12])
+abline(a=0,b=1,col=2)
+
+## Compare the variances
+summary(Res)$sigma**2
+Theta[12]
+```
+
+
+ 
+
+<<<<<<< HEAD
 # Exemple Tristan
 
 
@@ -108,3 +270,5 @@ Par exemple, en considérant que la fonction implémentée correspond à la fonc
 $$x \xrightarrow[]{f} y \rightarrow z,$$
 la méthode `backward` doit sortir $\partial z / \partial x = (\partial y / \partial x)(\partial z / \partial y)$, où dans l'exemple précédent $\partial z / \partial y$ est représenté par l'argument `grad_output`.
 
+=======
+>>>>>>> 9e1214238f98d6aa5f6d03534fed72e8dafab321

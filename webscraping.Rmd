@@ -14,26 +14,26 @@ library(purrr) # map function
 library(httr) # GET function
 ```
 
-## Préambule
-### Web scraping et text mining
+# Préambule
+## Web scraping et text mining
 
-#### L'extraction automatique de contenu web ou web scraping
+### L'extraction automatique de contenu web ou web scraping
 
 _Le web scraping (parfois appelé harvesting) est une technique d'extraction du contenu de sites Web, via un script ou un programme, dans le but de le transformer pour permettre son utilisation dans un autre contexte._ (source : https://fr.wikipedia.org/wiki/Web_scraping)
 
 Le package `{{httr}}` permet de travailler avec des URLs et HTTP (https://httr.r-lib.org/). Il permet d'écrire des requêtes web avec la fonction `GET()` et retourne un objet json à inspecter et retravailler. Il peut être utiliser en lien avec le package `{{curl}}` (https://jeroen.cran.dev/curl/) et `{{jsonlite}}` (https://cran.r-project.org/web/packages/jsonlite/). Ce dernier est utile pour manipuler les objets liste json souvent complexes.
 
-#### Fouille de texte ou text mining
+### Fouille de texte ou text mining
 
 Le text mining consiste à structurer du texte pour en sortir du contenu. Des techniques sont implémentées sous R dans le package `{{tidytext}}`. 
 
 https://www.tidytextmining.com/tidytext.html
 
-## Objectif du tuto : créer une liste des outils (essentiellement packages R) développés par un groupe de personnes
+# Objectif du tuto : créer une liste des outils (essentiellement packages R) développés par un groupe de personnes
 
 Notre objectif est d'établir une liste de packages R développés par un groupe de personnes défini à partir de dépôts R ou git.
 
-### Dépots R (CRAN et Bioconductor)
+## Dépots R (CRAN et Bioconductor)
 Pour les packages Bioconductor, on utilisera le package `{{BiocPkgTools}}` et pour ceux du CRAN la fonction `tools::CRAN_package_db()`:
 
 ```{r liste-CRAN}
@@ -69,7 +69,7 @@ http_type(rop)
 rop_content <- httr::content(rop, "text")
 ```
 
-### Dépôts github
+## Dépôts github
 
 L'objectif est de récupérer pour un utilisateur donné la liste de ses dépots github (publics) puis de faire un tri sur ceux écrits en langage R.
 
@@ -142,7 +142,7 @@ resgrep <- purrr::map (emails_int, function(x) grep(x, ldesc))
 ```
 
 
-### Dépots gitlab
+## Dépots gitlab
 
 Avec l'instance gitlab de la forgemia, c'est un peu plus compliqué. Il faudrait créer un token d'authentification pour pouvoir faire des requêtes sur l'API gitlab.
 

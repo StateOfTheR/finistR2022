@@ -28,6 +28,11 @@ torch::install_torch() ## si vous avez un GPU compatible avec CUDA
 
 `torch` est surtout utilisé pour des applications en ML/IA mais on peut aussi l'utiliser pour des calculs de gradients, hessiennes et de l'optimisation dans des modèles plus simples. On va l'illustrer ici pour de la régression logistique. 
 
+```{r}
+library(torch)
+```
+
+
 ## Régression logistique avec `torch`
 
 On va adopter un simple modèle de régression logistique:
@@ -43,18 +48,81 @@ set.seed(42)
 n <- 100
 p <- 5
 X <- matrix(rnorm(n = n*p), ncol = p, nrow = n)
-beta <- seq(-2, 2, length.out = p)
-probs <- (X %*% beta) %>% as.vector()
-Y <- rbernoulli(n = n, p = probs) + 0L
+theta <- seq(-2, 2, length.out = p)
+probs <- (X %*% theta) %>% as.vector()
+Y <- rbernoulli(n = n, p = probs) + 0.
 ```
 
 `torch` fonctionne avec ses propres types numériques, qu'il faut créer avec la fonction `torch_tensor()`.
 
 ```{r}
-x <- torch_tensor(x)
+x <- torch_tensor(X)
+y <- torch_tensor(Y)
+```
+
+On écrit ensuite la fonction de vraisemblance
+
+```{r}
+logistic_loss <- function(theta, x, y) {
+  if (!is(theta, "torch_tensor")) {
+    stop("theta must be a torch tensor")
+  }
+  odds <- torch_matmul(x, theta)
+  log_lik <- torch_dot(y, odds) - torch_sum(torch_log(1 + torch_exp(odds)))
+  return(log_lik)
+}
+```
+
+avant de vérifier qu'elle fonctionne:
+
+```{r}
+logistic_loss(theta = torch_tensor(theta), x = x, y = y)
+```
+
+On veut ensuite définir une fonction objective à maximiser (qui ne dépend que de `theta`):
+
+```{r}
+eval_loss <- function(theta, verbose = TRUE) {
+    log_lik <- logistic_loss(theta, x, y)
+    if (verbose) {
+        cat(paste(theta |> as.numeric(), collapse=", "), ": ", as.numeric(log_lik), "\n")
+    }
+    return(log_lik)
+}
 ```
 
 
+et vérifier qu'elle fonctionne
+
+```{r}
+eval_loss(torch_tensor(theta))
+```
+
+On utilise maintenant la magie de `torch` pour calculer le gradient de `eval_loss()` automatiquement.
+
+```{r}
+eval_loss_grad <- function(theta) {
+    theta_grad <- torch_tensor(theta, requires_grad=TRUE)
+    loss <- logistic_loss(theta = theta_grad, x, y)
+    grad <- autograd_grad(loss, theta_grad)[[1]]
+    return(grad)
+}
+```
+
+On vérifie que la fonction fonctionne correctement:
+
+```{r}
+eval_loss_grad(theta)
+```
+
+```{r}
+theta_grad <- torch_tensor(rep(0, length(theta)), requires_grad=TRUE)
+optimizer <- optim_adam(theta_grad)
+optimizer$zero_grad()
+eval_loss(theta_grad, verbose = FALSE)$backward()
+theta_grad$grad
+optimizer$step()
+```
 
 
 ## Exemple régression multivariée

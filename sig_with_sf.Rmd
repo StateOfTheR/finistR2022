@@ -1,6 +1,6 @@
 ---
 title: "SIG avec SF"
-author: "Pierre Barbillon, Pierre Gloaguen"
+author: "Pierre Barbillon, Anna Bonnet, Pierre Gloaguen"
 date: "2022-08-23"
 output: 
   html_document:
@@ -13,7 +13,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r package}
+```{r sig_required_packages}
 library(sf)
 library(ggplot2)
 ```
@@ -21,12 +21,24 @@ library(ggplot2)
 
 # Données 
 
-```{r data}
-com <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/lot46.gpkg?raw=true",layer="commune")
+Les données utilisées sont issues de ce [tutoriel sur la géomatique avec R](https://rcarto.github.io/geomatique_avec_r/) et accessible sur leur répertoire `Github`.
 
-route <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/lot46.gpkg?raw=true", layer = "route", quiet = TRUE)
+```{r sig_load_data}
+communes <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/lot46.gpkg?raw=true",
+               layer="commune")
 
-pop_raw <- read.csv("https://github.com/rCarto/geomatique_avec_r/raw/main/data/pop.csv")
+route <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/lot46.gpkg?raw=true", 
+                 layer = "route", quiet = TRUE)
 
+population_brute <- read.csv("https://github.com/rCarto/geomatique_avec_r/raw/main/data/pop.csv")
 ```
-# Code
+
+# Visualisation
+
+La première étape est de représenter les objets spatiaux. Ces objets sont de la classe `sf`.
+
+```{r}
+is(communes)
+is(route)
+```
+

@@ -99,14 +99,6 @@ et vérifier qu'elle fonctionne
 eval_loss(torch_tensor(theta), verbose = FALSE)
 ```
 
-On vérifie que la fonction fonctionne correctement:
-
-```{r}
-eval_loss_grad(theta)
-```
-
-On 
-
 ```{r}
 theta_grad <- torch_tensor(rep(0, length(theta)), requires_grad = TRUE)
 optimizer <- optim_rprop(theta_grad)
@@ -151,11 +143,6 @@ Cet exemple a été réalisé à partir du blog [torch for optimization](https:/
 
 
 ```{r}
-rm(list=ls())
-library(tidyverse)
-library(torch)
-
-
 ## Generate the data
 X <- cbind(rep(1,100),matrix(rnorm(1000),100,10))
 Beta.true <- rnorm(11)
@@ -215,13 +202,6 @@ summary(Res)$sigma**2
 Theta[12]
 ```
 
-
- 
-
-<<<<<<< HEAD
-# Exemple Tristan
-
-
 # Section Felix
 
 ## Fonctions de torch compatibles avec autograd
@@ -269,6 +249,3 @@ x$grad
 Par exemple, en considérant que la fonction implémentée correspond à la fonction $f$ dans le chainage 
 $$x \xrightarrow[]{f} y \rightarrow z,$$
 la méthode `backward` doit sortir $\partial z / \partial x = (\partial y / \partial x)(\partial z / \partial y)$, où dans l'exemple précédent $\partial z / \partial y$ est représenté par l'argument `grad_output`.
-
-=======
->>>>>>> 9e1214238f98d6aa5f6d03534fed72e8dafab321

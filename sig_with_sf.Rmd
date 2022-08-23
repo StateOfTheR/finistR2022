@@ -1,9 +1,10 @@
 ---
 title: "SIG avec SF"
-author: "Pierre Barbillon, Anna Bonnet, Pierre Gloaguen"
+author: "Pierre Barbillon, Pierre Gloaguen"
 date: "2022-08-23"
 output: 
-  html_document
+  html_document:
+    df_print: paged
 editor_options: 
   chunk_output_type: console
 ---
@@ -294,3 +295,11 @@ cowplot::plot_grid(p1, p2)
 
 
 
+=======
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Données 
+
+# Code
+>>>>>>> creation rmd

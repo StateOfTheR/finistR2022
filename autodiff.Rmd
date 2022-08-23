@@ -21,7 +21,7 @@ install.packages(torch)
 
 Lors de la première utilisation, `torch` vous demandera de télécharger des fichiers supplémentaires via: 
 
-```{r}
+```{r, eval = FALSE}
 torch::install_torch() ## si vous avez un GPU compatible avec CUDA
 ## torch::install_torch(type = "cpu") ## sinon
 ```
@@ -29,6 +29,7 @@ torch::install_torch() ## si vous avez un GPU compatible avec CUDA
 `torch` est surtout utilisé pour des applications en ML/IA mais on peut aussi l'utiliser pour des calculs de gradients, hessiennes et de l'optimisation dans des modèles plus simples. On va l'illustrer ici pour de la régression logistique. 
 
 ```{r}
+library(tidyverse)
 library(torch)
 ```
 
@@ -44,11 +45,11 @@ $$
 Le but est d'estimer $\theta$ et éventuellement les erreurs associées. On commence par générer des données. 
 
 ```{r}
-set.seed(42)
+set.seed(45)
 n <- 100
-p <- 5
+p <- 3
 X <- matrix(rnorm(n = n*p), ncol = p, nrow = n)
-theta <- seq(-2, 2, length.out = p)
+theta <- rnorm(3) %>% round(digits = 2)
 probs <- (X %*% theta) %>% as.vector()
 Y <- rbernoulli(n = n, p = probs) + 0.
 ```
@@ -69,7 +70,7 @@ logistic_loss <- function(theta, x, y) {
   }
   odds <- torch_matmul(x, theta)
   log_lik <- torch_dot(y, odds) - torch_sum(torch_log(1 + torch_exp(odds)))
-  return(log_lik)
+  return(-log_lik)
 }
 ```
 
@@ -83,11 +84,11 @@ On veut ensuite définir une fonction objective à maximiser (qui ne dépend que
 
 ```{r}
 eval_loss <- function(theta, verbose = TRUE) {
-    log_lik <- logistic_loss(theta, x, y)
+    loss <- logistic_loss(theta, x, y)
     if (verbose) {
-        cat(paste(theta |> as.numeric(), collapse=", "), ": ", as.numeric(log_lik), "\n")
+        cat(paste(theta |> as.numeric(), collapse=", "), ": ", as.numeric(loss), "\n")
     }
-    return(log_lik)
+    return(loss)
 }
 ```
 
@@ -95,18 +96,7 @@ eval_loss <- function(theta, verbose = TRUE) {
 et vérifier qu'elle fonctionne
 
 ```{r}
-eval_loss(torch_tensor(theta))
-```
-
-On utilise maintenant la magie de `torch` pour calculer le gradient de `eval_loss()` automatiquement.
-
-```{r}
-eval_loss_grad <- function(theta) {
-    theta_grad <- torch_tensor(theta, requires_grad=TRUE)
-    loss <- logistic_loss(theta = theta_grad, x, y)
-    grad <- autograd_grad(loss, theta_grad)[[1]]
-    return(grad)
-}
+eval_loss(torch_tensor(theta), verbose = FALSE)
 ```
 
 On vérifie que la fonction fonctionne correctement:
@@ -115,15 +105,44 @@ On vérifie que la fonction fonctionne correctement:
 eval_loss_grad(theta)
 ```
 
+On 
+
 ```{r}
-theta_grad <- torch_tensor(rep(0, length(theta)), requires_grad=TRUE)
-optimizer <- optim_adam(theta_grad)
-optimizer$zero_grad()
-eval_loss(theta_grad, verbose = FALSE)$backward()
-theta_grad$grad
-optimizer$step()
+theta_grad <- torch_tensor(rep(0, length(theta)), requires_grad = TRUE)
+optimizer <- optim_rprop(theta_grad)
+
+
+## Optimization step description
+calc_loss <- function() {
+  optimizer$zero_grad()
+  loss <- eval_loss(theta_grad, verbose = FALSE)
+  ## cat("Loss is: ", as.numeric(loss), "\n")
+  loss$backward()
+  loss
+}
+
+## Run the optimization
+num_iterations <- 100
+loss <- vector("numeric", length = num_iterations)
+for (i in 1:num_iterations) {
+  loss[i] <- optimizer$step(calc_loss) %>% as.numeric()
+}
 ```
 
+On vérifie que la perte diminue au cours du temps.
+
+```{r}
+plot(1:num_iterations, -loss)
+```
+
+On constate que notre optimiseur aboutit au même résultat que `glm()`
+
+```{r}
+tibble(
+  torch = theta_grad |> as.numeric(),
+  glm   = glm(Y ~ 0 + X, family = "binomial") |> coefficients()
+)
+```
 
 ## Exemple régression multivariée
 

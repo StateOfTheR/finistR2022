@@ -2,15 +2,16 @@
 title: "Extraction automatique de contenu web"
 author: "State of the R"
 date: '2022-08-22'
-output: html_document
+output:
+  html_document:
+    toc: yes
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# library(tidytext)
-#library(purrr) # map function
-#library(httr) # GET function
-#library(xml2) # function
+library(purrr) # map function
+library(httr) # GET function
 ```
 
 ## Préambule
@@ -20,20 +21,20 @@ knitr::opts_chunk$set(echo = TRUE)
 
 _Le web scraping (parfois appelé harvesting) est une technique d'extraction du contenu de sites Web, via un script ou un programme, dans le but de le transformer pour permettre son utilisation dans un autre contexte._ (source : https://fr.wikipedia.org/wiki/Web_scraping)
 
-Le package `httr` permet de travailler avec des URLs et HTTP (https://httr.r-lib.org/). Il permet d'écrire des requêtes web avec la fonction `GET()` et retourne un objet json à inspecter et retravailler. Il peut être utiliser en lien avec le package `curl` (https://jeroen.cran.dev/curl/) et `jsonlite` (https://cran.r-project.org/web/packages/jsonlite/). Ce dernier est utile pour manipuler les objets liste json souvent complexes.
+Le package `{{httr}}` permet de travailler avec des URLs et HTTP (https://httr.r-lib.org/). Il permet d'écrire des requêtes web avec la fonction `GET()` et retourne un objet json à inspecter et retravailler. Il peut être utiliser en lien avec le package `{{curl}}` (https://jeroen.cran.dev/curl/) et `{{jsonlite}}` (https://cran.r-project.org/web/packages/jsonlite/). Ce dernier est utile pour manipuler les objets liste json souvent complexes.
 
 #### Fouille de texte ou text mining
 
-Le text mining consiste à structurer du texte pour en sortir du contenu. Des techniques sont implémentées sous R dans le package `tidytext`. 
+Le text mining consiste à structurer du texte pour en sortir du contenu. Des techniques sont implémentées sous R dans le package `{{tidytext}}`. 
+
+https://www.tidytextmining.com/tidytext.html
 
 ## Objectif du tuto : créer une liste des outils (essentiellement packages R) développés par un groupe de personnes
 
-Notre objectif est d'établir une liste de packages R développés par un groupe de personnes défini à partir
-de dépôts R ou git.
+Notre objectif est d'établir une liste de packages R développés par un groupe de personnes défini à partir de dépôts R ou git.
 
 ### Dépots R (CRAN et Bioconductor)
-Pour les packages Bioconductor, on utilisera le package `BiocPkgTools` et pour ceux du CRAN la fonction
-`tools::CRAN_package_db()`
+Pour les packages Bioconductor, on utilisera le package `{{BiocPkgTools}}` et pour ceux du CRAN la fonction `tools::CRAN_package_db()`:
 
 ```{r liste-CRAN}
 emails_int <- c("andrea.rau@inrae.fr",
@@ -62,13 +63,10 @@ repos = "http://www.omegahat.net/R"
 ```
 
 
-
 ```{r, eval = FALSE}
 rop <- httr::GET("https://ropensci.org/packages/all/")
 http_type(rop)
-rop_content <- xml2::read_html(httr::content(rop, "text"))
-
-web_page <- read_html()
+rop_content <- httr::content(rop, "text")
 ```
 
 ### Dépôts github
@@ -108,7 +106,6 @@ onerepo<-httr::GET("https://api.github.com/repos/andreamrau/padma/contents/")
 
 grep("DESCRIPTION",httr::content(onerepo))
 
-#rop_content <- xml2::read_html(httr::content(ghrepos, "text"))
 ```
 
 A noter que Ropensci impose que les packages déposés chez eux, un fois approuvés, aient un depot sur leur profil github. Il est donc possible de parcourir, par une requête web, tous les fichiers DESCRIPTION des depots github de Ropensci à la recherche des emails utilisateurs:
@@ -152,3 +149,13 @@ Avec l'instance gitlab de la forgemia, c'est un peu plus compliqué. Il faudrait
 La démarche est néanmoins la même: https://docs.gitlab.com/ee/api/api_resources.html
 
 Le préfixe des requêtes est  `https://forgemia.inra.fr/api/v4/`.
+
+# Références
+
+* https://fr.wikipedia.org/wiki/Web_scraping
+* https://www.tidytextmining.com/tidytext.html
+* https://httr.r-lib.org/
+* https://jeroen.cran.dev/curl/
+* https://cran.r-project.org/web/packages/jsonlite/
+* https://docs.github.com/en/rest
+* https://docs.gitlab.com/ee/api/api_resources.html

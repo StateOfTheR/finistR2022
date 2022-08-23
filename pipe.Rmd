@@ -15,6 +15,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Le chaînage d'opérations est disponible depuis plusieurs années via le pipe `%>%` de `{{maggritr}}`. R 4.0 a introduit un opérateur de pipe natif `|>`
 
+
+
+
+Pour une discussion exhaustive sur les différences entre les deux pipes, on peut consulter [la discussion StackOverflow sur le sujet](https://stackoverflow.com/questions/67633022/what-are-the-differences-between-rs-new-native-pipe-and-the-magrittr-pipe).
+
+
 # Nouveautés dans RStudio
 
 L'IDE RStudio fait l'objet d'un travail de développement intense. Sur les derniers mois, quelques évolutions notables concernent:

@@ -10,3 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # R et le chaînage d'opérations
+
+# Nouveautés dans RStudio
+
+L'IDE RStudio fait l'objet d'un travail de développement intense. Sur les derniers mois, quelques évolutions notables concernent:
+
+- l'édition de fichier rmarkdown en mode visuel plutôt que source (pour avoir une idée immédiate du rendu visuel des documents). **Attention:** les transitions entre les modes *source* et *visuel* peuvent changer l'organisation du document (notamment les sauts de lignes, espaces, etc)
+- le support du nouveau moteur graphique de R 4.2
+
+# Apprentissage de git
+
+L'apprentissage de git, notamment la gestion des branches, est souvent considéré comme complexe malgré la profusion de ressources existantes (par exemple: [git manual](https://git-scm.com/docs/user-manual.html)). Des interfaces ludiques existent pour (re)-découvrir et s'entraîner à la gestion des branches. Nous avons exploré [Learning branching](https://learngitbranching.js.org/).

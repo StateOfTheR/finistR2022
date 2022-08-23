@@ -72,13 +72,13 @@ d3ae968 git rebase fast forward
 
 Il m'a fallu 3 commits pour ajouter les images, je n'ai pas envie de garder cet historique inutile, je voudrais un seul commit qui inclut toutes les images. je peux utiliser rebase pour faire ceci. La commande suivante, demande rentrer dans un mode de rebase automatique à partir pour les 5 derniers commits.
 
-```{r rebase_i}
+```{r rebase_i, eval = FALSE}
 git rebase --interactive HEAD~5
 ```
 
 On a alors accès aux derniers commits ouvert dans un éditeur de texte (attention ils sont dans l'ordre inverse, le plus récent en bas). Pour réécrire l'histoire il suffit de modifier le mot clé pick par une des propositions ci dessous.
 
-```{r rebase_inter_res, echo = TRUE}
+```{r rebase_inter_res, echo = TRUE, eval = FALSE}
 pick 2a0b55e Add build directory to .gitignore
 pick d3ae968 git rebase fast forward
 pick a535bf1 Add git8 merge bifucation illustration
@@ -110,7 +110,7 @@ pick 423f7a1 Add git8 rebase merge illustration
 Pour ne faire qu'un seul commit de mes 3 ajouts de fichier, je vais utiliser ` squash`
 
 
-```{r rebase_inter_res, echo = TRUE}
+```{r rebase_inter_res2, echo = TRUE, eval = FALSE}
 pick 2a0b55e Add build directory to .gitignore
 pick d3ae968 git rebase fast forward
 pick a535bf1 Add git8 merge bifucation illustration
@@ -139,7 +139,7 @@ f 423f7a1 Add git8 rebase merge illustration
 
 Ensuite, on peut modifier les messages de commit 
 
-```{r messages_commit}
+```{r messages_commit, eval = FALSE, echo = TRUE}
 # This is a combination of 3 commits.
 # This is the 1st commit message:
 
@@ -163,7 +163,7 @@ Add git8 rebase  illustration
 
 Si on sauve ce fichier et qu'on quitte, on a réécrit l'histoire 
 
-```{r log_history_res}
+```{r log_history_res, eval = FALSE, echo = TRUE}
 commit 5d107f70b48a6344e8bd8c07eb0e4683b572b924 (HEAD -> rebase)
 Author: Marie-Pierre Etienne <marie-pierre.etienne@agrocampus-ouest.fr>
 Date:   Tue Aug 23 11:54:53 2022 +0200

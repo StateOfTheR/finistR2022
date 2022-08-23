@@ -299,7 +299,20 @@ cowplot::plot_grid(p1, p2)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r package}
+library(sf)
+library(ggplot2)
+```
+
+
 # Données 
 
-# Code
->>>>>>> creation rmd
+```{r data}
+com <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/lot46.gpkg?raw=true",layer="commune")
+
+route <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/lot46.gpkg?raw=true", layer = "route", quiet = TRUE)
+
+pop_raw <- read.csv("https://github.com/rCarto/geomatique_avec_r/raw/main/data/pop.csv")
+
+```
+# Code>>>>>>> creation rmd

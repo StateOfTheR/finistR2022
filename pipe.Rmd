@@ -15,48 +15,6 @@ library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-x |> 
-   mean()
-
-```
-
-# Ecriture de fonctions :
-
-```{r}
-function(x) x + 1 
-\(x) x + 1
-
-quote(x |> 
-   mean())
-
-quote (x %>%
-   mean())
-```
-
-## --- Time difference ---
-
-```{r}
-Time_old <- sapply(1:1000, function(k)
-  {start.time <- Sys.time()
-mtcars %>% 
-   lm(mpg ~ disp, data = .)
-end.time <- Sys.time()
-time.taken <- end.time - start.time
-return(time.taken)})
-
-Time_new <- sapply(1:1000, function(k)
-  {start.time <- Sys.time()
-mtcars |> 
-   (function(x) lm(mpg ~ cyl, data = x))()
-end.time <- Sys.time()
-time.taken <- end.time - start.time
-return(time.taken)})
-
-meanTime_new <- mean(Time_new);meanTime_old <- mean(Time_old)
-sdTime_new <- sd(Time_new);sdTime_old <- sd(Time_old)
-```
-
 # R et le chaînage d'opérations
 
 Le chaînage d'opérations est disponible depuis plusieurs années via le pipe `%>%` de `{{maggritr}}`. R 4.1.+ a introduit un opérateur de pipe natif `|>`.
@@ -79,10 +37,9 @@ library(magrittr)
   round(digits = 2) # On arrondit
 ```
 
-## Différences entre le ` %>% ` et le ` |> `
+## Différences entre le `%>%` et le `|>`
 
-Une première question naturelle est "Quelle est la différence?".
-La différence fondamentale est que `%>%` est une *fonction* qui s'écrit `%>%(LHS, RHS)` où `RHS` est  une fonction et `LHS` est une expression `R` quelconque, alors que le `|>` est un simple raccourci syntaxique , i.e. `a |> f()` est interprété **exactement** comme `f(a)`.
+Une première question naturelle est "Quelle est la différence?". La différence fondamentale est que `%>%` est une *fonction* qui s'écrit `%>%(LHS, RHS)` où `RHS` est une fonction et `LHS` est une expression `R` quelconque, alors que le `|>` est un simple raccourci syntaxique , i.e. `a |> f()` est interprété **exactement** comme `f(a)`.
 
 Cette simplification fait que ce dernier est plus efficace.
 
@@ -121,6 +78,7 @@ microbenchmark(native = iris |>
 Cette subtilité peut induire des comportements insidieux, notamment dans la manipulation d'expressions de `R`, où l'on préferera sans doute le `|>` natif qui reproduit exactement le `R` de base.
 
 Par exemple, si on reproduire le code suivant de manière séquentielle:
+
 ```{r pipe_quote_a_reproduire}
 quote(print("Hello"))
 ```
@@ -133,7 +91,7 @@ on peut procéder "naturellement" avec le pipe natif:
   quote()
 ```
 
-Cependant, cette syntaxe ne fonctionnerait pas avec le pipe ` %>% `
+Cependant, cette syntaxe ne fonctionnerait pas avec le pipe `%>%`
 
 ```{r pipe_magritr_quote}
 "Hello" %>% 
@@ -146,11 +104,12 @@ Cependant, cette syntaxe ne fonctionnerait pas avec le pipe ` %>% `
 A noter une différence importante qui est la manière de gérer l'*overhead*, c'est à dire la position de l'argument `LHS` dans la fonction `RHS`.
 
 Typiquement, pour écrire:
+
 ```{r pipe_lm_a_reproduire, eval = FALSE}
 lm(Sepal.Length ~ Sepal.Width, data = iris[iris$Species == "setosa",])
 ```
 
-la version *tidy* avec ` %>% ` est 
+la version *tidy* avec `%>%` est
 
 ```{r pipe_lm_magrittr, eval = FALSE}
 iris %>% 
@@ -168,59 +127,47 @@ iris |>
   lm(Sepal.Length ~ Sepal.Width, data = _)
 ```
 
+## Ecriture de fonctions
+
+En ce qui concerne l'écriture de fonctions, les deux expressions ci-dessous sont équivalentes :
+
+```{r}
+function(x) x + 1 
+\(x) x + 1
+```
+
+Cette nouvelle écriture, permet principalement d'économiser le nombre de caractères.
+
+En combinant avec le pipe natif, on obtiendrait :
+
+```{r}
+mtcars |> 
+   (\(x) lm(mpg ~ disp, data = x))() 
+```
+
+A la place de :
+
+```{r}
+mtcars |> 
+   (function(x) lm(mpg ~ disp, data = x))()
+```
+
+et de la formule suivante utilisant le pipe `%>%` :
+
+```{r}
+mtcars %>% 
+   lm(mpg ~ disp, data = .)
+```
 
 Pour une discussion exhaustive sur les différences entre les deux pipes, on peut consulter [la discussion StackOverflow sur le sujet](https://stackoverflow.com/questions/67633022/what-are-the-differences-between-rs-new-native-pipe-and-the-magrittr-pipe).
-
 
 # Nouveautés dans RStudio
 
 L'IDE RStudio fait l'objet d'un travail de développement intense. Sur les derniers mois, quelques évolutions notables concernent:
 
-- l'édition de fichier rmarkdown en mode visuel plutôt que source (pour avoir une idée immédiate du rendu visuel des documents). **Attention:** les transitions entre les modes *source* et *visuel* peuvent changer l'organisation du document (notamment les sauts de lignes, espaces, etc)
-- le support du nouveau moteur graphique de R 4.2
+-   l'édition de fichier rmarkdown en mode visuel plutôt que source (pour avoir une idée immédiate du rendu visuel des documents). **Attention:** les transitions entre les modes *source* et *visuel* peuvent changer l'organisation du document (notamment les sauts de lignes, espaces, etc)
+-   le support du nouveau moteur graphique de R 4.2
 
 # Apprentissage de git
 
 L'apprentissage de git, notamment la gestion des branches, est souvent considéré comme complexe malgré la profusion de ressources existantes (par exemple: [git manual](https://git-scm.com/docs/user-manual.html)). Des interfaces ludiques existent pour (re)-découvrir et s'entraîner à la gestion des branches. Nous avons exploré [Learning branching](https://learngitbranching.js.org/).
-
-# Addins
-
-```{r}
-
-reorder_library <- function() {
-# Recupère le contenu du script courant
-script <- rstudioapi::getActiveDocumentContext()$contents
-# Identifie les lignes avec des appels à library()
-indice_library <- stringr::str_which(
-string = script,
-pattern = "library\\([:alnum:]+\\)"
-)
-# on les remplace par une section avec le nom du package
-rng_library <- Map(c, Map(c, indice_library, 1), Map(c, indice_library, 80))
-rstudioapi::modifyRange(
-location = rng_library, # position des library() dans le script
-text = stringr::str_replace(
-string = script[indice_library],
-pattern = "library\\(([:alnum:]+)\\)",
-replacement = "# \\1 ----"
-)
-)
-# on les place les appels à library() en début de script
-rstudioapi::insertText(
-location = c(1, 1), # début du script
-text = stringr::str_c(c(
-"\n# Packages ----",
-script[indice_library]
-), collapse = "\n")
-)
-return(invisible())
-}
-
-
-library(readr)
-moi <- "ok"
-library(dplyr)
-toi <- 15
-library(ggplot2)
-nous <- 17
-```

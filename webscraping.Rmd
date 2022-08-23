@@ -1,0 +1,80 @@
+---
+title: "Extraction automatique de contenu web"
+author: "State of the R"
+date: '2022-08-22'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# library(tidytext)
+#library(purrr) # map function
+#library(httr) # GET function
+#library(xml2) # function
+```
+
+## Préambule
+### Web scraping et text mining
+
+#### L'extraction automatique de contenu web ou web scraping
+
+_Le web scraping (parfois appelé harvesting) est une technique d'extraction du contenu de sites Web, via un script ou un programme, dans le but de le transformer pour permettre son utilisation dans un autre contexte._ (source : https://fr.wikipedia.org/wiki/Web_scraping)
+
+Le package `httr` permet de travailler avec des URLs et HTTP.
+
+#### Fouille de texte ou text mining
+
+Le text mining consiste à structurer du texte pour en sortir du contenu. Des techniques sont implémentées sous R dans le package `tidytext`. 
+
+## Objectif du tuto : créer une liste des outils (essentiellement packages R) développés par un groupe de personnes
+
+Notre objectif est d'établir une liste de packages R développés par un groupe de personnes défini à partir
+de dépôts R ou git.
+
+### Dépots R (CRAN et Bioconductor)
+Pour les packages Bioconductor, on utilisera le package `BiocPkgTools` et pour ceux du CRAN la fonction
+`tools::CRAN_package_db()`
+
+```{r liste-CRAN}
+emails_int <- c("andrea.rau@inrae.fr",
+                "nathalie.vialaneix@inrae.fr")
+# browse CRAN
+cran_db <- tools::CRAN_package_db()
+cran_int <- purrr::map (emails_int, function(x) grep(x, cran_db$`Authors@R`))
+pkgs_cran <- cran_db[unique(unlist(cran_int)),]
+```
+
+On peut ainsi récupérer la liste des packages et les métadonnées associées des auteurs pour lesquels nous avons mentionné le courriel, quelque soit leur rôle.
+
+```{r liste-Bioconductor}
+bpi <- BiocPkgTools::biocPkgList()
+bpi_int <- purrr::map (emails_int, function(x) grep(x, bpi$`Maintainer`))
+pkgs_bioc <- bpi[unique(unlist(bpi_int)),]
+```
+Pour Bioconductor, on ne peut récupérer que les packages pour lesquels l'adresse email du mainteneur fait partie de la liste d'emails recherchées.
+
+Autres dépôts :
+
+
+```{r, eval = FALSE}
+repos = "http://www.omegahat.net/R"
+```
+
+
+
+```{r, eval = FALSE}
+rop <- httr::GET("https://ropensci.org/packages/all/")
+http_type(rop)
+rop_content <- xml2::read_html(httr::content(rop, "text"))
+
+web_page <- read_html()
+```
+
+```{r, eval = FALSE}
+username = "hadley"
+had_ghrepos <- httr::GET("https://api.github.com/users/username/repos")
+http_type(rop)
+rop_content <- xml2::read_html(httr::content(rop, "text"))
+
+web_page <- read_html()
+```

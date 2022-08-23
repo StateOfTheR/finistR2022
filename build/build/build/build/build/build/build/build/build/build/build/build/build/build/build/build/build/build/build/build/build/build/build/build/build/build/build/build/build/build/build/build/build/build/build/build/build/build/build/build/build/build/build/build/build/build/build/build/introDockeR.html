@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="FinistR" />
+
+<meta name="date" content="2022-08-23" />
+
+<title>Introduction à Docker</title>
+
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Finist'R 2022</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="https://github.com/StateOfTheR/finistR2022">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    Workflow
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="introDockeR.html">Docker</a>
+    </li>
+    <li>
+      <a href="rebase.html">Git avancé</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="pipe.html">
+    <span class="fa fa-brands fa-r-project"></span>
+     
+    Langage R et pipe
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Introduction à Docker</h1>
+<h4 class="author">FinistR</h4>
+<h4 class="date">2022-08-23</h4>
+
+</div>
+
+
+<div id="sources" class="section level3">
+<h3>Sources</h3>
+<ul>
+<li><a href="https://docs.docker.com/get-started/">La documentation
+officielle</a></li>
+<li><a href="https://colinfay.me/docker-r-reproducibility/">Le tuto de
+Colin Fay</a></li>
+<li>Le blog <a
+href="https://putaindecode.io/articles/introduction-a-docker/">Putain de
+Code</a></li>
+</ul>
+</div>
+<div id="objectif" class="section level3">
+<h3>Objectif</h3>
+<p>Le principe est de créer un <strong>environnement contrôlé</strong>
+(appelé container). On entend par environnement</p>
+<ul>
+<li>le système d’exploitation (Linux dans une version donnée),</li>
+<li>la version du language (R 2.3.0 par exemple)</li>
+<li>les packages utiles dans une version donnée</li>
+<li>peut également contenir des scripts, données, …</li>
+</ul>
+</div>
+<div id="quand-cela-est-il-utile" class="section level3">
+<h3>Quand cela est-il utile?</h3>
+<p>C’est utile si j’ai écrit des codes/packages/scripts et que je
+veux</p>
+<ul>
+<li>les faire tourner sur une autre machine mais ayant les mêmes
+caractéristiques que les miennes (si tant est que je ne sois pas sous
+Windows)</li>
+<li>tester mes programmes sur d’autres versions de Linux/R.</li>
+<li>cristalliser une analyse pour la partager et/ou y revenir dans
+plusieurs années</li>
+</ul>
+</div>
+<div id="installation" class="section level3">
+<h3>Installation</h3>
+<p>D’abord il faut installer docker, c’est à dire le programme qui va
+nous service à créer le conteneur.</p>
+<ul>
+<li><p>Sous Linux, l’instruction <code>sudo snap install docker</code>
+fonctionne. Des instructions plus détaillées sont fournies <a
+href="https://www.simplilearn.com/tutorials/docker-tutorial/how-to-install-docker-on-ubuntu">ici</a>.
+Avec cette installation, aucune interface n’est fournie. Il faudrait
+lancer docker en ligne de commande et éditer les fichiers dans un
+éditeur quelconque.</p></li>
+<li><p>Sous Windows, il faut installer Docker Desktop sur le site
+éponyme, [<a href="https://www.docker.com/products/docker-desktop/"
+class="uri">https://www.docker.com/products/docker-desktop/</a>].
+Ensuite, à l’ouverture de l’application, vous serez invités à installer
+la mise à jour pour le kernel Linux, disponible <a
+href="https://aka.ms/wsl2kernel">ici</a> en cliquant sur
+<code>WSL2 Linux kernel update package for x64 machines</code>,
+nécessaire pour le bon fonctionnement de Docker Desktop. Des intructions
+détaillées sont disponibles <a
+href="https://docs.docker.com/desktop/install/windows-install/">ici</a>.</p></li>
+</ul>
+</div>
+<div id="créer-son-docker" class="section level3">
+<h3>Créer son docker</h3>
+<p>Créer un docker consiste à créer un fichier texte (sans extension)
+nommé Dockerfile contenant la “recette” de l’image. Cette recette
+commence généralement par faire appel à une image déjà prête puis à la
+modifier. L’appel à l’image existante se fait via l’instruction FROM,
+les modifications se feront via des instructions RUN. Un exemple (tiré
+du blog de Colin Fay) :</p>
+<pre><code>FROM rocker/r-ver:3.4.4
+RUN mkdir /home/analysis
+RUN R -e &quot;options(repos = \
+  list(CRAN = &#39;http://mran.revolutionanalytics.com/snapshot/2019-01-06/&#39;)); \
+  install.packages(&#39;tidystringdist&#39;)&quot;</code></pre>
+<p>La première ligne fait appel à une image qui va contenir la version
+3.4.4 de R (dans un environnement linux). Cette image se trouve dans un
+catalogue d’images disponibles en ligne, cf le paragraphe suivant. La
+deuxième ligne permet, dans l’environnement virtuel (le container), de
+créer un répertoire <em>analysis</em> à la racine, et la troisième
+d’installer le package R “tydistringdist” dans la version disponible à
+la date 2019-01-06 dans R.</p>
+</div>
+<div id="où-trouver-un-docker-déjà-prêt" class="section level2">
+<h2>Où trouver un Docker déjà prêt</h2>
+<p><a href="https://hub.docker.com/">Docker Hub</a> est un dépôt distant
+similaire à GitHub pour le partage des images Docker (voir par exemple
+le dépôt de <a
+href="https://hub.docker.com/u/stateofther">``stateofther’’</a>).</p>
+<p>Pour importer une image Docker, il suffit d’utiliser la commande
+<code>docker pull USERNAME/IMAGENAME:TAG</code> correspondant à l’image
+<code>USERNAME/IMAGENAME:TAG</code> que l’on souhaite importer.</p>
+<p>Pour déposer une image sur Docker Hub, il faut d’abord créer son
+compte pour créer son propre dépôt. Ensuite, il faut s’assurer que son
+image possède un nom de la forme <code>USERNAME/IMAGENAME</code>. Si
+besoin, il est possible de créer une copie de l’image avec un nom
+adéquat via <code>docker tag IMAGENAME USERNAME/IMAGENAME</code>.
+Ensuite, l’image peut être déposée sur Docker Hub via
+<code>docker push USERNAME/IMAGENAME:TAG</code>.</p>
+<p>Le <code>TAG</code> qui est ajouté en fin de nom permet de spécifier
+la version de l’image déposée ou de l’image à importer, par exemple
+<code>stateofther/r-finistr2021:0.7</code>.</p>
+<p>Lors de l’écriture d’un fichier <code>Dockerfile</code> pour la
+création d’une image Docker, au lieu de partir de rien, on récupère en
+général une image pré-existante à partir de laquelle commencer, via la
+commande <code>FROM</code> (cf la section suivante). En pratique,
+<code>FROM</code> récupère l’image sur Docker Hub, dans le dépôt
+correspondant.</p>
+</div>
+<div id="différences-entre-run-et-cmd" class="section level2">
+<h2>Différences entre RUN et CMD</h2>
+<p>Les commandes RUN et CMD permettent de modifier une image existante
+en rajpoutant des instructions (créer des objets dans l’environnement
+virtuel, rajouter des packages, installer d’autres logiciels, créer un
+pont entre l’environnement virtuel et son répertoire local pour
+récupérer des objets créés dans l’environnement virtuel). La différence
+entre les deux instructions est que RUN sera exécutée lors de la
+construction de l’image (i.e. lorsque l’on exécute la commande
+<code>docker build</code>), tandis que CMD sera exécutée lors de
+l’instanciation (ie lorsque l’on exécute la commande
+<code>docker run</code>)<br />
+Exemple : supposons que l’on souhaite lancer un script R (contenu dans
+le fichier Script.R) dans l’environnement virtuel, et que ce script
+génère un tirage aléatoire. L’instruction
+<code>RUN R -e "source('/home/analysis/ScriptR.R')"</code> réalisera le
+tirage lors de la création de l’image, tous les conteneurs générés à
+partir de cette image contiendront donc la même réalisation du tirage. A
+l’inverse la commande
+<code>CMD R -e "source('/home/analysis/ScriptR.R')"</code> réalisera le
+tirage lors de la création du conteneur, et chaque exécution de la
+commande <code>docker run</code> génerera un tirage différent.</p>
+</div>
+<div id="autres-instructions-utiles-à-inclure-dans-un-docker-file"
+class="section level2">
+<h2>Autres instructions utiles à inclure dans un docker file:</h2>
+<p><code>COPY</code> : permet de copier un fichier de son disque local
+sur l’environnement virtuel (eg pour passer un fichier de données)</p>
+<p><code>ARG</code> : permet de passer des arguments qui seront utilisés
+dans l’exécution du dockerfile (eg la version de R qui doit être
+montée)</p>
+<p><code>WORKDIR</code> : espace de travail courant lors de l’exécution
+de l’image</p>
+<p><code>EXPOSE</code> : gestion des ports</p>
+</div>
+<div id="schéma-récapitulatif" class="section level2">
+<h2>Schéma récapitulatif</h2>
+<p><img src="docker.drawio.png" /></p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

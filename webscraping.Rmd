@@ -39,7 +39,7 @@ Notre objectif est d'établir une liste de packages R développés par un groupe
 ## Dépots R (CRAN et Bioconductor)
 Pour les packages Bioconductor, on utilisera le package `{{BiocPkgTools}}` et pour ceux du CRAN la fonction `tools::CRAN_package_db()`:
 
-```{r liste-CRAN}
+```{r liste-CRAN,eval=FALSE}
 emails_int <- c("andrea.rau@inrae.fr",
                 "nathalie.vialaneix@inrae.fr")
 # browse CRAN
@@ -50,7 +50,7 @@ pkgs_cran <- cran_db[unique(unlist(cran_int)),]
 
 On peut ainsi récupérer la liste des packages et les métadonnées associées des auteurs pour lesquels nous avons mentionné le courriel, quelque soit leur rôle.
 
-```{r liste-Bioconductor}
+```{r liste-Bioconductor,eval=FALSE}
 bpi <- BiocPkgTools::biocPkgList()
 bpi_int <- purrr::map (emails_int, function(x) grep(x, bpi$`Maintainer`))
 pkgs_bioc <- bpi[unique(unlist(bpi_int)),]

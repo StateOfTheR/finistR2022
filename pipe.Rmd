@@ -1,12 +1,177 @@
 ---
-title: "Rstudio et pipe"
-author: "finistere2022"
+title: "Rstudio, pipe et git"
+author: "Pierre Gloaguen, Marina Gomtsyan, Mahendra Mariadassou, Mary Savino"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  html_document:
+    df_print: paged
 ---
+
+```{r, message=FALSE}
+library(dplyr)
+library(microbenchmark)
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # R et le chaînage d'opérations
+
+Le chaînage d'opérations est disponible depuis plusieurs années via le pipe `%>%` de `{{maggritr}}` (exporté dans et utilisé via `{{dplyr}}`). R 4.1.+ a introduit un opérateur de pipe natif `|>`.
+
+Cet opérateur séquentiel fonctionne de la même manière que le `%>%` usuel.
+
+```{r pipe_magritr}
+10:15 %>% # Pour le vecteur 10:15
+  sqrt() %>% # On prend la racine carrée, puis
+  mean() %>% # On calcule la moyenne
+  round(digits = 2) # On arrondit
+```
+
+```{r pipe_natif}
+# Maintenant, avec le pipe "natif"
+10:15 |> # Pour le vecteur 10:15
+  sqrt() |> # On prend la racine carrée, puis
+  mean() |> # On calcule la moyenne
+  round(digits = 2) # On arrondit
+```
+
+## Différences entre le `%>%` et le `|>`
+
+Une première question naturelle est "Quelle est la différence?". La différence fondamentale est que `%>%` est une *fonction* qui s'écrit `%>%(LHS, RHS)` où `RHS` est une fonction et `LHS` est une expression `R` quelconque, alors que le `|>` est un simple raccourci syntaxique , i.e. `a |> f()` est interprété **exactement** comme `f(a)`.
+
+On peut s'en rendre compte en examinant deux expressions construites avec `|>` et `%>%`
+
+```{r quote}
+quote(2 %>% sqrt()) ## pas de modifications
+quote(2 |> sqrt()) ## reinterprétation comme sqrt(2)
+```
+
+Cette simplification fait que ce dernier est plus efficace, comme illustré sur notre suite d'opérations simples:
+
+```{r pipe_benchmark_simple}
+microbenchmark(native = {10:15 |>
+    sqrt() |> 
+    mean() |> 
+    round(digits = 2)},
+    magrittr = {10:15 %>%
+        sqrt() %>%
+        mean() %>%
+        round(digits = 2)}) %>% 
+  summary()
+```
+
+Cependant, en pratique, dans l'usage classique impliquant des tableaux de données, ce gain est négligeable au vu des différentes manipulations (notamment les copies des tableaux) effectuées.
+
+```{r pipe_benchmark_complexe}
+library(dplyr) # Pour la manipulation de data.frame
+microbenchmark(native = iris |>
+                 select_if(is.numeric) |>
+                 mutate_all(sqrt) |> 
+                 summarise_all(mean) |>
+                 summarise_all(round, digits = 2),
+               magritr = iris %>% 
+                 select_if(is.numeric) %>% 
+                 mutate_all(sqrt) %>%  
+                 summarise_all(mean) %>% 
+                 summarise_all(round, digits = 2)) %>% 
+  summary()
+```
+
+Cette subtilité peut induire des comportements insidieux, notamment dans la manipulation d'expressions de `R`, où l'on préferera sans doute le `|>` natif qui reproduit exactement le `R` de base.
+
+Par exemple, si on reproduire le code suivant de manière séquentielle:
+
+```{r pipe_quote_a_reproduire}
+quote(print("Hello"))
+```
+
+on peut procéder "naturellement" avec le pipe natif:
+
+```{r pipe_natif_quote}
+"Hello" |> 
+  print() |> 
+  quote()
+```
+
+Cependant, cette syntaxe ne fonctionnerait pas avec le pipe `%>%`
+
+```{r pipe_magritr_quote}
+"Hello" %>% 
+  print() %>% 
+  quote()
+```
+
+## Différence syntaxique
+
+A noter une différence importante qui est la manière de gérer l'*argument*, c'est à dire la position de l'argument `LHS` dans la fonction `RHS`.
+
+Typiquement, pour écrire:
+
+```{r pipe_lm_a_reproduire, eval = FALSE}
+lm(Sepal.Length ~ Sepal.Width, data = iris[iris$Species == "setosa",])
+```
+
+la version *tidy* avec `%>%` est
+
+```{r pipe_lm_magrittr, eval = FALSE}
+iris %>% 
+  filter(Species == "setosa") %>% 
+  lm(Sepal.Length ~ Sepal.Width, data = .)
+```
+
+où on a utilisé le `.` pour spécifier "ce qu'il y avait avant", ce qui a permis de spécifier comme argument `data` le résultat des traitements précédents.
+
+Cette possibilité existe dans le pipe natif, mais **seulement** dans la version `R 4.2.+`. Et on utilisera le *placeholder* `_` au lieu de `.`.
+
+```{r pipe_lm_natif, eval = FALSE}
+iris |> 
+  filter(Species == "setosa") |> 
+  lm(Sepal.Length ~ Sepal.Width, data = _)
+```
+
+## Ecriture de fonctions
+
+En ce qui concerne l'écriture de fonctions, les deux expressions ci-dessous sont équivalentes :
+
+```{r}
+function(x) x + 1 
+\(x) x + 1
+```
+
+Cette nouvelle écriture, permet principalement d'économiser le nombre de caractères.
+
+En combinant avec le pipe natif, on obtiendrait :
+
+```{r}
+mtcars |> 
+   (\(x) lm(mpg ~ disp, data = x))() 
+```
+
+A la place de :
+
+```{r}
+mtcars |> 
+   (function(x) lm(mpg ~ disp, data = x))()
+```
+
+et de la formule suivante utilisant le pipe `%>%` :
+
+```{r}
+mtcars %>% 
+   lm(mpg ~ disp, data = .)
+```
+
+Pour une discussion exhaustive sur les différences entre les deux pipes, on peut consulter [la discussion StackOverflow sur le sujet](https://stackoverflow.com/questions/67633022/what-are-the-differences-between-rs-new-native-pipe-and-the-magrittr-pipe).
+
+# Nouveautés dans RStudio
+
+L'IDE RStudio fait l'objet d'un travail de développement intense. Sur les derniers mois, quelques évolutions notables concernent:
+
+-   l'édition de fichier rmarkdown en mode visuel plutôt que source (pour avoir une idée immédiate du rendu visuel des documents). **Attention:** les transitions entre les modes *source* et *visuel* peuvent changer l'organisation du document (notamment les sauts de lignes, espaces, etc)
+-   le support du nouveau moteur graphique de R 4.2
+
+# Apprentissage de git
+
+L'apprentissage de git, notamment la gestion des branches, est souvent considéré comme complexe malgré la profusion de ressources existantes (par exemple: [git manual](https://git-scm.com/docs/user-manual.html)). Des interfaces ludiques existent pour (re)-découvrir et s'entraîner à la gestion des branches. Nous avons exploré [Learning branching](https://learngitbranching.js.org/).

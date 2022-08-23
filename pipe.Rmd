@@ -2,7 +2,9 @@
 title: "Rstudio et pipe"
 author: "finistere2022"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  html_document:
+    df_print: paged
 ---
 
 ```{r}
@@ -12,8 +14,6 @@ library(tidyverse)
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-# R et le chaînage d'opérations
 
 ```{r}
 x |> 
@@ -34,7 +34,7 @@ quote (x %>%
    mean())
 ```
 
-##### --- Time difference ---
+## --- Time difference ---
 
 ```{r}
 Time_old <- sapply(1:1000, function(k)
@@ -56,6 +56,102 @@ return(time.taken)})
 meanTime_new <- mean(Time_new);meanTime_old <- mean(Time_old)
 sdTime_new <- sd(Time_new);sdTime_old <- sd(Time_old)
 ```
+
+# R et le chaînage d'opérations
+
+Le chaînage d'opérations est disponible depuis plusieurs années via le pipe `%>%` de `{{maggritr}}`. R 4.1.+ a introduit un opérateur de pipe natif `|>`.
+
+Cet opérateur séquentiel fonctionne de la même manière que le `%>%` usuel.
+
+```{r pipe_magritr}
+library(magrittr)
+10:15 %>% # Pour le vecteur 10:15
+  sqrt() %>% # On prend la racine carrée, puis
+  mean() %>% # On calcule la moyenne
+  round(digits = 2) # On arrondit
+```
+
+```{r pipe_natif}
+# Maintenant, avec le pipe "natif"
+10:15 |> # Pour le vecteur 10:15
+  sqrt() |> # On prend la racine carrée, puis
+  mean() |> # On calcule la moyenne
+  round(digits = 2) # On arrondit
+```
+
+## Différences entre le ` %>% ` et le ` |> `
+
+Une première question naturelle est "Quelle est la différence?".
+La différence fondamentale est que `%>%` est une *fonction* qui s'écrit `%>%(LHS, RHS)` où `RHS` est  une fonction et `LHS` est une expression `R` quelconque, alors que le `|>` est un simple raccourci syntaxique , i.e. `a |> f()` est interprété **exactement** comme `f(a)`.
+
+Cette simplification fait que ce dernier est plus efficace.
+
+Par exemple, sur notre suite d'opérations simples:
+
+```{r pipe_benchmark_simple}
+library(microbenchmark) # Pour la comparaison
+microbenchmark(native = {10:15 |>
+    sqrt() |> 
+    mean() |> 
+    round(digits = 2)},
+    magritr = {10:15 %>%
+        sqrt() %>%
+        mean() %>%
+        round(digits = 2)}) %>% 
+  summary()
+```
+
+Cependant, en pratique, dans l'usage classique impliquant des tableaux de données, ce gain est négligeable au vu des différentes manipulations (notamment les copies des tableaux) effectuées.
+
+```{r pipe_benchmark_complexe}
+library(dplyr) # Pour la manipulation de data.frame
+microbenchmark(native = iris |>
+                 select_if(is.numeric) |>
+                 mutate_all(sqrt) |> 
+                 summarise_all(mean) |>
+                 summarise_all(round, digits = 2),
+               magritr = iris %>% 
+                 select_if(is.numeric) %>% 
+                 mutate_all(sqrt) %>%  
+                 summarise_all(mean) %>% 
+                 summarise_all(round, digits = 2)) %>% 
+  summary()
+```
+
+Cette subtilité peut induire des comportements insidieux, notamment dans la manipulation d'expressions de `R`, où l'on préferera sans doute le `|>` natif qui reproduit exactement le `R` de base.
+
+Par exemple, si on reproduire le code suivant de manière séquentielle:
+```{r pipe_quote_a_reproduire}
+quote(print("Hello"))
+```
+
+on procéderait classiquement à:
+
+```{r}
+"Hello" |> 
+  print() |> 
+  quote()
+```
+
+
+
+
+
+
+
+Pour une discussion exhaustive sur les différences entre les deux pipes, on peut consulter [la discussion StackOverflow sur le sujet](https://stackoverflow.com/questions/67633022/what-are-the-differences-between-rs-new-native-pipe-and-the-magrittr-pipe).
+
+
+# Nouveautés dans RStudio
+
+L'IDE RStudio fait l'objet d'un travail de développement intense. Sur les derniers mois, quelques évolutions notables concernent:
+
+- l'édition de fichier rmarkdown en mode visuel plutôt que source (pour avoir une idée immédiate du rendu visuel des documents). **Attention:** les transitions entre les modes *source* et *visuel* peuvent changer l'organisation du document (notamment les sauts de lignes, espaces, etc)
+- le support du nouveau moteur graphique de R 4.2
+
+# Apprentissage de git
+
+L'apprentissage de git, notamment la gestion des branches, est souvent considéré comme complexe malgré la profusion de ressources existantes (par exemple: [git manual](https://git-scm.com/docs/user-manual.html)). Des interfaces ludiques existent pour (re)-découvrir et s'entraîner à la gestion des branches. Nous avons exploré [Learning branching](https://learngitbranching.js.org/).
 
 # Addins
 

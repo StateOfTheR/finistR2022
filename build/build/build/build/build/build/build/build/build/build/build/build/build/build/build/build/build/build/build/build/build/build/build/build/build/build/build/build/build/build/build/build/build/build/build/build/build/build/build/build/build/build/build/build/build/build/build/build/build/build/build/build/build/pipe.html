@@ -15,8 +15,8 @@
 
 <title>Rstudio, pipe et git</title>
 
-<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -45,6 +45,7 @@
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
     </style>
+
 
 
 <style type="text/css">
@@ -168,6 +169,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -320,7 +324,7 @@ $(document).ready(function () {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -349,7 +353,8 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Rstudio, pipe et git</h1>
-<h4 class="author">Pierre Gloaguen, Marina Gomtsyan, Mahendra Mariadassou, Mary Savino</h4>
+<h4 class="author">Pierre Gloaguen, Marina Gomtsyan, Mahendra
+Mariadassou, Mary Savino</h4>
 <h4 class="date">2022-08-23</h4>
 
 </div>
@@ -359,8 +364,12 @@ $(document).ready(function () {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(microbenchmark)</span></code></pre></div>
 <div id="r-et-le-chaînage-dopérations" class="section level1">
 <h1>R et le chaînage d’opérations</h1>
-<p>Le chaînage d’opérations est disponible depuis plusieurs années via le pipe <code>%&gt;%</code> de <code>{{maggritr}}</code> (exporté dans et utilisé via <code>{{dplyr}}</code>). R 4.1.+ a introduit un opérateur de pipe natif <code>|&gt;</code>.</p>
-<p>Cet opérateur séquentiel fonctionne de la même manière que le <code>%&gt;%</code> usuel.</p>
+<p>Le chaînage d’opérations est disponible depuis plusieurs années via
+le pipe <code>%&gt;%</code> de <code>{{maggritr}}</code> (exporté dans
+et utilisé via <code>{{dplyr}}</code>). R 4.1.+ a introduit un opérateur
+de pipe natif <code>|&gt;</code>.</p>
+<p>Cet opérateur séquentiel fonctionne de la même manière que le
+<code>%&gt;%</code> usuel.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span><span class="sc">:</span><span class="dv">15</span> <span class="sc">%&gt;%</span> <span class="co"># Pour le vecteur 10:15</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sqrt</span>() <span class="sc">%&gt;%</span> <span class="co"># On prend la racine carrée, puis</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>() <span class="sc">%&gt;%</span> <span class="co"># On calcule la moyenne</span></span>
@@ -373,14 +382,23 @@ $(document).ready(function () {
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">2</span>) <span class="co"># On arrondit</span></span></code></pre></div>
 <pre><code>## [1] 3.53</code></pre>
 <div id="différences-entre-le-et-le" class="section level2">
-<h2>Différences entre le <code>%&gt;%</code> et le <code>|&gt;</code></h2>
-<p>Une première question naturelle est “Quelle est la différence?”. La différence fondamentale est que <code>%&gt;%</code> est une <em>fonction</em> qui s’écrit <code>%&gt;%(LHS, RHS)</code> où <code>RHS</code> est une fonction et <code>LHS</code> est une expression <code>R</code> quelconque, alors que le <code>|&gt;</code> est un simple raccourci syntaxique , i.e. <code>a |&gt; f()</code> est interprété <strong>exactement</strong> comme <code>f(a)</code>.</p>
-<p>On peut s’en rendre compte en examinant deux expressions construites avec <code>|&gt;</code> et <code>%&gt;%</code></p>
+<h2>Différences entre le <code>%&gt;%</code> et le
+<code>|&gt;</code></h2>
+<p>Une première question naturelle est “Quelle est la différence?”. La
+différence fondamentale est que <code>%&gt;%</code> est une
+<em>fonction</em> qui s’écrit <code>%&gt;%(LHS, RHS)</code> où
+<code>RHS</code> est une fonction et <code>LHS</code> est une expression
+<code>R</code> quelconque, alors que le <code>|&gt;</code> est un simple
+raccourci syntaxique , i.e. <code>a |&gt; f()</code> est interprété
+<strong>exactement</strong> comme <code>f(a)</code>.</p>
+<p>On peut s’en rendre compte en examinant deux expressions construites
+avec <code>|&gt;</code> et <code>%&gt;%</code></p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quote</span>(<span class="dv">2</span> <span class="sc">%&gt;%</span> <span class="fu">sqrt</span>()) <span class="do">## pas de modifications</span></span></code></pre></div>
 <pre><code>## 2 %&gt;% sqrt()</code></pre>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quote</span>(<span class="dv">2</span> <span class="sc">|&gt;</span> <span class="fu">sqrt</span>()) <span class="do">## reinterprétation comme sqrt(2)</span></span></code></pre></div>
 <pre><code>## sqrt(2)</code></pre>
-<p>Cette simplification fait que ce dernier est plus efficace, comme illustré sur notre suite d’opérations simples:</p>
+<p>Cette simplification fait que ce dernier est plus efficace, comme
+illustré sur notre suite d’opérations simples:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">microbenchmark</span>(<span class="at">native =</span> {<span class="dv">10</span><span class="sc">:</span><span class="dv">15</span> <span class="sc">|&gt;</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sqrt</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>() <span class="sc">|&gt;</span> </span>
@@ -392,10 +410,12 @@ $(document).ready(function () {
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"3.0","3":"3.20","4":"3.603","5":"3.2","6":"3.40","7":"33.5","8":"100"},{"1":"magrittr","2":"5.6","3":"5.75","4":"6.152","5":"5.9","6":"6.05","7":"23.9","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"3.9","3":"4.3","4":"4.844","5":"4.5","6":"4.8","7":"35.5","8":"100"},{"1":"magrittr","2":"7.0","3":"7.5","4":"8.291","5":"7.8","6":"8.1","7":"33.7","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>Cependant, en pratique, dans l’usage classique impliquant des tableaux de données, ce gain est négligeable au vu des différentes manipulations (notamment les copies des tableaux) effectuées.</p>
+<p>Cependant, en pratique, dans l’usage classique impliquant des
+tableaux de données, ce gain est négligeable au vu des différentes
+manipulations (notamment les copies des tableaux) effectuées.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># Pour la manipulation de data.frame</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">microbenchmark</span>(<span class="at">native =</span> iris <span class="sc">|&gt;</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">select_if</span>(is.numeric) <span class="sc">|&gt;</span></span>
@@ -410,11 +430,15 @@ $(document).ready(function () {
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"11.8458","3":"12.19615","4":"12.94184","5":"12.4011","6":"12.69640","7":"31.7854","8":"100"},{"1":"magritr","2":"11.8529","3":"12.18865","4":"12.96927","5":"12.4212","6":"12.76775","7":"24.9654","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"21.1431","3":"21.96275","4":"23.10193","5":"22.60680","6":"23.8279","7":"29.6524","8":"100"},{"1":"magritr","2":"21.3617","3":"22.08415","4":"23.70808","5":"22.96855","6":"23.9692","7":"41.4795","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>Cette subtilité peut induire des comportements insidieux, notamment dans la manipulation d’expressions de <code>R</code>, où l’on préferera sans doute le <code>|&gt;</code> natif qui reproduit exactement le <code>R</code> de base.</p>
-<p>Par exemple, si on reproduire le code suivant de manière séquentielle:</p>
+<p>Cette subtilité peut induire des comportements insidieux, notamment
+dans la manipulation d’expressions de <code>R</code>, où l’on préferera
+sans doute le <code>|&gt;</code> natif qui reproduit exactement le
+<code>R</code> de base.</p>
+<p>Par exemple, si on reproduire le code suivant de manière
+séquentielle:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quote</span>(<span class="fu">print</span>(<span class="st">&quot;Hello&quot;</span>))</span></code></pre></div>
 <pre><code>## print(&quot;Hello&quot;)</code></pre>
 <p>on peut procéder “naturellement” avec le pipe natif:</p>
@@ -422,7 +446,8 @@ $(document).ready(function () {
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quote</span>()</span></code></pre></div>
 <pre><code>## print(&quot;Hello&quot;)</code></pre>
-<p>Cependant, cette syntaxe ne fonctionnerait pas avec le pipe <code>%&gt;%</code></p>
+<p>Cependant, cette syntaxe ne fonctionnerait pas avec le pipe
+<code>%&gt;%</code></p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;Hello&quot;</span> <span class="sc">%&gt;%</span> </span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>() <span class="sc">%&gt;%</span> </span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quote</span>()</span></code></pre></div>
@@ -430,27 +455,36 @@ $(document).ready(function () {
 </div>
 <div id="différence-syntaxique" class="section level2">
 <h2>Différence syntaxique</h2>
-<p>A noter une différence importante qui est la manière de gérer l’<em>argument</em>, c’est à dire la position de l’argument <code>LHS</code> dans la fonction <code>RHS</code>.</p>
+<p>A noter une différence importante qui est la manière de gérer
+l’<em>argument</em>, c’est à dire la position de l’argument
+<code>LHS</code> dans la fonction <code>RHS</code>.</p>
 <p>Typiquement, pour écrire:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Sepal.Width, <span class="at">data =</span> iris[iris<span class="sc">$</span>Species <span class="sc">==</span> <span class="st">&quot;setosa&quot;</span>,])</span></code></pre></div>
 <p>la version <em>tidy</em> avec <code>%&gt;%</code> est</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>iris <span class="sc">%&gt;%</span> </span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Species <span class="sc">==</span> <span class="st">&quot;setosa&quot;</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Sepal.Width, <span class="at">data =</span> .)</span></code></pre></div>
-<p>où on a utilisé le <code>.</code> pour spécifier “ce qu’il y avait avant”, ce qui a permis de spécifier comme argument <code>data</code> le résultat des traitements précédents.</p>
-<p>Cette possibilité existe dans le pipe natif, mais <strong>seulement</strong> dans la version <code>R 4.2.+</code>. Et on utilisera le <em>placeholder</em> <code>_</code> au lieu de <code>.</code>.</p>
+<p>où on a utilisé le <code>.</code> pour spécifier “ce qu’il y avait
+avant”, ce qui a permis de spécifier comme argument <code>data</code> le
+résultat des traitements précédents.</p>
+<p>Cette possibilité existe dans le pipe natif, mais
+<strong>seulement</strong> dans la version <code>R 4.2.+</code>. Et on
+utilisera le <em>placeholder</em> <code>_</code> au lieu de
+<code>.</code>.</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>iris <span class="sc">|&gt;</span> </span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Species <span class="sc">==</span> <span class="st">&quot;setosa&quot;</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Sepal.Width, <span class="at">data =</span> _)</span></code></pre></div>
 </div>
 <div id="ecriture-de-fonctions" class="section level2">
 <h2>Ecriture de fonctions</h2>
-<p>En ce qui concerne l’écriture de fonctions, les deux expressions ci-dessous sont équivalentes :</p>
+<p>En ce qui concerne l’écriture de fonctions, les deux expressions
+ci-dessous sont équivalentes :</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">function</span>(x) x <span class="sc">+</span> <span class="dv">1</span> </span></code></pre></div>
 <pre><code>## function(x) x + 1</code></pre>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>\(x) x <span class="sc">+</span> <span class="dv">1</span></span></code></pre></div>
 <pre><code>## \(x) x + 1</code></pre>
-<p>Cette nouvelle écriture, permet principalement d’économiser le nombre de caractères.</p>
+<p>Cette nouvelle écriture, permet principalement d’économiser le nombre
+de caractères.</p>
 <p>En combinant avec le pipe natif, on obtiendrait :</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">|&gt;</span> </span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>   (\(x) <span class="fu">lm</span>(mpg <span class="sc">~</span> disp, <span class="at">data =</span> x))() </span></code></pre></div>
@@ -481,20 +515,34 @@ $(document).ready(function () {
 ## Coefficients:
 ## (Intercept)         disp  
 ##    29.59985     -0.04122</code></pre>
-<p>Pour une discussion exhaustive sur les différences entre les deux pipes, on peut consulter <a href="https://stackoverflow.com/questions/67633022/what-are-the-differences-between-rs-new-native-pipe-and-the-magrittr-pipe">la discussion StackOverflow sur le sujet</a>.</p>
+<p>Pour une discussion exhaustive sur les différences entre les deux
+pipes, on peut consulter <a
+href="https://stackoverflow.com/questions/67633022/what-are-the-differences-between-rs-new-native-pipe-and-the-magrittr-pipe">la
+discussion StackOverflow sur le sujet</a>.</p>
 </div>
 </div>
 <div id="nouveautés-dans-rstudio" class="section level1">
 <h1>Nouveautés dans RStudio</h1>
-<p>L’IDE RStudio fait l’objet d’un travail de développement intense. Sur les derniers mois, quelques évolutions notables concernent:</p>
+<p>L’IDE RStudio fait l’objet d’un travail de développement intense. Sur
+les derniers mois, quelques évolutions notables concernent:</p>
 <ul>
-<li>l’édition de fichier rmarkdown en mode visuel plutôt que source (pour avoir une idée immédiate du rendu visuel des documents). <strong>Attention:</strong> les transitions entre les modes <em>source</em> et <em>visuel</em> peuvent changer l’organisation du document (notamment les sauts de lignes, espaces, etc)</li>
+<li>l’édition de fichier rmarkdown en mode visuel plutôt que source
+(pour avoir une idée immédiate du rendu visuel des documents).
+<strong>Attention:</strong> les transitions entre les modes
+<em>source</em> et <em>visuel</em> peuvent changer l’organisation du
+document (notamment les sauts de lignes, espaces, etc)</li>
 <li>le support du nouveau moteur graphique de R 4.2</li>
 </ul>
 </div>
 <div id="apprentissage-de-git" class="section level1">
 <h1>Apprentissage de git</h1>
-<p>L’apprentissage de git, notamment la gestion des branches, est souvent considéré comme complexe malgré la profusion de ressources existantes (par exemple: <a href="https://git-scm.com/docs/user-manual.html">git manual</a>). Des interfaces ludiques existent pour (re)-découvrir et s’entraîner à la gestion des branches. Nous avons exploré <a href="https://learngitbranching.js.org/">Learning branching</a>.</p>
+<p>L’apprentissage de git, notamment la gestion des branches, est
+souvent considéré comme complexe malgré la profusion de ressources
+existantes (par exemple: <a
+href="https://git-scm.com/docs/user-manual.html">git manual</a>). Des
+interfaces ludiques existent pour (re)-découvrir et s’entraîner à la
+gestion des branches. Nous avons exploré <a
+href="https://learngitbranching.js.org/">Learning branching</a>.</p>
 </div>
 
 

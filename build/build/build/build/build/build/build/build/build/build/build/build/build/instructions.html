@@ -15,8 +15,8 @@
 
 <title>Instructions pour le dépot sur le site web</title>
 
-<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -43,6 +43,7 @@
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
     </style>
+
 
 
 <style type="text/css">
@@ -166,6 +167,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -318,7 +322,7 @@ $(document).ready(function () {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -346,21 +350,26 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Instructions pour le dépot sur le site web</h1>
-<h4 class="author">Julie Aubert, Julien Chiquet, Marie-Pierre Étienne</h4>
+<h1 class="title toc-ignore">Instructions pour le dépot sur le site
+web</h1>
+<h4 class="author">Julie Aubert, Julien Chiquet, Marie-Pierre
+Étienne</h4>
 <h4 class="date">2022-08-23</h4>
 
 </div>
 
 
-<div id="processus-de-mise-en-commun-des-ateliers" class="section level2">
+<div id="processus-de-mise-en-commun-des-ateliers"
+class="section level2">
 <h2>Processus de mise en commun des ateliers</h2>
 <ul>
-<li>Créer une branche propre à l’atelier nommée explicitement <code>mon_nom_parlant</code> et basculer dessus</li>
+<li>Créer une branche propre à l’atelier nommée explicitement
+<code>mon_nom_parlant</code> et basculer dessus</li>
 </ul>
 <p><code>git checkout -b mon_nom_parlant</code></p>
 <ul>
-<li>Créer un fichier Rmarkdown de restitution de votre atelier <code>fichier.Rmd</code> dans votre branche</li>
+<li>Créer un fichier Rmarkdown de restitution de votre atelier
+<code>fichier.Rmd</code> dans votre branche</li>
 </ul>
 <p><code>git add fichier.Rmd</code></p>
 <p><code>git commit -m "restitution atelier"</code></p>
@@ -371,9 +380,11 @@ $(document).ready(function () {
 <p><code>git  push</code></p>
 <ul>
 <li><p>Faire une pull request (PR) sur github</p></li>
-<li><p>indiquer dans le message de la PR la liste des packages ou autres besoins</p></li>
+<li><p>indiquer dans le message de la PR la liste des packages ou autres
+besoins</p></li>
 <li><p>Quand la PR passe les tests, demander le merge.</p></li>
-<li><p>corriger les erreurs éventuelles dans la compilation du Rmarkdown</p></li>
+<li><p>corriger les erreurs éventuelles dans la compilation du
+Rmarkdown</p></li>
 <li><p>les admins peuvent avoir à mettre à jour l’image docker</p></li>
 </ul>
 </div>
@@ -381,16 +392,22 @@ $(document).ready(function () {
 <h2>Détails du fonctionnement</h2>
 <div id="le-docker" class="section level3">
 <h3>Le docker</h3>
-<p>Lien vers la fiche pense-bête : [<a href="https://www.docker.com/sites/default/files/d8/2019-09/docker-cheat-sheet.pdf" class="uri">https://www.docker.com/sites/default/files/d8/2019-09/docker-cheat-sheet.pdf</a>]</p>
-<p>Pour créer des images Docker en local sur sa machine, voici une liste de commandes utiles</p>
+<p>Lien vers la fiche pense-bête : [<a
+href="https://www.docker.com/sites/default/files/d8/2019-09/docker-cheat-sheet.pdf"
+class="uri">https://www.docker.com/sites/default/files/d8/2019-09/docker-cheat-sheet.pdf</a>]</p>
+<p>Pour créer des images Docker en local sur sa machine, voici une liste
+de commandes utiles</p>
 <ul>
-<li>Pour construire une image docker, il faut créer un fichier Dockerfile qui contient la recette du Docker. Pour ce site le ficher Dockerfile a la forme suivante</li>
+<li>Pour construire une image docker, il faut créer un fichier
+Dockerfile qui contient la recette du Docker. Pour ce site le ficher
+Dockerfile a la forme suivante</li>
 </ul>
 <pre><code>FROM rocker/verse:4
 RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update \
  &amp;&amp; apt-get install -y pandoc \
     pandoc-citeproc
-RUN R -e &quot;install.packages(&#39;remotes&#39;)&quot;</code></pre>
+RUN R -e &quot;install.packages(&#39;remotes&#39;)&quot;
+RUN R -e &quot;install.packages(&#39;microbenchmark&#39;)&quot;</code></pre>
 <p>puis demander la construction de l’image à l’aide de la commande</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> docker build <span class="sc">-</span>t nom_depot_dockerhub<span class="sc">/</span>nom_du_repo<span class="sc">:</span>version  . <span class="do">## avec un nom</span></span></code></pre></div>
 <p>et enfin pousser sur Dockerhub</p>
@@ -398,7 +415,9 @@ RUN R -e &quot;install.packages(&#39;remotes&#39;)&quot;</code></pre>
 </div>
 <div id="les-actions" class="section level3">
 <h3>Les actions</h3>
-<p>Dans les action de Github, on peut spécifier un container docker à utiliser, c’est ce que fait la ligne container du fichier d’action suivant, utiliser pour créer ce site web</p>
+<p>Dans les action de Github, on peut spécifier un container docker à
+utiliser, c’est ce que fait la ligne container du fichier d’action
+suivant, utiliser pour créer ce site web</p>
 <pre><code>name: website
 on:
   push:
@@ -409,7 +428,7 @@ jobs:
   build:
     name: Build website with rmarkdown
     runs-on: ubuntu-latest
-    container: stateofther/r-finistr2021:0.7
+    container: stateofther/r-finistr2022:0.1
 
     steps:
       - name: Checkout repository

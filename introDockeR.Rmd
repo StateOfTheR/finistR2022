@@ -60,8 +60,21 @@ La première ligne fait appel à une image qui va contenir la version 3.4.4 de R
 
 ## Comment modifier un docker
 
-Les commandes RUN et CMD permettent de modifier une image existante en rajpoutant des instructions (créer des objets dans l'environnement virtuel, rajouter des packages, installer d'autres logiciels, créer un pont entre l'environnement virtuel et son répertoire local pour récupérer des objets créés dans l'environnement virtuel)
+Les commandes RUN et CMD permettent de modifier une image existante en rajpoutant des instructions (créer des objets dans l'environnement virtuel, rajouter des packages, installer d'autres logiciels, créer un pont entre l'environnement virtuel et son répertoire local pour récupérer des objets créés dans l'environnement virtuel). La différence entre les deux instructions est que RUN sera exécutée lors de la construction de l'image (i.e. lorsque l'on exécute la commande "docker built"), tandis que CMD sera exécutée lors de l'instanciation (ie lorsque l'on exécute la commande "docker run").  
+Exemple : supposons que l'on souhaite lancer un script R (contenu dans le fichier Script.R) dans l'environnement virtuel, et que ce script génère un tirage aléatoire. L'instruction 
+RUN R -e "source('/home/analysis/ScriptR.R')"
+réalisera le tirage lors de la création de l'image, tous les conteneurs générés à partir de cette image contiendront donc la même réalisation du tirage. A l'inverse la commande
+CMD R -e "source('/home/analysis/ScriptR.R')" réalisera le tirage lors de la création du conteneur, et chaque exécution de la commande docker run génerera un tirage différent.  
 
+Autres instructions utiles à inclure dans un docker file:
+
+COPY : permet de copier un fichier de son disque local sur l'environnement virtuel (eg pour passer un fichier de données)
+
+ARG : permet de passer des arguments qui seront utilisés dans l'exécution du docker file (eg la version de R qui doit être montée)
+
+WORKDIR :
+
+EXPOSE : 
 
 ## Comment exécuter ses propres codes dans un dockerR 
 

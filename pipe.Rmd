@@ -1,5 +1,5 @@
 ---
-title: "Rstudio et pipe"
+title: "Rstudio, pipe et git"
 author: "finistere2022"
 date: "`r Sys.Date()`"
 output: 
@@ -7,8 +7,9 @@ output:
     df_print: paged
 ---
 
-```{r}
-library(tidyverse)
+```{r, message=FALSE}
+library(dplyr)
+library(microbenchmark)
 ```
 
 ```{r setup, include=FALSE}
@@ -17,12 +18,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # R et le chaînage d'opérations
 
-Le chaînage d'opérations est disponible depuis plusieurs années via le pipe `%>%` de `{{maggritr}}`. R 4.1.+ a introduit un opérateur de pipe natif `|>`.
+Le chaînage d'opérations est disponible depuis plusieurs années via le pipe `%>%` de `{{maggritr}}` (exporté dans et utilisé via `{{dplyr}}`). R 4.1.+ a introduit un opérateur de pipe natif `|>`.
 
 Cet opérateur séquentiel fonctionne de la même manière que le `%>%` usuel.
 
 ```{r pipe_magritr}
-library(magrittr)
 10:15 %>% # Pour le vecteur 10:15
   sqrt() %>% # On prend la racine carrée, puis
   mean() %>% # On calcule la moyenne
@@ -41,17 +41,21 @@ library(magrittr)
 
 Une première question naturelle est "Quelle est la différence?". La différence fondamentale est que `%>%` est une *fonction* qui s'écrit `%>%(LHS, RHS)` où `RHS` est une fonction et `LHS` est une expression `R` quelconque, alors que le `|>` est un simple raccourci syntaxique , i.e. `a |> f()` est interprété **exactement** comme `f(a)`.
 
-Cette simplification fait que ce dernier est plus efficace.
+On peut s'en rendre compte en examinant deux expressions construites avec `|>` et `%>%`
 
-Par exemple, sur notre suite d'opérations simples:
+```{r quote}
+quote(2 %>% sqrt()) ## pas de modifications
+quote(2 |> sqrt()) ## reinterprétation comme sqrt(2)
+```
+
+Cette simplification fait que ce dernier est plus efficace, comme illustré sur notre suite d'opérations simples:
 
 ```{r pipe_benchmark_simple}
-library(microbenchmark) # Pour la comparaison
 microbenchmark(native = {10:15 |>
     sqrt() |> 
     mean() |> 
     round(digits = 2)},
-    magritr = {10:15 %>%
+    magrittr = {10:15 %>%
         sqrt() %>%
         mean() %>%
         round(digits = 2)}) %>% 
@@ -101,7 +105,7 @@ Cependant, cette syntaxe ne fonctionnerait pas avec le pipe `%>%`
 
 ## Différence syntaxique
 
-A noter une différence importante qui est la manière de gérer l'*overhead*, c'est à dire la position de l'argument `LHS` dans la fonction `RHS`.
+A noter une différence importante qui est la manière de gérer l'*argument*, c'est à dire la position de l'argument `LHS` dans la fonction `RHS`.
 
 Typiquement, pour écrire:
 
@@ -119,7 +123,7 @@ iris %>%
 
 où on a utilisé le `.` pour spécifier "ce qu'il y avait avant", ce qui a permis de spécifier comme argument `data` le résultat des traitements précédents.
 
-Cette possibilité existe dans le pipe natif, mais **seulement** dans la version `R 4.2.+`. Et on utilisera la syntaxe `_` au lieu de `.`.
+Cette possibilité existe dans le pipe natif, mais **seulement** dans la version `R 4.2.+`. Et on utilisera le *placeholder* `_` au lieu de `.`.
 
 ```{r pipe_lm_natif, eval = FALSE}
 iris |> 

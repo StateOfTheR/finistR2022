@@ -48,3 +48,13 @@ probs <- (X %*% beta) %>% as.vector()
 Y <- rbernoulli(n = n, p = probs) + 0L
 ```
 
+`torch` fonctionne avec ses propres types numériques, qu'il faut créer avec la fonction `torch_tensor()`.
+
+```{r}
+x <- torch_tensor(x)
+```
+
+
+
+
+# Exemple Tristan

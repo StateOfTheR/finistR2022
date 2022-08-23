@@ -202,3 +202,9 @@ Date:   Tue Aug 23 09:34:12 2022 +0200
 
 Bien sur en réécrivant l'histoire on modifie le passé. Comme dans retour vers le futur,  modifier le passé va affecter toutes les personnes concernées par ce passé. On doit donc etre très prudent avec cette approche. **On ne rebase jamais master !!!!** On ne peut réécrire l'histoire que pour des branches simples qui n'ont pas d'enfant.
 
+
+# pour visualiser ce qui se passe 
+
+Un outil pratique (merci Cédric pour comprendre, visualiser tester les différentes commandes git )
+
+[https://learngitbranching.js.org/?locale=fr_FR&NODEMO=](https://learngitbranching.js.org/?locale=fr_FR&NODEMO=)

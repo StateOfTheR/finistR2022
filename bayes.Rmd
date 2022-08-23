@@ -1,0 +1,373 @@
+---
+title: "Inférence bayésienne de modèles à variables latentes. TP"
+author: "Sophie DONNET (INRAE)"
+date: "05/12/2020"
+output:
+  html_document :
+    code_folding: hide
+    toc: true
+    toc_depth: 2
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Les packages utiles sont: 
+```{r packages, message = FALSE,class.source = 'fold-show'}
+library(rjags)
+library(ggplot2)
+library(ggmcmc)
+``` 
+
+On considère les données dans le fichier `myOrange.Rdata` qui sont des données (simulées) de croissance d'orangers.  
+
+```{r data myOrange,class.source = 'fold-show' }
+load("myOrange.Rdata")
+str(Orange)
+g <- ggplot(Orange,aes(x=age,y = circumference,colour = Tree)) + geom_point() + geom_line()
+g
+``` 
+
+
+
+
+## 1. Modèle non linéaire à effets fixes
+
+On considère le modèle modèle suivant:
+$$ Y_{ij} = \frac{A}{1+e^{-\left(\frac{ t_{ij} - B}{C}\right)}} + \varepsilon_{ij},\quad   \varepsilon_{ij} \sim  \mathcal{N}(0,\sigma^2)$$
+
+
+1. Estimer les paramètres avec la fonction `nls`.
+
+```{r nls, eval  =FALSE,class.source = 'fold-hide'}
+fm1 <- nls(circumference ~ SSlogis(age, Asym, xmid, scal),data = Orange)
+fm1$m$getPars()
+``` 
+
+2. Ecrire le modèle JAGS correspondant au modèle précédent
+
+```{r model JAGS fixe, eval= FALSE}
+modelfixedEffects="
+model{
+# observations
+for (i in 1:n){
+  y[i] ~ dnorm(mu[i],tau)
+  mu[i] <- (A)/(1+exp(-(age[i]- B)/(C)))
+}
+# priors
+tau ~ dgamma(10,2000)
+A  ~ dnorm(100,1/100000)
+B  ~ dnorm(100,1/100000)
+C  ~ dnorm(100,1/100000)
+# quantities of interest
+sigma2 <- 1/tau
+}
+"
+```
+
+
+
+```{r plot prior, eval = FALSE}
+par(mfrow=c(1,3))
+curve(dnorm(x,100,sqrt(100000)),-2000,2000,xlab='',ylab = 'prior A,B,C')
+sigma2Sample <- 1/rgamma(10000,10,2000)
+plot(density(sigma2Sample),xlab='',ylab = 'prior sigma^2',main="")
+``` 
+
+3. Mettre les données sous le format adapté.  
+
+```{r data to jags, eval  = FALSE}
+y <- Orange$circumference
+Tree <- as.numeric(Orange$Tree)
+age <- Orange$age
+n <- length(y)
+nb.tree <- length(unique(Tree))
+``` 
+
+
+4. Initialiser les paramètres à estimer
+
+```{r init JAGS fixe, eval = FALSE}
+chains <- 3
+## ----init---
+param.inits <- lapply(1:chains,function(c){
+  u <- list()
+  u$tau <- rgamma(1,10,2000)
+  u$A <- rnorm(1,200,30)
+  u$B <- rnorm(1,700,200)
+  u$C <- rnorm(1,300,100)
+  u
+})
+
+#param.inits = list(A=100,B=100,C=100)
+```
+
+5.  Faire tourner le MCMC
+
+```{r MCMC, eval = FALSE}
+iterations <- 100000
+burnin <- 10000
+myJAGSmodel <- jags.model(textConnection(modelfixedEffects), data= list(n=n, y=y,age = age),inits=param.inits, n.chains = chains,n.adapt = 1000)
+update(myJAGSmodel,burnin)
+model.samples <- coda.samples(myJAGSmodel, variable.names = c("sigma2", "A","B","C"), n.iter= iterations ,thin = 10)
+summary(model.samples)
+```
+
+
+6. Evaluer la convergence des chaines (traces, autocorrelation, Gelman, Geweke)
+
+ 
+```{r  verif converegence fixed, eval = FALSE}
+model.samples.gg <- ggs(model.samples)
+
+ggs_traceplot(model.samples.gg)
+## ----ploT autocorrelation, 
+ggs_autocorrelation(model.samples.gg)
+## ----ESS, 
+lapply(model.samples,effectiveSize)
+## ----Gelman----------------------------
+gelman.diag(model.samples)
+## ----Geweke----------------------------------------------------------------------------------------------
+geweke.diag(model.samples)
+```
+7. Tracer les lois a posteriori et calculer les moyennes a posteriori. 
+
+```{r post density mixe select, eval = FALSE}
+model.samples.all<- mcmc(do.call(rbind, model.samples))
+model.samples.gg.all <- ggs(model.samples.all)
+ggs_density(model.samples.gg.all,hpd = TRUE)
+``` 
+
+```{r post mean fixe, eval = FALSE}
+theta <- model.samples.all[,]
+post_mean_theta <- apply(theta,2,mean)[1:4]
+print(post_mean_theta)
+
+
+``` 
+## 2. Introduction d'effets aléatoires 
+
+
+On cherche maintenant à introduire des effets aléatoires sur les paramètres . 
+
+
+$$ Y_{ij} = \frac{a_i}{1+e^{-\left(\frac{ t_{ij} - (b_i)}{c_i}\right)}} + \varepsilon_{ij},\quad   \varepsilon_{ij} \sim  \mathcal{N}(0,\sigma^2)$$
+avec $$a_i \sim \mathcal{N}(A,\omega_a^2),\quad b_i \sim \mathcal{N}(B,\omega_b^2), \quad c_i \sim \mathcal{N}(C,\omega_c^2)$$
+
+
+8. Ecrire le modèle  correspondant en JAGS
+
+```{r model Mixed effects, eval = FALSE}
+modelmixedEffects="
+model{
+# observations
+for (i in 1:n){
+  y[i] ~ dnorm(mu[i],tau)
+  mu[i] <- (a[Tree[i]])/(1+exp(-(age[i]- (b[Tree[i]]))/(c[Tree[i]])))
+}
+for (j in 1:nb.tree){
+    a[j] ~ dnorm(A,tau_a)
+    b[j] ~ dnorm(B,tau_b)
+    c[j] ~ dnorm(C,tau_c)
+
+}
+# priors
+tau ~ dgamma(10,2000)
+A  ~ dnorm(100,1/100000)
+B  ~ dnorm(100,1/100000)
+C  ~ dnorm(100,1/100000)
+tau_a ~ dgamma(1.1, 100)
+tau_b ~ dgamma(1.1,100)
+tau_c ~ dgamma(1.1,100)
+# quantities of interest
+sigma2 <- 1/tau
+omega_a <- 1/pow(tau_a,1/2)
+omega_b <- 1/pow(tau_b,1/2)
+omega_c <- 1/pow(tau_c,1/2)
+}
+"
+``` 
+
+9. Initialiser les paramètres  et faire tourner le MCMC
+```{r tunning JAGS  mixed, eval = FALSE}
+## ----tuning----
+iterations <- 50000
+burnin <- 10000
+chains <- 3
+## ----init---
+param.inits <- lapply(1:chains,function(c){
+  u <- list()
+  u$tau <- rgamma(1,10,2000)
+  u$A <- rnorm(1,200,30)
+  u$B <- rnorm(1,700,200)
+  u$C <- rnorm(1,300,100)
+  u$tau_a <- rgamma(1,1.1,100)
+  u$tau_b <- rgamma(1,1.1,100)
+  u$tau_c <- rgamma(1,1.1,100)
+  u
+})
+
+```
+
+ 
+
+```{r MCMC mixed,eval = FALSE}
+myJAGSmodel <- jags.model(textConnection(modelmixedEffects), data= list(n=n,nb.tree = nb.tree, y=y,age = age,Tree=Tree),inits=param.inits, n.chains = chains,n.adapt = 5000)
+update(myJAGSmodel,burnin)
+model.samples <- coda.samples(myJAGSmodel, variable.names = c("sigma2", "omega_a","omega_b","omega_c","A","B","C"), n.iter= iterations ,thin = 10)
+summary(model.samples)
+```
+
+10. Vérifier la convergence des chaînes
+
+```{r  verif converegence mixed,eval = FALSE}
+model.samples.gg <- ggs(model.samples)
+
+ggs_traceplot(model.samples.gg)
+## ----ploT autocorrelation, 
+ggs_autocorrelation(model.samples.gg)
+## ----ESS, 
+lapply(model.samples,effectiveSize)
+## ----Gelman----------------------------
+gelman.diag(model.samples)
+## ----Geweke----------------------------------------------------------------------------------------------
+geweke.diag(model.samples)
+```
+
+11. Tracer les lois a posteriori et aficher les moyennes à posteriori. 
+
+ 
+```{r post density mixe,eval = FALSE}
+model.samples.all<- mcmc(do.call(rbind, model.samples))
+model.samples.gg.all <- ggs(model.samples.all)
+ggs_density(model.samples.gg.all,hpd = TRUE)
+``` 
+
+ 
+```{r post mean mixe,eval = FALSE}
+theta <- model.samples.all[,]
+post_mean_theta <- apply(theta,2,mean)[1:4]
+print(post_mean_theta)
+
+
+``` 
+
+
+## 3. Sélection des effets aléatoires 
+
+On peut chercher à tester la pertinence de l'introduction des effets aléatoires. 
+Pour cela, deux approchees sont possibles: 
+
+ - pour chaque combinaison d'effet aléatoire, définir un modèle et calculer l'évidence de ce modèle pour obtenir la probabilité a posteriori de chaque modèle. Cependant, le calcul de cette évidence par Monte Carlo peut être instable. 
+ - introduire dans le modèle ci-dessus des indicatrices  encodant la présence des effets alétaoires et calculer la probabilité a posteriori. 
+    
+Nous considérons cette deuxième approche. 
+Définissons $Z_a$, $Z_b$ et $Z_c$ telles que $Z_k \in \{0,1\}$ et $P(Z_k=1) = 0.5$. 
+
+On propose alors d'écrire
+\begin{eqnarray*}
+a_i &=& A + Z_a   \alpha_i, \quad \alpha_i \sim \mathcal{N}(0,\omega_a^2)\\
+b_i &=& B+ Z_b   \beta_i, \quad \beta_i \sim \mathcal{N}(0,\omega_b^2)\\
+c_i &=& C+ Z_c   \gamma_i, \quad \gamma_i \sim \mathcal{N}(0,\omega_c^2)
+\end{eqnarray*}
+
+12. Ecrire le modèle JAGS correspondant à ce nouveau modèle
+
+```{r model Mixed effect Select,eval = FALSE}
+modelmixedEffectsSelect="
+model{
+# observations
+for (i in 1:n){
+  y[i] ~ dnorm(mu[i],tau)
+  mu[i] <- (A + a[Tree[i]])/(1+exp(-(age[i]- (B + b[Tree[i]]))/(C+c[Tree[i]])))
+}
+for (j in 1:nb.tree){
+    aT[j] ~ dnorm(0,tau_a)
+    bT[j] ~ dnorm(0,tau_b)
+    cT[j] ~ dnorm(0,tau_c)
+    a[j] <- Za * aT[j]
+    b[j] <- Zb * bT[j]
+    c[j] <- Zc * cT[j]
+}
+# presence effets aléatoires ou non
+Za ~ dbern(1/2)
+Zb ~ dbern(1/2)
+Zc ~ dbern(1/2)
+
+# priors
+tau ~ dgamma(10,2000)
+A  ~ dnorm(100,1/100000)
+B  ~ dnorm(100,1/100000)
+C  ~ dnorm(100,1/100000)
+tau_a ~ dgamma(1.1,100)
+tau_b ~ dgamma(1.1,100)
+tau_c ~ dgamma(1.1,100)
+# quantities of interest
+sigma2 <- 1/tau
+omega_a <- 1/pow(tau_a,1/2)
+omega_b <- 1/pow(tau_b,1/2)
+omega_c <- 1/pow(tau_c,1/2)
+}
+"
+``` 
+
+13. Initaliser l'agorithme  et le faire tourner
+
+```{r Select,eval = FALSE }
+param.inits <- lapply(1:chains,function(c){
+  u <- list()
+  u$tau <- rgamma(1,10,2000)
+  u$A <- rnorm(1,200,30)
+  u$B <- rnorm(1,700,200)
+  u$C <- rnorm(1,300,100)
+  u$tau_a <- rgamma(1,1.1,100)
+  u$tau_b <- rgamma(1,1.1,100)
+  u$tau_c <- rgamma(1,1.1,100)
+  u$Za <- sample(c(0,1),1)
+  u$Zb <- sample(c(0,1),1)
+  u$Zc <- sample(c(0,1),1)
+  u
+})
+myJAGSmodel <- jags.model(textConnection(modelmixedEffectsSelect), data= list(n=n,nb.tree = nb.tree, y=y,age = age,Tree=Tree),inits=param.inits, n.chains = chains,n.adapt = 5000)
+update(myJAGSmodel,burnin)
+model.samples <- coda.samples(myJAGSmodel, variable.names = c("sigma2", "omega_a","omega_b","omega_c","A","B","C","Za","Zb","Zc"), n.iter= iterations ,thin = 10)
+summary(model.samples)
+```
+
+14. Vérifier la convergence
+
+
+```{r  verif converegence Select,eval = FALSE}
+model.samples.gg <- ggs(model.samples)
+
+ggs_traceplot(model.samples.gg)
+ggs_traceplot(model.samples.gg,family='B')
+ggs_traceplot(model.samples.gg,family='C')
+## ----ploT autocorrelation, 
+ggs_autocorrelation(model.samples.gg,family="omega")
+## ----ESS, 
+lapply(model.samples,effectiveSize)
+## ----Geweke----------------------------------------------------------------------------------------------
+geweke.diag(model.samples)
+```
+```{r post density Select, eval = FALSE}
+model.samples.all<- mcmc(do.call(rbind, model.samples))
+model.samples.gg.all <- ggs(model.samples.all)
+ggs_density(model.samples.gg.all,hpd = TRUE,family='Z')
+``` 
+
+
+15.  On s'intéresse à comparer les probabilités des  modèles a posteriori. Appliquer le code ci dessous (après l'avoir interprété) et commentez les résultats.  
+ 
+```{r post mean Select,eval = FALSE,class.source = 'fold-show'}
+theta <- model.samples.all[,]
+post_mean_ABC <- apply(theta,2,mean)[1:3]
+print(post_mean_ABC)
+
+U <- as.list(as.data.frame(theta[,4:6]))
+models<- do.call(paste, c(U, sep = ""))  
+table(models)/length(models)*100
+``` 
+

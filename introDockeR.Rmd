@@ -1,0 +1,32 @@
+---
+title: "Introduction à Docker"
+author: "FinistR"
+date: '2022-08-23'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Sources
+
+-  Le tuto de Colin Fay: https://colinfay.me/docker-r-reproducibility/
+- 
+
+## Principe
+
+### Quand cela est-il utile? 
+
+
+## Où trouver un Docker déjà prêt
+
+## Comment créer son propre docker
+
+
+
+
+
+
+## Including Plots
+

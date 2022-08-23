@@ -79,18 +79,48 @@ Par exemple, si on reproduire le code suivant de manière séquentielle:
 quote(print("Hello"))
 ```
 
-on procéderait classiquement à:
+on peut procéder "naturellement" avec le pipe natif:
 
-```{r}
+```{r pipe_natif_quote}
 "Hello" |> 
   print() |> 
   quote()
 ```
 
+Cependant, cette syntaxe ne fonctionnerait pas avec le pipe ` %>% `
 
+```{r pipe_magritr_quote}
+"Hello" %>% 
+  print() %>% 
+  quote()
+```
 
+## Différence syntaxique
 
+A noter une différence importante qui est la manière de gérer l'*overhead*, c'est à dire la position de l'argument `LHS` dans la fonction `RHS`.
 
+Typiquement, pour écrire:
+```{r pipe_lm_a_reproduire, eval = FALSE}
+lm(Sepal.Length ~ Sepal.Width, data = iris[iris$Species == "setosa",])
+```
+
+la version *tidy* avec ` %>% ` est 
+
+```{r pipe_lm_magrittr, eval = FALSE}
+iris %>% 
+  filter(Species == "setosa") %>% 
+  lm(Sepal.Length ~ Sepal.Width, data = .)
+```
+
+où on a utilisé le `.` pour spécifier "ce qu'il y avait avant", ce qui a permis de spécifier comme argument `data` le résultat des traitements précédents.
+
+Cette possibilité existe dans le pipe natif, mais **seulement** dans la version `R 4.2.+`. Et on utilisera la syntaxe `_` au lieu de `.`.
+
+```{r pipe_lm_natif, eval = FALSE}
+iris |> 
+  filter(Species == "setosa") |> 
+  lm(Sepal.Length ~ Sepal.Width, data = _)
+```
 
 
 Pour une discussion exhaustive sur les différences entre les deux pipes, on peut consulter [la discussion StackOverflow sur le sujet](https://stackoverflow.com/questions/67633022/what-are-the-differences-between-rs-new-native-pipe-and-the-magrittr-pipe).

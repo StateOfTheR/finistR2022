@@ -430,7 +430,10 @@ RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update \
  &amp;&amp; apt-get install -y pandoc \
     pandoc-citeproc
 RUN R -e &quot;install.packages(&#39;remotes&#39;)&quot;
-RUN R -e &quot;install.packages(&#39;microbenchmark&#39;)&quot;</code></pre>
+RUN R -e &quot;install.packages(&#39;microbenchmark&#39;)&quot;
+RUN R -e &quot;install.packages(&#39;purrr&#39;)&quot; # map function
+RUN R -e &quot;install.packages(&#39;httr&#39;)&quot; # GET function
+RUN R -e &quot;install.packages(&#39;BiocPkgTools&#39;)&quot; </code></pre>
 <p>puis demander la construction de l’image à l’aide de la commande</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> docker build <span class="sc">-</span>t nom_depot_dockerhub<span class="sc">/</span>nom_du_repo<span class="sc">:</span>version  . <span class="do">## avec un nom</span></span></code></pre></div>
 <p>et enfin pousser sur Dockerhub</p>
@@ -451,7 +454,7 @@ jobs:
   build:
     name: Build website with rmarkdown
     runs-on: ubuntu-latest
-    container: stateofther/r-finistr2022:0.2
+    container: stateofther/r-finistr2022:0.4
 
     steps:
       - name: Checkout repository

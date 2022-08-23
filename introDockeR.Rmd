@@ -43,17 +43,25 @@ Avec cette installation, aucune interface n'est fournie. Il faudrait lancer dock
 
 ### Créer son docker
 
-Ca se passe en deux parties. 
+Créer un docker consiste à créer un fichier texte (sans extension) docker contenant la "recette" de l'image. Cette recette commence généralement par faire appel à une image déjà prête puis à la modifier. L'appel à l'image existante se fait via l'instruction FROM, les modifications se feront via des instructions RUN. Un exemple (tiré du blog de Colin Fay) :
 
-- Une recette qui sera écrite dans un fichier .txt  et qui d
+FROM rocker/r-ver:3.4.4
+RUN mkdir /home/analysis
+RUN R -e "options(repos = \
+  list(CRAN = 'http://mran.revolutionanalytics.com/snapshot/2019-01-06/')); \
+  install.packages('tidystringdist')"
+  
+La première ligne fait appel à une image qui va contenir la version 3.4.4 de R (dans un environnement linux). Cette image se trouve dans un catalogue d'images disponibles en ligne, cf le paragraphe suivant. La deuxième ligne permet, dans l'environnement virtuel (le container), de créer un répertoire *analysis* à la racine, et la troisième d'installer le package R "tydistringdist" dans R.    
 
 ## Où trouver un Docker déjà prêt
 
 - Il existe 
 
-## Comment créer son propre docker
 
 ## Comment modifier un docker
+
+Les commandes RUN et CMD permettent de modifier une image existante en rajpoutant des instructions (créer des objets dans l'environnement virtuel, rajouter des packages, installer d'autres logiciels, créer un pont entre l'environnement virtuel et son répertoire local pour récupérer des objets créés dans l'environnement virtuel)
+
 
 ## Comment exécuter ses propres codes dans un dockerR 
 

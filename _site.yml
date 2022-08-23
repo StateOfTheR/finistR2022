@@ -7,7 +7,18 @@ navbar:
     icon: fa-github
     href: https://github.com/StateOfTheR/finistR2022
     
-
+ right:
+  - text: "Workflow"
+    icon: fa-gear
+    menu:
+    - text: "Docker"
+      href: introDockeR.html
+    - text: "Git avancé"
+      href: rebase.html
+  - text: "Langage R et pipe"
+    icon: fa-brands fa-r-project
+    href: pipe.html
+      
 
 output:
   html_document:

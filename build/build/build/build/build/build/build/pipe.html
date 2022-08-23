@@ -9,11 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="finistere2022" />
+<meta name="author" content="Pierre Gloaguen, Marina Gomtsyan, Mahendra Mariadassou, Mary Savino" />
 
 <meta name="date" content="2022-08-23" />
 
-<title>Rstudio et pipe</title>
+<title>Rstudio, pipe et git</title>
 
 <script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -32,6 +32,8 @@
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -45,6 +47,100 @@
     </style>
 
 
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -252,15 +348,153 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Rstudio et pipe</h1>
-<h4 class="author">finistere2022</h4>
+<h1 class="title toc-ignore">Rstudio, pipe et git</h1>
+<h4 class="author">Pierre Gloaguen, Marina Gomtsyan, Mahendra Mariadassou, Mary Savino</h4>
 <h4 class="date">2022-08-23</h4>
 
 </div>
 
 
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(microbenchmark)</span></code></pre></div>
 <div id="r-et-le-chaînage-dopérations" class="section level1">
 <h1>R et le chaînage d’opérations</h1>
+<p>Le chaînage d’opérations est disponible depuis plusieurs années via le pipe <code>%&gt;%</code> de <code>{{maggritr}}</code> (exporté dans et utilisé via <code>{{dplyr}}</code>). R 4.1.+ a introduit un opérateur de pipe natif <code>|&gt;</code>.</p>
+<p>Cet opérateur séquentiel fonctionne de la même manière que le <code>%&gt;%</code> usuel.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span><span class="sc">:</span><span class="dv">15</span> <span class="sc">%&gt;%</span> <span class="co"># Pour le vecteur 10:15</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sqrt</span>() <span class="sc">%&gt;%</span> <span class="co"># On prend la racine carrée, puis</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>() <span class="sc">%&gt;%</span> <span class="co"># On calcule la moyenne</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">2</span>) <span class="co"># On arrondit</span></span></code></pre></div>
+<pre><code>## [1] 3.53</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Maintenant, avec le pipe &quot;natif&quot;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span><span class="sc">:</span><span class="dv">15</span> <span class="sc">|&gt;</span> <span class="co"># Pour le vecteur 10:15</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sqrt</span>() <span class="sc">|&gt;</span> <span class="co"># On prend la racine carrée, puis</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>() <span class="sc">|&gt;</span> <span class="co"># On calcule la moyenne</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">2</span>) <span class="co"># On arrondit</span></span></code></pre></div>
+<pre><code>## [1] 3.53</code></pre>
+<div id="différences-entre-le-et-le" class="section level2">
+<h2>Différences entre le <code>%&gt;%</code> et le <code>|&gt;</code></h2>
+<p>Une première question naturelle est “Quelle est la différence?”. La différence fondamentale est que <code>%&gt;%</code> est une <em>fonction</em> qui s’écrit <code>%&gt;%(LHS, RHS)</code> où <code>RHS</code> est une fonction et <code>LHS</code> est une expression <code>R</code> quelconque, alors que le <code>|&gt;</code> est un simple raccourci syntaxique , i.e. <code>a |&gt; f()</code> est interprété <strong>exactement</strong> comme <code>f(a)</code>.</p>
+<p>On peut s’en rendre compte en examinant deux expressions construites avec <code>|&gt;</code> et <code>%&gt;%</code></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quote</span>(<span class="dv">2</span> <span class="sc">%&gt;%</span> <span class="fu">sqrt</span>()) <span class="do">## pas de modifications</span></span></code></pre></div>
+<pre><code>## 2 %&gt;% sqrt()</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quote</span>(<span class="dv">2</span> <span class="sc">|&gt;</span> <span class="fu">sqrt</span>()) <span class="do">## reinterprétation comme sqrt(2)</span></span></code></pre></div>
+<pre><code>## sqrt(2)</code></pre>
+<p>Cette simplification fait que ce dernier est plus efficace, comme illustré sur notre suite d’opérations simples:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">microbenchmark</span>(<span class="at">native =</span> {<span class="dv">10</span><span class="sc">:</span><span class="dv">15</span> <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sqrt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">2</span>)},</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">magrittr =</span> {<span class="dv">10</span><span class="sc">:</span><span class="dv">15</span> <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sqrt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mean</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">2</span>)}) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"3.0","3":"3.1","4":"3.236","5":"3.2","6":"3.3","7":"5.6","8":"100"},{"1":"magrittr","2":"5.5","3":"5.6","4":"6.115","5":"5.7","6":"5.8","7":"42.8","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Cependant, en pratique, dans l’usage classique impliquant des tableaux de données, ce gain est négligeable au vu des différentes manipulations (notamment les copies des tableaux) effectuées.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># Pour la manipulation de data.frame</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">microbenchmark</span>(<span class="at">native =</span> iris <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">select_if</span>(is.numeric) <span class="sc">|&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">mutate_all</span>(sqrt) <span class="sc">|&gt;</span> </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">summarise_all</span>(mean) <span class="sc">|&gt;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">summarise_all</span>(round, <span class="at">digits =</span> <span class="dv">2</span>),</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">magritr =</span> iris <span class="sc">%&gt;%</span> </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">select_if</span>(is.numeric) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">mutate_all</span>(sqrt) <span class="sc">%&gt;%</span>  </span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">summarise_all</span>(mean) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">summarise_all</span>(round, <span class="at">digits =</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"11.2521","3":"11.4653","4":"11.83740","5":"11.50255","6":"11.59435","7":"14.8297","8":"100"},{"1":"magritr","2":"11.2566","3":"11.4711","4":"12.07891","5":"11.52120","6":"11.64600","7":"30.0788","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Cette subtilité peut induire des comportements insidieux, notamment dans la manipulation d’expressions de <code>R</code>, où l’on préferera sans doute le <code>|&gt;</code> natif qui reproduit exactement le <code>R</code> de base.</p>
+<p>Par exemple, si on reproduire le code suivant de manière séquentielle:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quote</span>(<span class="fu">print</span>(<span class="st">&quot;Hello&quot;</span>))</span></code></pre></div>
+<pre><code>## print(&quot;Hello&quot;)</code></pre>
+<p>on peut procéder “naturellement” avec le pipe natif:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;Hello&quot;</span> <span class="sc">|&gt;</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quote</span>()</span></code></pre></div>
+<pre><code>## print(&quot;Hello&quot;)</code></pre>
+<p>Cependant, cette syntaxe ne fonctionnerait pas avec le pipe <code>%&gt;%</code></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;Hello&quot;</span> <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quote</span>()</span></code></pre></div>
+<pre><code>## .</code></pre>
+</div>
+<div id="différence-syntaxique" class="section level2">
+<h2>Différence syntaxique</h2>
+<p>A noter une différence importante qui est la manière de gérer l’<em>argument</em>, c’est à dire la position de l’argument <code>LHS</code> dans la fonction <code>RHS</code>.</p>
+<p>Typiquement, pour écrire:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Sepal.Width, <span class="at">data =</span> iris[iris<span class="sc">$</span>Species <span class="sc">==</span> <span class="st">&quot;setosa&quot;</span>,])</span></code></pre></div>
+<p>la version <em>tidy</em> avec <code>%&gt;%</code> est</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>iris <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Species <span class="sc">==</span> <span class="st">&quot;setosa&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Sepal.Width, <span class="at">data =</span> .)</span></code></pre></div>
+<p>où on a utilisé le <code>.</code> pour spécifier “ce qu’il y avait avant”, ce qui a permis de spécifier comme argument <code>data</code> le résultat des traitements précédents.</p>
+<p>Cette possibilité existe dans le pipe natif, mais <strong>seulement</strong> dans la version <code>R 4.2.+</code>. Et on utilisera le <em>placeholder</em> <code>_</code> au lieu de <code>.</code>.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>iris <span class="sc">|&gt;</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Species <span class="sc">==</span> <span class="st">&quot;setosa&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Sepal.Width, <span class="at">data =</span> _)</span></code></pre></div>
+</div>
+<div id="ecriture-de-fonctions" class="section level2">
+<h2>Ecriture de fonctions</h2>
+<p>En ce qui concerne l’écriture de fonctions, les deux expressions ci-dessous sont équivalentes :</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">function</span>(x) x <span class="sc">+</span> <span class="dv">1</span> </span></code></pre></div>
+<pre><code>## function(x) x + 1</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>\(x) x <span class="sc">+</span> <span class="dv">1</span></span></code></pre></div>
+<pre><code>## \(x) x + 1</code></pre>
+<p>Cette nouvelle écriture, permet principalement d’économiser le nombre de caractères.</p>
+<p>En combinant avec le pipe natif, on obtiendrait :</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>   (\(x) <span class="fu">lm</span>(mpg <span class="sc">~</span> disp, <span class="at">data =</span> x))() </span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ disp, data = x)
+## 
+## Coefficients:
+## (Intercept)         disp  
+##    29.59985     -0.04122</code></pre>
+<p>A la place de :</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">|&gt;</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>   (<span class="cf">function</span>(x) <span class="fu">lm</span>(mpg <span class="sc">~</span> disp, <span class="at">data =</span> x))()</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ disp, data = x)
+## 
+## Coefficients:
+## (Intercept)         disp  
+##    29.59985     -0.04122</code></pre>
+<p>et de la formule suivante utilisant le pipe <code>%&gt;%</code> :</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">lm</span>(mpg <span class="sc">~</span> disp, <span class="at">data =</span> .)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ disp, data = .)
+## 
+## Coefficients:
+## (Intercept)         disp  
+##    29.59985     -0.04122</code></pre>
+<p>Pour une discussion exhaustive sur les différences entre les deux pipes, on peut consulter <a href="https://stackoverflow.com/questions/67633022/what-are-the-differences-between-rs-new-native-pipe-and-the-magrittr-pipe">la discussion StackOverflow sur le sujet</a>.</p>
+</div>
+</div>
+<div id="nouveautés-dans-rstudio" class="section level1">
+<h1>Nouveautés dans RStudio</h1>
+<p>L’IDE RStudio fait l’objet d’un travail de développement intense. Sur les derniers mois, quelques évolutions notables concernent:</p>
+<ul>
+<li>l’édition de fichier rmarkdown en mode visuel plutôt que source (pour avoir une idée immédiate du rendu visuel des documents). <strong>Attention:</strong> les transitions entre les modes <em>source</em> et <em>visuel</em> peuvent changer l’organisation du document (notamment les sauts de lignes, espaces, etc)</li>
+<li>le support du nouveau moteur graphique de R 4.2</li>
+</ul>
+</div>
+<div id="apprentissage-de-git" class="section level1">
+<h1>Apprentissage de git</h1>
+<p>L’apprentissage de git, notamment la gestion des branches, est souvent considéré comme complexe malgré la profusion de ressources existantes (par exemple: <a href="https://git-scm.com/docs/user-manual.html">git manual</a>). Des interfaces ludiques existent pour (re)-découvrir et s’entraîner à la gestion des branches. Nous avons exploré <a href="https://learngitbranching.js.org/">Learning branching</a>.</p>
 </div>
 
 

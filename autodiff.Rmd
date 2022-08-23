@@ -100,16 +100,21 @@ calc_loss <- function() {
   
   optimizer$zero_grad()
   value <- LogLik(Theta)
-  cat("Value is: ", as.numeric(value), "\n")
-
   value$backward()
   value
 }
 
 ## Run the optimization
+LogLik.hist <- rep(NA,num_iterations)
 for (i in 1:num_iterations) {
-  optimizer$step(calc_loss)
+  LogLik.hist[i] <- optimizer$step(calc_loss) %>% as.numeric
 }
+
+## How does the loss function behave ?
+plot(LogLik.hist,cex=0.4)
+
+## Are the gradients at 0 ?
+Theta$grad
 
 ## Compare the coef estimates with the ones of lm 
 Res <- lm(Y ~ X[,-1] )

@@ -27,6 +27,7 @@ Le principe est de créer un **environnement contrôlé** (appelé container). O
 ### Quand cela est-il utile? 
 
 C'est utile si j'ai écrit des codes/packages/scripts et que je veux 
+
 - les faire tourner sur une autre machine mais ayant les mêmes caractéristiques que les miennes (si tant est que je ne sois pas sous Windows)
 - tester mes programmes sur d'autres versions de Linux/R.
 - cristalliser une analyse pour la partager et/ou y revenir dans plusieurs années
@@ -54,9 +55,9 @@ RUN mkdir /home/analysis
 RUN R -e "options(repos = \
   list(CRAN = 'http://mran.revolutionanalytics.com/snapshot/2019-01-06/')); \
   install.packages('tidystringdist')"
-  
-La première ligne fait appel à une image qui va contenir la version 3.4.4 de R (dans un environnement linux). Cette image se trouve dans un catalogue d'images disponibles en ligne, cf le paragraphe suivant. La deuxième ligne permet, dans l'environnement virtuel (le container), de créer un répertoire *analysis* à la racine, et la troisième d'installer le package R "tydistringdist" dans la version disponible à la date 2019-01-06 dans R.    
 ```
+
+La première ligne fait appel à une image qui va contenir la version 3.4.4 de R (dans un environnement linux). Cette image se trouve dans un catalogue d'images disponibles en ligne, cf le paragraphe suivant. La deuxième ligne permet, dans l'environnement virtuel (le container), de créer un répertoire *analysis* à la racine, et la troisième d'installer le package R "tydistringdist" dans la version disponible à la date 2019-01-06 dans R.    
 
 ## Où trouver un Docker déjà prêt
 
@@ -74,23 +75,20 @@ Le `TAG` qui est ajouté en fin de nom permet de spécifier la version de l'imag
 Lors de l'écriture d'un fichier `Dockerfile` pour la création d'une image Docker, au lieu de partir de rien, on récupère en général une image pré-existante à partir de laquelle commencer, via la commande  `FROM` (cf la section suivante).
 En pratique, `FROM` récupère l'image sur Docker Hub, dans le dépôt correspondant.
 
-## Comment modifier un docker
+## Différences entre  RUN et CMD
 
-Les commandes RUN et CMD permettent de modifier une image existante en rajpoutant des instructions (créer des objets dans l'environnement virtuel, rajouter des packages, installer d'autres logiciels, créer un pont entre l'environnement virtuel et son répertoire local pour récupérer des objets créés dans l'environnement virtuel). La différence entre les deux instructions est que RUN sera exécutée lors de la construction de l'image (i.e. lorsque l'on exécute la commande "docker built"), tandis que CMD sera exécutée lors de l'instanciation (ie lorsque l'on exécute la commande "docker run").  
-Exemple : supposons que l'on souhaite lancer un script R (contenu dans le fichier Script.R) dans l'environnement virtuel, et que ce script génère un tirage aléatoire. L'instruction 
-RUN R -e "source('/home/analysis/ScriptR.R')"
-réalisera le tirage lors de la création de l'image, tous les conteneurs générés à partir de cette image contiendront donc la même réalisation du tirage. A l'inverse la commande
-CMD R -e "source('/home/analysis/ScriptR.R')" réalisera le tirage lors de la création du conteneur, et chaque exécution de la commande docker run génerera un tirage différent.  
+Les commandes RUN et CMD permettent de modifier une image existante en rajpoutant des instructions (créer des objets dans l'environnement virtuel, rajouter des packages, installer d'autres logiciels, créer un pont entre l'environnement virtuel et son répertoire local pour récupérer des objets créés dans l'environnement virtuel). La différence entre les deux instructions est que RUN sera exécutée lors de la construction de l'image (i.e. lorsque l'on exécute la commande `docker build`), tandis que CMD sera exécutée lors de l'instanciation (ie lorsque l'on exécute la commande `docker run`)  
+Exemple : supposons que l'on souhaite lancer un script R (contenu dans le fichier Script.R) dans l'environnement virtuel, et que ce script génère un tirage aléatoire. L'instruction  `RUN R -e "source('/home/analysis/ScriptR.R')"` réalisera le tirage lors de la création de l'image, tous les conteneurs générés à partir de cette image contiendront donc la même réalisation du tirage. A l'inverse la commande `CMD R -e "source('/home/analysis/ScriptR.R')"` réalisera le tirage lors de la création du conteneur, et chaque exécution de la commande `docker run` génerera un tirage différent.  
 
-Autres instructions utiles à inclure dans un docker file:
+## Autres instructions utiles à inclure dans un docker file:
 
-COPY : permet de copier un fichier de son disque local sur l'environnement virtuel (eg pour passer un fichier de données)
+`COPY` : permet de copier un fichier de son disque local sur l'environnement virtuel (eg pour passer un fichier de données)
 
-ARG : permet de passer des arguments qui seront utilisés dans l'exécution du docker file (eg la version de R qui doit être montée)
+`ARG` : permet de passer des arguments qui seront utilisés dans l'exécution du dockerfile (eg la version de R qui doit être montée)
 
-WORKDIR :
+`WORKDIR` : espace de travail courant lors de l'exécution de l'image
 
-EXPOSE : 
+`EXPOSE` : gestion des ports
 
 
 ## Schéma récapitulatif

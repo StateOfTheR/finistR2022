@@ -16,7 +16,7 @@ library(httr) # GET function
 
 # Préambule
 
-L'objectif de ce tutoriel est de créer une liste des outils (essentiellement packages R) développés par un groupe de personnes à partir de leurs adresses email ou identifiants.
+L'objectif de ce tutoriel est de créer une liste des outils (essentiellement packages R) développés par un groupe de personnes à partir de leurs adresses email ou identifiants en récupérant les informations automatiquement par requêtage web.
 
 ## Web scraping et text mining
 
@@ -80,7 +80,7 @@ On utilise pour cela l' API github permettant d'écrire des requêtes web: https
 
 Petit défaut, la requête web demande de connaitre l'identifiant github moins pratique que l'adresse email plus standardisée.
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 # recuperation des repositories (publics) github d'un utilisateur
 ghrepos <- httr::GET("https://api.github.com/users/andreamrau/repos")
 
@@ -113,7 +113,7 @@ grep("DESCRIPTION",httr::content(onerepo))
 
 A noter que Ropensci impose que les packages déposés chez eux, un fois approuvés, aient un depot sur leur profil github. Il est donc possible de parcourir, par une requête web, tous les fichiers DESCRIPTION des depots github de Ropensci à la recherche des emails utilisateurs:
 
-```{r,eval=FALSE}
+```{r,eval=TRUE}
 # Récupérer les noms des depots github de ropensci
 ghrepos <- httr::GET("https://api.github.com/users/ropensci/repos")
 # créer un vecteur contenant les noms de tous les depots

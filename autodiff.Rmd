@@ -165,63 +165,109 @@ et vérifier qu'elle fonctionne
 eval_loss(torch_tensor(theta), verbose = FALSE)
 ```
 
+avant de procéder à l'optimisation à proprement parler. Pour cette dernière, on commence par définir notre paramètre sous forme d'un tenseur qui va être mis à jour 
+
 ```{r}
-theta_grad <- torch_tensor(rep(0, length(theta)), requires_grad = TRUE)
-theta_grad$grad ## undefined
+theta_current <- torch_tensor(rep(0, length(theta)), requires_grad = TRUE)
+```
 
-optimizer <- optim_rprop(theta_grad)
-theta_grad$grad ## undefined
+et d'un optimiseur
 
+```{r}
+theta_optimizer <- optim_rprop(theta_current)
+```
 
-optimizer$zero_grad()
-theta_grad$grad ## undefined
+Intuitivement, l'optimiseur a juste besoin de la valeur de $\theta$ et de son gradient pour le mettre à jour. Mais à ce stade on ne connaît pas encore le gradient $\nabla_\theta \mathcal{L}(\mathbf{X}, \mathbf{y}; \theta)$
 
-loss <- eval_loss(theta_grad, verbose = FALSE)
-theta_grad$grad ## undefined
-## cat("Loss is: ", as.numeric(loss), "\n")
+```{r}
+theta_current$grad
+```
+
+et il faut donc le calculer:
+
+```{r}
+loss <- eval_loss(theta_current, verbose = FALSE)
 loss$backward()
-theta_grad$grad
+```
 
-optimize
-optimizer$step()
+On peut vérifier que le gradient est stocké dans `theta`
 
+```{r}
+theta_current$grad
+```
 
+et effectuer la mise à jour avec une étape d'optimisation
 
-## Optimization step description
-calc_loss <- function() {
-  optimizer$zero_grad()
-  loss <- eval_loss(theta_grad, verbose = FALSE)
-  ## cat("Loss is: ", as.numeric(loss), "\n")
-  loss$backward()
-  loss
-}
+```{r}
+theta_optimizer$step()
+```
 
-## Run the optimization
+On peut vérifier que le paramètre courant a été mis à jour.
+
+```{r}
+theta_current
+```
+
+Il ne reste plus qu'à recommencer pour un nombre d'itérations donné. **Attention,** il faut réinitialiser le gradient avant de le mettre à jour, le comportement par défaut de mise à jour étant l'*accumulation* plutôt que le *remplacement*.
+
+```{r}
 num_iterations <- 100
-loss <- vector("numeric", length = num_iterations)
+loss_vector <- vector("numeric", length = num_iterations)
 for (i in 1:num_iterations) {
-  loss[i] <- optimizer$step(calc_loss) %>% as.numeric()
+  theta_optimizer$zero_grad()
+  loss <- eval_loss(theta_current, verbose = FALSE)
+  loss$backward()
+  theta_optimizer$step()
+  loss_vector[i] <- loss %>% as.numeric()
 }
 ```
 
 On vérifie que la perte diminue au cours du temps.
 
 ```{r}
-plot(1:num_iterations, -loss)
+plot(1:num_iterations, loss_vector)
 ```
 
 On constate que notre optimiseur aboutit au même résultat que `glm()`
 
 ```{r}
 tibble(
-  torch = theta_grad |> as.numeric(),
+  torch = theta_current |> as.numeric(),
   glm   = glm(Y ~ 0 + X, family = "binomial") |> coefficients()
 )
 ```
+**Attention** la mécanique présentée ci-dessus avec `$step()` ne fonctionne pas pour certaines routines d'optimisation (BFGS, gradient conjugué) qui nécessite de calculer plusieurs fois la fonction objective. Dans ce cas, il faut définir une *closure*, qui renvoie la fonction objective, et la passer en argument à `$step()`. 
 
-[Le graph de computation pour le calcul du gradient](https://pytorch.org/blog/how-computational-graphs-are-executed-in-pytorch/)
+```{r}
+## remise à 0 du paramètre courant
+theta_current <- torch_tensor(rep(0, length(theta)), requires_grad = TRUE)
+theta_optimizer <- optim_rprop(theta_current)
 
+## définition de la closure
+calc_loss <- function() {
+  theta_optimizer$zero_grad()
+  loss <- eval_loss(theta_current, verbose = FALSE)
+  loss$backward()
+  loss
+}
 
+## Optimisation avec la closure
+num_iterations <- 100
+loss_vector <- vector("numeric", length = num_iterations)
+for (i in 1:num_iterations) {
+  loss_vector[i] <- theta_optimizer$step(calc_loss) %>% as.numeric()
+}
+```
+
+On peut vérifier qu'on obtient des résultats identiques dans les deux cas d'utilisations:
+
+```{r}
+theta_current
+```
+
+```{r}
+plot(1:num_iterations, loss_vector)
+```
 
 ## Exemple régression multivariée
 

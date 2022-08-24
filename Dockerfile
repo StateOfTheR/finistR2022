@@ -1,4 +1,4 @@
-FROM rocker/verse:4
+FROM rocker/geospatial:4
 RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update \
  && apt-get install -y pandoc \
     pandoc-citeproc

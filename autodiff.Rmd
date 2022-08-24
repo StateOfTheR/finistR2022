@@ -1,6 +1,6 @@
 ---
 title: "autodiff"
-author: "finistere2022"
+author: "Félix Cheysson, Julien Chiquet, Mahendra Mariadassou, Tristan Mary-Huard"
 date: "`r Sys.Date()`"
 output: html_document
 ---

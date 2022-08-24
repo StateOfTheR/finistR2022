@@ -3,27 +3,29 @@ title: "SIG avec SF"
 author: "Pierre Barbillon, Anna Bonnet, Pierre Gloaguen"
 date: "2022-08-23"
 output: 
-  html_document:
-    df_print: paged
+  html_document
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 ```{r sig_required_packages}
 library(sf)
-library(ggplot2)
+library(tidyverse)
 ```
 
+# Référence
+
+Ce petit tutoriel décrit l'usage basique de `sf`, les exemples sont extraits de [ce tutoriel complet](https://rcarto.github.io/geomatique_avec_r/index.html) (qui n'utilise cependant pas la logique `tidyverse`).
 
 # Données 
 
 Les données utilisées sont issues de ce [tutoriel sur la géomatique avec R](https://rcarto.github.io/geomatique_avec_r/) et accessible sur leur répertoire `Github`.
 
-```{r sig_load_data}
+```{r sig_load_data, cache = TRUE}
 communes <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/lot46.gpkg?raw=true",
                layer="commune")
 
@@ -31,7 +33,7 @@ route <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/lot
                  layer = "route", quiet = TRUE)
 ```
 
-# Visualisation
+# Objets `sf`
 
 La première étape est de caractériser ces objets spatiaux. Ces objets sont de la classe `sf`.
 
@@ -39,4 +41,109 @@ La première étape est de caractériser ces objets spatiaux. Ces objets sont de
 is(communes)
 is(route)
 ```
+
+Un objet `sf` est un tableau qui se manipulera comme un `data.frame`. 
+Cependant, l'objet `sf` a la caractéristique de contenir une colonne `geometry` qui donne les coordonnées de l'objet géographique. 
+Cet objet géographique peut être 
+
+- un point;
+- une ligne;
+- un polygone;
+- un ensemble de polygones (`MULTIPOLYGON`);
+- etc... (on trouvera le descriptif des formats [ici](https://r-spatial.github.io/sf/articles/sf1.html))
+
+```{r sig_print_communes}
+communes
+```
+
+```{r sig_print_routes}
+route
+```
+
+Chaque champ de cette colonne `geometry` est un ensemble de valeurs numériques exprimées dans un système de référence, le *coordinate reference system* (CRS). Pour trouver le CRS adapté à sa zone, on pourra consulter [cette page](https://fr.wikipedia.org/wiki/Transverse_universelle_de_Mercator#top-page).
+
+Pour la France, le CRS 2154 est une bonne (au sens du respect des distances après projection) approximation à l'échelle du territoire métropolitaine.
+
+# Mise au format `sf`
+
+Les objets précédents étant nativement des "objets géographiques", on les chargeait directement avec `st_read`. 
+Cependant, on peut transformer un tableau ayant deux colonnes de coordonnées grâce à la fonction `st_as_sf`.
+
+```{r sig_population_brute}
+# Tableau classique
+population_brute <- read.csv("https://github.com/rCarto/geomatique_avec_r/raw/main/data/pop.csv")
+head(population_brute) # Les colonnes x et y sont déjà en CRS(2154)
+```
+
+```{r sig_population_sf}
+population <- st_as_sf(population_brute, 
+                       coords = c("x", "y"), # Spécification des coordonnées
+                       crs = st_crs(2154)) # On utilise st_crs pour specifier un CRS
+population
+```
+
+# Manipulation et visualisation
+
+La manipulation et la visualisation est calquée sur celle des `data.frame`. 
+On pourra utiliser tous les verbes de `dplyr`. 
+
+Par exemple, si on veut obtenir la commune ayant la plus grande population
+
+```{r sig_obtention_tableau}
+filter(communes, POPULATION == max(POPULATION)) %>% 
+  select(NOM_COM, POPULATION) # On note que la colonne geometry est conservé!
+```
+
+
+Pour la représentation graphique, on pourra utiliser le `plot` natif ou, si l'on préfère, se servir de `ggplot2` et de la fonction dédiée `geom_sf`.
+
+```{r sig_communes_plot, warning = FALSE}
+plot(communes)
+```
+
+```{r communes_ggplot, cache = TRUE}
+# Graphique basique des polygones
+ggplot(communes) + 
+  geom_sf()
+
+# Ajout d'un attribut du tableau
+ggplot(communes) +
+  geom_sf(aes(fill = POPULATION)) +
+  scale_fill_viridis_c()
+
+# Ajout d'un 2e objet sf
+ggplot(communes) +
+  geom_sf(fill = "lightblue") +
+  geom_sf(data = route, color = "red")
+```
+
+# Manipulations spatiales
+
+`sf` propose une série de fonctions (ou *verbes* commençant par le préfixe `st_`).
+Par exemple, `st_bbox` extrait le rectangle entourant un objet géométrique.
+
+## `st_intersects`
+
+Ici, si on veut isoler les routes qui traversent la commune de Gramat et la représenter.
+On utilise ici `st_intersects` qui établit si un un ensemble de `geometry` (dans l'argument `x`) intersecte un ou plusieurs `geometry`.
+
+
+```{r sig_plot_communes_gramat, cache = TRUE}
+gramat <- filter(communes, NOM_COM == "Gramat") # On extrait la commune Gramat
+limites_gramat <- st_bbox(gramat) # On en extrait ses limites
+# On s'intéresse aux routes qui traversent Gramat, où ici, st_intersects renvoie 
+# un booleen (c'est le role de sparse = FALSE) si la route traverse gramat.
+routes_gramat <- filter(route, st_intersects(route, gramat, sparse = FALSE))
+
+# On peut faire la représentation graphique.
+ggplot(communes) +
+  geom_sf(color = "black", size = 2)  +
+  geom_sf(data = route, aes(color = "Hors Gramat")) +
+  geom_sf(data = routes_gramat, aes(color = "Traversant Gramat")) +
+  labs(color = "", title = "Commune de Gramat") +
+  coord_sf(xlim = limites_gramat[c("xmin", "xmax")], 
+           ylim = limites_gramat[c("ymin", "ymax")])
+```
+
+## `st_within`
 

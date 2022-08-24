@@ -29,15 +29,13 @@ communes <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/
 
 route <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/lot46.gpkg?raw=true", 
                  layer = "route", quiet = TRUE)
-
-population_brute <- read.csv("https://github.com/rCarto/geomatique_avec_r/raw/main/data/pop.csv")
 ```
 
 # Visualisation
 
-La première étape est de représenter les objets spatiaux. Ces objets sont de la classe `sf`.
+La première étape est de caractériser ces objets spatiaux. Ces objets sont de la classe `sf`.
 
-```{r}
+```{r sig_type_objet}
 is(communes)
 is(route)
 ```

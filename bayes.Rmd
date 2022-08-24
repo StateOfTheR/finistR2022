@@ -26,7 +26,7 @@ library(ggmcmc)
 On considère les données dans le fichier `myOrange.Rdata` qui sont des données (simulées) de croissance d'orangers.  
 
 ```{r data myOrange,class.source = 'fold-show' }
-load("myOrange.Rdata")
+load("resources/data/myOrange.Rdata")
 str(Orange)
 g <- ggplot(Orange,aes(x=age,y = circumference,colour = Tree)) + geom_point() + geom_line()
 g
@@ -146,7 +146,6 @@ ggs_density(model.samples.gg.all,hpd = TRUE)
 theta <- model.samples.all[,]
 post_mean_theta <- apply(theta,2,mean)[1:4]
 print(post_mean_theta)
-
 
 ``` 
 ## 2. Introduction d'effets aléatoires 
@@ -374,6 +373,12 @@ table(models)/length(models)*100
 ``` 
 
 # Stan section
+
+```{r}
+
+```
+
+
 
 # Nimble section
 

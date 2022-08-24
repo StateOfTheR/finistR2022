@@ -1,6 +1,6 @@
 ---
 title: "Packages des nouveautés pour Shiny"
-author: "State of the R"
+author: "State of the R - Aurélie, Cédric et Isabelle"
 date: '2022-08-24'
 output:
   html_document:
@@ -52,28 +52,31 @@ application Shiny puis à comparer les captures d'écran en résultant.
 **RStudio** permet d'utiliser facilement `shinytest2`en proposant des
 boutons d'execution et de récupération des sorties des tests.
 
-Les principales fonctions de `shinytest2` sont: \* `record_test()` \*
-`test_app()`
+Les principales fonctions de `shinytest2` sont: 
 
--   **Etape 1**: Lancer l'application via la fonction `record_test()`,
+* `record_test()`
+* `test_app()`
+
+`record_test()` se déroule en 2 étapes:
+
+* **Etape 1**: Lancer l'application via la fonction `record_test()`,
     intéragir avec l'appli et enregistrer des captures (écrans ou autre)
     aux moments choisis.
 
 2 sortes de "captures":
 
-    - soit captures de valeurs attendues: inputs, outputs et exported values (= reactive() dans shiny) avec le bouton *Expect Shiny values*
-    - soit des captures écran de l'appli avec le bouton *Expect screenshot*
+- soit captures de valeurs attendues: inputs, outputs et exported values (= reactive() dans shiny) avec le bouton *Expect Shiny values*
+- soit des captures écran de l'appli avec le bouton *Expect screenshot*
 
 Code généré sous la forme de tests (`testthat`) et captures enregistrées
 en local.
 
--   **Etape 2**: Si des modifications sont apportées, lors du lancement,
+* **Etape 2**: Si des modifications sont apportées, lors du lancement,
     le code test reproduit le comportement sur l'appli et vérifie que
     les captures actuelles correspondent aux captures initiales.
 
-    -   captures d'écran: comparaison via
-        `testthat::compare_file_binary()`
-    -   valeurs attendues: comparaison des .json
+- captures d'écran: comparaison via `testthat::compare_file_binary()`
+- valeurs attendues: comparaison des .json
 
 ```{r,eval=FALSE}
 library(shinytest2)
@@ -128,7 +131,8 @@ rmarkdown à partir des inputs de l'utilisateur (reproductibilité).
 ![](https://dreamrs.github.io/shinyWidgets/reference/figures/dropdown_btn_off.png)
 
 ![](https://dreamrs.github.io/shinyWidgets/reference/figures/dropdown_btn_on.png)
-\# Editeurs d'UI
+
+# Editeurs d'UI
 
 ## shinyuieditor
 
@@ -176,7 +180,7 @@ permettant de créer les graphs.
 <https://thinkr.fr/introduction-au-package-golem-en-video/>
 
 `golem` est un framework de construction et packaging d'applications
-shiny. Il permet de construire, tester, déployer une appli avec uns
+shiny. Il permet de construire, tester, déployer une appli avec une
 structure de package: plus couteux en développement mais surement plus
 robuste.
 
@@ -214,9 +218,10 @@ pas l'utiliser pour des applications à déployer en production.
 
 # Quelques autres extensions 
 
+Une liste très complète d'extensions de Shiny répertoriée Nan Xiao:
+
 https://github.com/nanxstats/awesome-shiny-extensions
 
-![](https://github.com/nanxstats/awesome-shiny-extensions/raw/master/logo.png)
 
 # Références
 

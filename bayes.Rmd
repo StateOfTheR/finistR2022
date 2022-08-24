@@ -17,21 +17,23 @@ knitr::opts_chunk$set(echo = TRUE)
 Les packages utiles sont: 
 ```{r packages, message = FALSE,class.source = 'fold-show'}
 library(rjags)
+library(rstan)
 library(ggplot2)
 library(ggmcmc)
 ``` 
 
+
 On considère les données dans le fichier `myOrange.Rdata` qui sont des données (simulées) de croissance d'orangers.  
 
 ```{r data myOrange,class.source = 'fold-show' }
-load("myOrange.Rdata")
+load("resources/data/myOrange.Rdata")
 str(Orange)
 g <- ggplot(Orange,aes(x=age,y = circumference,colour = Tree)) + geom_point() + geom_line()
 g
 ``` 
 
 
-
+# Jags section
 
 ## 1. Modèle non linéaire à effets fixes
 
@@ -144,7 +146,6 @@ ggs_density(model.samples.gg.all,hpd = TRUE)
 theta <- model.samples.all[,]
 post_mean_theta <- apply(theta,2,mean)[1:4]
 print(post_mean_theta)
-
 
 ``` 
 ## 2. Introduction d'effets aléatoires 
@@ -370,4 +371,14 @@ U <- as.list(as.data.frame(theta[,4:6]))
 models<- do.call(paste, c(U, sep = ""))  
 table(models)/length(models)*100
 ``` 
+
+# Stan section
+
+```{r}
+
+```
+
+
+
+# Nimble section
 

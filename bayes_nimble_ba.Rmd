@@ -1,0 +1,138 @@
+---
+title: "bayes_nimble_ba"
+author: "Baptiste Alglave"
+date: '2022-08-23'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages, message = FALSE,class.source = 'fold-show'}
+library(bayesplot)
+library(rstan)
+library(ggplot2)
+library(ggmcmc)
+library(nimble)
+``` 
+
+
+## Stan - Gaussian distribution
+
+Let's introduce the standard Gaussian distribution:
+
+$$Y \sim \mathcal{N}(\mu,\sigma^2)$$
+
+We simulate $Y$ 100 times with $\mu=3$ and $\sigma=10$ and estimate the parameters through a similar model coded in Stan.
+
+```{r}
+
+# Simulate Normal distribution
+Y <- rnorm(n = 100, mean = 3, sd = 10)
+
+# The Stan model is under the file "resources/models/model.stan"
+
+# Shape data
+lst_score_data <- list(y = Y, N = length(Y))
+
+# Fit the model with the default values of number of
+# chains and iterations: chains = 4, iter = 2000
+fit_score <- stan(
+  file = "resources/models/model.stan",
+  data = lst_score_data
+)
+
+# Chains - n.b. by default the nb of iteration is 2000 and the burn-in is 1000
+traceplot(fit_score, pars = c("mu", "sigma"))
+
+# Parameters posterior summary
+print(fit_score, pars = c("mu", "sigma"))
+
+# Parameters posterior
+df_fit_score <- as.data.frame(fit_score)
+mcmc_hist(df_fit_score, pars = c("mu", "sigma"))
+
+```
+
+This example is based on \url{https://vasishth.github.io/bayescogsci/book/sec-firststan.html}.
+
+
+## Nimble - Growth model
+
+We consider (simulated) growth data of orange trees simulated following the model:
+
+$$Y_{ij} = \frac{A}{1+e^{-\left(\frac{ t_{ij} - B}{C}\right)}} + \varepsilon_{ij},\quad   \varepsilon_{ij} \sim  \mathcal{N}(0,\sigma^2)$$
+
+Parameters are $A$, $B$ and $C$ and $\sigma$.
+
+```{r data}
+
+## Data
+load("resources/data/myOrange.Rdata")
+str(Orange)
+g <- ggplot(Orange,aes(x=age,
+                       y=circumference,
+                       colour=Tree))+
+  geom_point()+
+  geom_line()
+plot(g)
+
+y <- Orange$circumference
+age <- Orange$age
+n <- length(y)
+
+## Shape inputs
+growth_data <- list(y = y, age = age)
+growth_constants <- list(n = n)
+growth_inits <- list(tau = rgamma(1,10,2000),
+                     A = rnorm(1,200,30),
+                     B = rnorm(1,700,200),
+                     C = rnorm(1,300,100))
+
+## Model specification - n.b. the notations are the same as in rjags
+growth_code_dcat <- nimbleCode({
+  
+  # observations
+  for (i in 1:n){
+    y[i] ~ dnorm(mu[i],tau)
+    mu[i] <- (A)/(1+exp(-(age[i]- B)/(C)))
+  }
+  
+  # priors
+  tau ~ dgamma(10,2000)
+  A  ~ dnorm(100,1/100000)
+  B  ~ dnorm(100,1/100000)
+  C  ~ dnorm(100,1/100000)
+  
+  # quantities of interest
+  sigma2 <- 1/tau
+  
+})
+
+# Create model
+growth_model <- nimbleModel(code = growth_code_dcat,
+                            constants = growth_constants,
+                            data = growth_data,     # data can be set later.
+                            inits = growth_inits  # inits can be set later.
+                            )
+
+# Create MCMC
+growth_MCMCconf <- configureMCMC(growth_model, monitors = c("A",
+                                                            "B",
+                                                            "C",
+                                                            "tau")) 
+growth_MCMC <- buildMCMC(growth_MCMCconf)
+
+# Compile model
+C_growth_model <- compileNimble(growth_model,showCompilerOutput = TRUE)
+C_growth_MCMC <- compileNimble(growth_MCMC, project = growth_model)
+
+# Run MCMC sampler
+samples <- runMCMC(C_growth_MCMC, niter = 10000,
+                   nburnin = 2000, samplesAsCodaMCMC = TRUE)
+
+summary(samples)
+plot(samples)
+
+```

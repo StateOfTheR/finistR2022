@@ -209,13 +209,15 @@ avant de procéder à l'optimisation à proprement parler. Pour cette dernière,
 theta_current <- torch_tensor(rep(0, length(theta)), requires_grad = TRUE)
 ```
 
-et d'un optimiseur
+et d'un optimiseur:
 
 ```{r}
 theta_optimizer <- optim_rprop(theta_current)
 ```
 
-Intuitivement, l'optimiseur a juste besoin de la valeur de $\theta$ et de son gradient pour le mettre à jour. Mais à ce stade on ne connaît pas encore le gradient $\nabla_\theta \mathcal{L}(\mathbf{X}, \mathbf{y}; \theta)$. Pour plus de détails sur rprop : <https://florian.github.io/rprop/>
+On considère ici l'optimiseur Rprop (resilient backpropagation) qui ne prend pas en compte l'amplitude du gradient mais uniquement le signe de ses coordonnées (voir [ici pour une introduction pédagogique à Rprop](https://florian.github.io/rprop/)). 
+
+Intuitivement, l'optimiseur a juste besoin de la valeur de $\theta$ et de son gradient pour le mettre à jour. Mais à ce stade on ne connaît pas encore le gradient $\nabla_\theta \mathcal{L}(\mathbf{X}, \mathbf{y}; \theta)$
 
 ```{r}
 theta_current$grad

@@ -60,7 +60,7 @@ x <- torch_tensor(x)
 ## Exemple régression multivariée
 
 
-Cet exemple a été réalisé à partir du blog [torch for optimization](https://blogs.rstudio.com/ai/posts/2021-04-22-torch-for-optimization/)
+Cet exemple a été réalisé à partir du blog [torch for optimization](https://blogs.rstudio.com/ai/posts/2021-04-22-torch-for-optimization/). Ici l'objectif est de réaliser l'optimisation d'un modèle linéaire (variance inclue) en 
 
 
 ```{r}
@@ -94,6 +94,7 @@ LogLik.r(as.matrix(rep(1,12)))
 num_iterations <- 1000
 lr <- 0.01
 optimizer <- optim_adam(Theta,lr)
+optimizer <- optim_rprop(Theta,lr)
 
 ## Optimization step description
 calc_loss <- function() {
@@ -118,8 +119,6 @@ Theta$grad
 
 ## Compare the coef estimates with the ones of lm 
 Res <- lm(Y ~ X[,-1] )
-Res$coefficients
-
 plot(Res$coefficients,as.numeric(Theta)[-12])
 abline(a=0,b=1,col=2)
 

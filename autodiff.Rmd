@@ -269,9 +269,12 @@ theta_current
 plot(1:num_iterations, loss_vector)
 ```
 
+
 ## Exemple régression multivariée
 
-Cet exemple a été réalisé à partir du blog [torch for optimization](https://blogs.rstudio.com/ai/posts/2021-04-22-torch-for-optimization/). Ici l'objectif est de réaliser l'optimisation d'un modèle linéaire (variance inclue) en 
+On considère un exemple de régression multiple, réalisé à partir du blog [torch for optimization](https://blogs.rstudio.com/ai/posts/2021-04-22-torch-for-optimization/), où l'on cherche à estimer les paramètres de moyenne ainsi que la variance par maximisation de la vraisemblance.
+
+On génère les données
 
 ```{r}
 ## Generate the data
@@ -279,49 +282,116 @@ X <- cbind(rep(1,100),matrix(rnorm(1000),100,10))
 Beta.true <- rnorm(11)
 Y <- X%*%Beta.true + rnorm(100)
 n <- nrow(X)
+```
 
+
+La fonction de perte à optimiser (ici la log-vraisemblance) va dépendre d'inputs définis comme des "tenseurs torch":
+
+```{r}
 ## Declare the loss function
 Theta <- torch_tensor(rep(1,12) %>% as.matrix, requires_grad = TRUE)
 X.tensor <- torch_tensor(X)
-LogLik <- function(theta){
-  n*torch_log(theta[12]) + torch_square(torch_norm(Y-torch_matmul(X.tensor,theta[1:11])))/(2*torch_square(theta[12]))
+```
+
+Quelques remarques :
+- le paramètre $\theta$ à optimiser est ici défini comme un tenseur, i.e. un objet qui va notamment stocker la valeur courante de $\theta$. Avec l'option "requires_grad=TRUE" la valeur courante du gradient de la dernière fonction appelée dépendant de $\theta$ va aussi être stockée. 
+- la matrice $X$ est aussi définie comme un tenseur, mais l'option "requires_grad=TRUE" n'a pas été spécifiée, le gradient ne sera donc pas stocké pour cet objet. 
+Cette distinction est explicitée lorsque l'on affiche les deux objets:
+```{r}
+Theta[1:3]
+X.tensor[1:3,1:3]
+```
+
+La fonction de perte est ici la log-vraisemblance, elle-même définie à partir d'opérateurs torch élémentaires :
+```{r}
+LogLik <- function(){
+  torch_mul(n,torch_log(Theta[12])) + torch_square(torch_norm(Y-torch_matmul(X.tensor,Theta[1:11])))/(2*torch_square(Theta[12]))
 }
-LogLik(Theta)
+```
 
-## Check with an R equivalent
-LogLik.r <- function(theta){
-  n*log(theta[12]) + sum((Y-X%*%theta[1:11])**2)/(2*theta[12])
-}
-LogLik.r(as.matrix(rep(1,12)))
+La fonction LogLik peut être appliquée comme une fonction R qui prendra directement en argument les valeurs courantes de X.tensor et $\theta$, et produira en sortie un tenseur
+```{r}
+LogLik()
+```
+
+Outre la valeur courante de la fonction, ce tenseur contient la "recette" du graphe computationnel utilisé dans calcul backward du gradient de la fonction LogLik par rapport à $\theta$. On peut ainsi afficher la dernière opération de ce graphe
+```{r}
+toto <- LogLik()
+toto$grad_fn
+```
+correspondant à l'addition (AddBackward) des deux termes
+$$  n\times \log(\theta[12]) \quad \text{et} \quad ||Y-X\theta[1:11]||^2/(2*\theta[12]^2)$$
+dans le calcul de la perte. On peut afficher les opérations suivantes dans le graphe comme suit:
+```{r}
+toto$grad_fn$next_functions
+```
 
 
+L'étape suivante consiste à choisir la méthode d'optimisation à appliquer. L'intérêt d'utiliser le package torch est d'avoir accès à une large gamme de méthodes d'optimisation, on considère ici la méthode rprop qui réalise une descente de gradient à pas adaptatif et spécifique à chaque coordonnée:
+
+```{r}
 ## Specify the optimization parameters
-num_iterations <- 1000
 lr <- 0.01
-optimizer <- optim_adam(Theta,lr)
 optimizer <- optim_rprop(Theta,lr)
+```
 
+On décrit maintenant un pas de calcul du gradient, contenant les étapes suivantes :
+- réinitialisation du gradient de $\theta$,  
+- évaluation de la fonction de perte (avec la valeur courante de $\theta$),    
+- calcul backward du gradient.
+On inclut tout cela dans une fonction:
+```{r}
 ## Optimization step description
 calc_loss <- function() {
-  
   optimizer$zero_grad()
-  value <- LogLik(Theta)
+  value <- LogLik()
   value$backward()
   value
 }
+```
 
+Commencons par regarder ce que fait concrètement cette fonction. L'état courant du paramètre est le suivant:
+```{r}
+Theta
+Theta$grad
+```
+On applique une première fois la fonction, et on obtient la mise à jour suivante :
+```{r}
+calc_loss()
+Theta
+Theta$grad
+```
+Comme on le voit la valeur courante du paramètre n'a pas changée, en revanche Theta\$grad contient maintenant le gradient de la fonction de perte calculé en $\theta$. Dans le cas où la méthode d'optimisation considérée n'a besoin que de la valeur courante du gradient et du paramètre, on peut directement faire la mise à jour de $\theta$ : 
+```{r}
+optimizer$step()
+Theta
+Theta$grad
+```
+
+Il n'y a plus qu'à itérer !
+
+```{r}
 ## Run the optimization
+num_iterations <- 100
 LogLik.hist <- rep(NA,num_iterations)
 for (i in 1:num_iterations) {
-  LogLik.hist[i] <- optimizer$step(calc_loss) %>% as.numeric
+  LogLik.hist[i] <- calc_loss() %>% as.numeric
+  optimizer$step() 
 }
+```
 
+On vérifie que l'optimisation s'est bien passée (ie que l'on a minimisé la fonction de perte)
+
+```{r}
 ## How does the loss function behave ?
 plot(LogLik.hist,cex=0.4)
 
 ## Are the gradients at 0 ?
 Theta$grad
+```
 
+et que le résultat est comparable à la solution classique obtenue par OLS :
+```{r}
 ## Compare the coef estimates with the ones of lm 
 Res <- lm(Y ~ X[,-1] )
 plot(Res$coefficients,as.numeric(Theta)[-12])

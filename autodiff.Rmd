@@ -489,7 +489,7 @@ Par exemple, en considérant que la fonction implémentée correspond à la fonc
 $$x \xrightarrow[]{f} y \rightarrow z,$$
 La méthode `backward` de la fonction $f$ doit être capable de sortir $\partial z / \partial x = (\partial y / \partial x)(\partial z / \partial y)$, où dans l'exemple précédent $\partial z / \partial y$ est représenté par l'argument `grad_output`.
 
-# Un exemple pratique: le modèle Poisson Longnormal
+# Un exemple pratique: le modèle Poisson Lognormal
 
 ### Le modèle
 

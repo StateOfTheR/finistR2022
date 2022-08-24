@@ -80,6 +80,22 @@ En pratique, `FROM` récupère l'image sur Docker Hub, dans le dépôt correspon
 Les commandes RUN et CMD permettent de modifier une image existante en rajpoutant des instructions (créer des objets dans l'environnement virtuel, rajouter des packages, installer d'autres logiciels, créer un pont entre l'environnement virtuel et son répertoire local pour récupérer des objets créés dans l'environnement virtuel). La différence entre les deux instructions est que RUN sera exécutée lors de la construction de l'image (i.e. lorsque l'on exécute la commande `docker build`), tandis que CMD sera exécutée lors de l'instanciation (ie lorsque l'on exécute la commande `docker run`)  
 Exemple : supposons que l'on souhaite lancer un script R (contenu dans le fichier Script.R) dans l'environnement virtuel, et que ce script génère un tirage aléatoire. L'instruction  `RUN R -e "source('/home/analysis/ScriptR.R')"` réalisera le tirage lors de la création de l'image, tous les conteneurs générés à partir de cette image contiendront donc la même réalisation du tirage. A l'inverse la commande `CMD R -e "source('/home/analysis/ScriptR.R')"` réalisera le tirage lors de la création du conteneur, et chaque exécution de la commande `docker run` génerera un tirage différent.  
 
+## Variables d'environnement
+Comme RUN et CMD il y a deux moyens de définir des variables d'environnement: celles qui seront disponible au build et celles qui seront disponibles dans le container. 
+
+Dans le Dockerfile du site on trouve 
+
+```{r env_build, echo = TRUE, eval = FALSE}
+RUN export DEBIAN_FRONTEND=noninteractive
+```
+Cette commande définit une variable d'environnement pour construire l'image (d'où l'utilisation de la commande RUN).
+
+On a besoin pour construire ce site de définir une variable d'environnement `R_CRAN_WEB` pour une fonction utilisée dans R. C'est possible grâce à la commande ENV, et c'est fait dans la recette à la ligne 
+
+```{r env_run, echo = TRUE, eval = FALSE}
+ENV R_CRAN_WEB="https://cran.rstudio.com/" 
+```
+
 ## Autres instructions utiles à inclure dans un docker file:
 
 `COPY` : permet de copier un fichier de son disque local sur l'environnement virtuel (eg pour passer un fichier de données)

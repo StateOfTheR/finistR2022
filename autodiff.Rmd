@@ -515,6 +515,7 @@ Le modèle Poisson lognormal multivarié lie des vecteurs de comptages $p$-dimen
   \end{array}
 \end{equation}
 ```
+
 L'effet principal est dû à une combinaison linéaire de $d$ covariables $\mathbf{x}_i$ (includant un vecteur de constantes). Le vecteur fixé $\mathbf{o}_i$ correspond à un vecteur d'offsets, c'est-à-dire un effet connu est fixé sur les $p$ variables dans chaque échantillon. Les paramètres à estimer sont la matrice des coefficients de régression $\boldsymbol B$ et la matrice de covariance $\boldsymbol\Sigma = \mathbf{\Omega}^{-1}$ décrivant la structure de dépendance résiduelle entre les $p$ variables dans l'espace latent. On note $\theta = ({\boldsymbol B}, \mathbf{\Omega})$ le vecteur des paramètres du modèles.
 
 ### Approximation variationnelle
@@ -541,7 +542,7 @@ Notre approche consiste à utiliser une forme dite variationnelle de l'algorithm
 ```
 ### Optimiseur classique
 
-L'optimiseur implémenté dans **PLNModels** s'appuie sur les gradients des paramètres $\theta$ et $\psi$
+L'optimiseur implémenté dans **PLNmodels** s'appuie sur les gradients des paramètres $\theta$ et $\psi$
 
 ```{=tex}
 \begin{align}

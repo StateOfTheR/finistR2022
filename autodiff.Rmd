@@ -382,7 +382,7 @@ L'optimiseur implémenté dans **PLNModels** s'appuie sur les gradients des para
   \begin{split}
     \nabla_{\mathbf{B}} J_n(\theta)  & = \mathbf{X}^\top (\mathbf{Y}  - \mathbf{A}), \\
     %
-    \nabla_{\mathbf{\Omega}} J_n(\theta) & = \frac{n}{2} \left[  \mathbf{\Omega}^{-1} - \frac{\mathbf{M}^\top\mathbf{M} + \bar{\mathbf{S}}^2}{n} \right] \Leftrightarrow \mathbf{\Omega}^{-1} = \frac{1}{n}\left(frac{\mathbf{M}^\top\mathbf{M} + \bar{\mathbf{S}}^2\right)  \\
+    \nabla_{\mathbf{\Omega}} J_n(\theta) & = \frac{n}{2} \left[  \mathbf{\Omega}^{-1} - \frac{\mathbf{M}^\top\mathbf{M} + \bar{\mathbf{S}}^2}{n} \right] \Leftrightarrow \mathbf{\Omega}^{-1} = \frac{1}{n}\left(\mathbf{M}^\top\mathbf{M} + \bar{\mathbf{S}}^2\right)  \\
  \nabla_{\mathbf{M}} J_n(\mathbf{\psi}) & = \mathbf{Y} - \tilde{\!\mathbf{A}} - \mathbf{M}\mathbf{\Omega} \\[1.5ex]
     %
  \nabla_{\mathbf{S}} J_n(\mathbf{\psi}) & = -\mathbf{S} \circ \tilde{\!\mathbf{A}} + 1/\mathbf{S} - \mathbf{S}\mathbf{D}_{\mathbf{\Omega}}\\[1.5ex]

@@ -1,0 +1,234 @@
+---
+title: "Packages des nouveautés pour Shiny"
+author: "State of the R"
+date: '2022-08-24'
+output:
+  html_document:
+    toc: yes
+    toc_float: true
+---
+
+# Objectif
+
+Cette page présente quelques packages permettant d'améliorer
+l'utilisation de Shiny, en terme de validation/test de code, aide à la
+création d'UI, ajouts de nouvelles fonctionnalités...
+
+# Validation entrées clavier utilisateurs
+
+## fomantic.plus
+
+<https://github.com/ashbaldry/fomantic.plus>
+
+`fomantic.plus` est un package permettant de contrôler et valider les
+entrées clavier d'un utilisateur sur une application shiny. Il est
+disponible sur github mais pas sur le CRAN pour le moment. En cours de
+développement, il serait intéressant à suivre...
+
+## shinyvalidate
+
+`shinyvalidate` est un package disponible sur le CRAN, en version en
+cours de maturation, développé par Rstudio. Il permet comme
+`fomantic.plus` de valider les entrées clavier de l'utilsateur.
+
+<https://rstudio.github.io/shinyvalidate/>
+
+# shinytest2
+
+<https://rstudio.github.io/shinytest2/>)
+
+L'objectif de `shinytest2` est de tester les sorties d'une application
+shiny en utilisant `testthat` et est développé par Rstudio. Une ancienne
+version du package était disponible depuis 2018 (`shinytest`) mais
+reposant sur une technologie n'étant plus maintenue a été totalement
+refondue en `shinytest2`.
+
+`shinytest2`est disponible sur le CRAN mais est toujours en
+développement donc attention aux évolutions à suivre...
+
+`shinytest2` permet d'enregistrer à la volée les tests à appliquer à une
+application Shiny puis à comparer les captures d'écran en résultant.
+
+**RStudio** permet d'utiliser facilement `shinytest2`en proposant des
+boutons d'execution et de récupération des sorties des tests.
+
+Les principales fonctions de `shinytest2` sont: \* `record_test()` \*
+`test_app()`
+
+-   **Etape 1**: Lancer l'application via la fonction `record_test()`,
+    intéragir avec l'appli et enregistrer des captures (écrans ou autre)
+    aux moments choisis.
+
+2 sortes de "captures":
+
+    - soit captures de valeurs attendues: inputs, outputs et exported values (= reactive() dans shiny) avec le bouton *Expect Shiny values*
+    - soit des captures écran de l'appli avec le bouton *Expect screenshot*
+
+Code généré sous la forme de tests (`testthat`) et captures enregistrées
+en local.
+
+-   **Etape 2**: Si des modifications sont apportées, lors du lancement,
+    le code test reproduit le comportement sur l'appli et vérifie que
+    les captures actuelles correspondent aux captures initiales.
+
+    -   captures d'écran: comparaison via
+        `testthat::compare_file_binary()`
+    -   valeurs attendues: comparaison des .json
+
+```{r,eval=FALSE}
+library(shinytest2)
+
+test_that( "{shinytest2} recording: test-shiny", { 
+  app <- AppDriver$new(variant = platform_variant(), name = "test-shiny",  
+                       height = 746, width = 1235)  
+  app$set_inputs(x= character(0)) 
+  app$set_inputs(x = 9)  
+  app$set_inputs(z = 10)
+  app$set_inputs(y = 9)  
+  app$set_inputs(y = 8)
+  app$expect_screenshot()  
+  app$set_inputs(y = 9)
+  app$set_inputs(y = 10)  
+  app$set_inputs(y = 11)
+  app$set_inputs(y = 12)  
+  app$set_inputs(y = 13)
+  app$set_inputs(y = 14)  
+  app$expect_values() })
+
+# ==> Testing R file using 'testthat'
+# Le chargement a nécessité le package : shiny
+# ══ Testing test-shinytest2.R ═══════════════════════════════════════════════
+
+# [ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]
+# [ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]
+# [ FAIL 0 | WARN 0 | SKIP 0 | PASS 2 ] Done!
+
+# Test complete
+```
+
+# shinymeta
+
+<https://rstudio.github.io/shinymeta/>
+
+`shinymeta` est un package disponible sur le CRAN, expérimental
+(attention aux évolutions). Il permet de capturer l'historique d'un
+objet shiny et de générer le code pour recréer les résultats produits
+par l'utilisateur. Il peut aussi être utilisé pour générer des rapports
+rmarkdown à partir des inputs de l'utilisateur (reproductibilité).
+
+# Packages pour améliorer le visuel de UI
+
+-   [shinydashboardPlus](https://rinterface.github.io/shinydashboardPlus/):
+    package disponible sur le CRAN en version stable, permettant
+    d'ajouter des fonctionnalités aux dashboards classiques.
+-   [shinyWidgets](https://dreamrs.github.io/shinyWidgets/): package
+    disponible sur les CRAN permettant d'améliorer le visuel des widgets
+    des applis.
+
+![](https://dreamrs.github.io/shinyWidgets/reference/figures/dropdown_btn_off.png)
+
+![](https://dreamrs.github.io/shinyWidgets/reference/figures/dropdown_btn_on.png)
+\# Editeurs d'UI
+
+## shinyuieditor
+
+`shinyuieditor` est un package très récent, encore en version alpha en
+cours de développement (par Rstudio) qui permet d'aider à la création de
+la partie UI d'une application, sans écriture de code:
+
+<https://rstudio.github.io/shinyuieditor/index.html>.
+
+une présentation du créateur du package:
+<https://nickstrayer.me/rstudioconf2022/#/section-6>
+
+Ce package se focalise uniquement sur la partie UI et ne gère pas du
+tout la création de la partie serveur de l'appli.
+
+<https://rstudio.github.io/shinyuieditor/articles/how-to.html>
+
+https://rstudio.github.io/shinyuieditor/articles/ui-editor-live-demo.html
+
+## designer
+
+`designer` est également un package permettant de créer des UI
+d'applications Shiny en "clique-boutons", disponible sur le CRAN, en
+version expérimentale mais semblant plus stable que `shinyuieditor`.
+
+-   <https://ashbaldry.github.io/designer/>
+-   <https://github.com/ashbaldry/designer>
+-   <https://cloud.r-project.org/web/packages/designer/index.html>
+
+# esquisse
+
+`esquisse` n'est pas vraiment un package pour shiny mais une app pour
+créer des ggplot2 interactivement avec ses données:
+<https://dreamrs.github.io/esquisse/>. Cet addin permet d'explorer ses
+données en les visualisant avec `ggplot2` et en testant différents
+façons de les représenter. Il est alors possible de récupérer le code
+permettant de créer les graphs.
+
+![](https://dreamrs.github.io/esquisse/reference/figures/esquisse.gif)
+
+# golem
+
+<https://thinkr-open.github.io/golem/>
+
+<https://thinkr.fr/introduction-au-package-golem-en-video/>
+
+`golem` est un framework de construction et packaging d'applications
+shiny. Il permet de construire, tester, déployer une appli avec uns
+structure de package: plus couteux en développement mais surement plus
+robuste.
+
+L'architecture des applications est basée sur les **shiny modules**:
+
+-   <https://emilyriederer.netlify.app/post/shiny-modules/>
+-   <https://mastering-shiny.org/scaling-modules.html>
+-   <https://shiny.rstudio.com/articles/modules.html>
+
+# reactlog
+
+<https://rstudio.github.io/reactlog/>
+
+`reactlog`est un package, disponible sur le CRAN permettant de suivre la
+réactivité et les interactions entre les éléments et faciliter le
+débugage de l'application.
+
+Il produit un graph de dépendence de réactivité qui permet au
+développeur de naviguer dans l'hstorique des éléments réactifs.
+Visualiser l'arbre permet de chercher des erreurs mais également de le
+simplifier pour optimiser le code.
+
+![](http://rstudio.github.io/reactlog/readme-images/pythagoras.gif)
+
+# Shiny for Python
+
+Un nouveau concurrent de Dash sur Python, évidemment développé par
+Rstudio: <https://shiny.rstudio.com/py/>
+
+Attantion, pour le moment, **Shiny for Python** est en version alpha,
+potentiellement instable et en cours d'évolution. Ils recommandent de ne
+pas l'utiliser pour des applications à déployer en production.
+<https://shinylive.io/py/examples/#app-with-plot>
+
+
+# Quelques autres extensions 
+
+https://github.com/nanxstats/awesome-shiny-extensions
+
+![](https://github.com/nanxstats/awesome-shiny-extensions/raw/master/logo.png)
+
+# Références
+
+-   <https://rstudio.github.io/shinytest2/>
+-   <https://rstudio.github.io/shinymeta/>
+-   <https://rinterface.github.io/shinydashboardPlus/>
+-   <https://dreamrs.github.io/shinyWidgets/>
+-   <https://rstudio.github.io/shinyuieditor/index.html>
+-   <https://ashbaldry.github.io/designer/>
+-   <https://github.com/ashbaldry/fomantic.plus>
+-   <https://rstudio.github.io/shinyvalidate/>
+-   <https://dreamrs.github.io/esquisse/>
+-   <https://shiny.rstudio.com/py/>
+-   <https://thinkr-open.github.io/golem/>
+-   <https://rstudio.github.io/reactlog/>

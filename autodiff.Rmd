@@ -11,28 +11,91 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Exploration de `{{torch}}` pour la différentiation automatique
 
-## Installation 
+## Installation
 
-Le package [`torch`]() permet de faire de la différentiation automatique à condition de réécrire son code avec les fonctions de `torch`. Il est basé sur la libraire C++ `libtorch` fourni dans PyTorch. Contrairement à d'anciennes versions, torch ne **fait pas** appel à python et ne nécessite pas reticulate. L'installation en est d'autant plus simple: 
+Le package [`torch`]() permet de faire de la différentiation automatique à condition de réécrire son code avec les fonctions de `torch`. Il est basé sur la libraire C++ `libtorch` fourni dans PyTorch. Contrairement à d'anciennes versions, torch ne **fait pas** appel à python et ne nécessite pas reticulate. L'installation en est d'autant plus simple:
 
 ```{r, eval = FALSE}
 install.packages(torch)
 ```
 
-Lors de la première utilisation, `torch` vous demandera de télécharger des fichiers supplémentaires via: 
+Lors de la première utilisation, `torch` vous demandera de télécharger des fichiers supplémentaires via:
 
 ```{r, eval = FALSE}
 torch::install_torch() ## si vous avez un GPU compatible avec CUDA
 ## torch::install_torch(type = "cpu") ## sinon
 ```
 
-`torch` est surtout utilisé pour des applications en ML/IA mais on peut aussi l'utiliser pour des calculs de gradients, hessiennes et de l'optimisation dans des modèles plus simples. On va l'illustrer ici pour de la régression logistique. 
+`torch` est surtout utilisé pour des applications en ML/IA mais on peut aussi l'utiliser pour des calculs de gradients, hessiennes et de l'optimisation dans des modèles plus simples. On va l'illustrer ici pour de la régression logistique.
 
 ```{r}
 library(tidyverse)
 library(torch)
 ```
 
+## Principe du calcul de gradient
+
+`torch` fonctionne avec ses propres types numériques, qu'il faut créer avec la fonction `torch_tensor()` et ses propres fonctions `torch_*()`. Considérons un example très simple:
+$ x \mapsto x^2$
+
+```{r}
+x <- torch_tensor(3)
+y <- torch_square(x)
+x; y
+```
+
+On va pouvoir calculer $\frac{dy}{dx}$ en définissant `x` avec l'argument `require_grad = TRUE`. 
+
+```{r}
+x <- torch_tensor(2, requires_grad = TRUE)
+x
+```
+
+On remarque que `x` possède désormais un champ `$grad` (même si ce dernier n'est pas encore défini)
+
+```{r}
+x$grad
+```
+
+Lorsqu'on calcule $y = x^2$, ce dernier va également hériter d'un nouveau champ `$grad_fn`:
+
+```{r}
+y <- torch_log(torch_square(x))
+y
+y$grad_fn
+```
+
+qui indique comment calculer le gradient en utilisant la dérivée des fonctions composées:
+
+$$
+(g\circ f)'(x) = f'(x) \times g'(f(x))
+$$
+
+et les fonctions 
+
+$$
+\frac{dx^2}{dx} = 2x \quad \frac{d \log(x)}{dx} = \frac{1}{x}
+$$
+Le calcul effectif du gradient est déclenché lors de l'appel à la méthode `$backward()` de `y` et est stocké dans le champ `$grad` de `x`.
+
+```{r}
+x$grad ## gradient non défini
+y$backward() 
+x$grad ## gradient défini = 1/4
+```
+
+On a bien:
+
+$$
+\frac{dy}{dx} = \underbrace{\frac{dy}{dz}}_{\log}(z) \times \underbrace{\frac{dz}{dx}}_{\text{power}}(x) = \frac{1}{4} \times 2*2 = 1
+$$
+Intuitivement au moment du calcul de `y`, `torch` construit un graphe computationel qui lui permet d'évaluer **numériquement** $\frac{dy}{dx}$ au moment de l'appel à `$backward()`. Ce graphe est illustré ci dessous pour la fonction $(x_1, x_2) \mapsto z  = sin(x_2) log(x_1 x_2)$
+
+![](https://pytorch.org/assets/images/augmented_computational_graph.png)
+
+Pour (beaucoup) plus de détails sur le graphe computationel, on peut consulter la [documentation officielle de PyTorch](https://pytorch.org/blog/how-computational-graphs-are-executed-in-pytorch/).
+
+Il faut juste noter que dans `torch`, le graphe computationnel est construit de **façon dynamique**, au moment du calcul de `y`.
 
 ## Régression logistique avec `torch`
 
@@ -42,7 +105,7 @@ $$
 Y_i \sim \mathcal{B}(\sigma(\theta^T x_i)) \quad \text{avec} \quad \sigma(x) = \frac{1}{1 + e^{-x}}
 $$
 
-Le but est d'estimer $\theta$ et éventuellement les erreurs associées. On commence par générer des données. 
+Le but est d'estimer $\theta$ et éventuellement les erreurs associées. On commence par générer des données.
 
 ```{r}
 set.seed(45)
@@ -62,6 +125,10 @@ y <- torch_tensor(Y)
 ```
 
 On écrit ensuite la fonction de vraisemblance
+
+$$
+\mathcal{L}(\mathbf{X}, \mathbf{y}; \theta) = \sum_{i=1}^n y_i (\theta^Tx_i) - \sum_{i=1}^n log(1 + e^{\theta^T x_i})
+$$
 
 ```{r}
 logistic_loss <- function(theta, x, y) {
@@ -100,7 +167,24 @@ eval_loss(torch_tensor(theta), verbose = FALSE)
 
 ```{r}
 theta_grad <- torch_tensor(rep(0, length(theta)), requires_grad = TRUE)
+theta_grad$grad ## undefined
+
 optimizer <- optim_rprop(theta_grad)
+theta_grad$grad ## undefined
+
+
+optimizer$zero_grad()
+theta_grad$grad ## undefined
+
+loss <- eval_loss(theta_grad, verbose = FALSE)
+theta_grad$grad ## undefined
+## cat("Loss is: ", as.numeric(loss), "\n")
+loss$backward()
+theta_grad$grad
+
+optimize
+optimizer$step()
+
 
 
 ## Optimization step description
@@ -135,11 +219,9 @@ tibble(
 )
 ```
 
-
 ## Exemple régression multivariée
 
 Cet exemple a été réalisé à partir du blog [torch for optimization](https://blogs.rstudio.com/ai/posts/2021-04-22-torch-for-optimization/). Ici l'objectif est de réaliser l'optimisation d'un modèle linéaire (variance inclue) en 
-
 
 ```{r}
 ## Generate the data
@@ -204,21 +286,26 @@ Theta[12]
 
 ## Fonctions de torch compatibles avec autograd
 
-- `torch_ones(NB_OF_ROWS, NB_OF_COLS, requires_grad = TRUE)` ou `torch_ones(VECTOR_OF_DIMS, requires_grad = TRUE)` : crée un tenseur rempli de 1.
-- `torch_tensor(OBJECT, requires_grad = TRUE)` : convertit un objet R (vecteur, matrice ou array) en un tenseur torch.
-- `$mean()`, `$sum()`, `$pow(ORDER)`, `$mm(MATRIX)` (matrix multiplication), cf les fonctions torch_* de la documentation R de torch.
-- Les fonctions de torch peuvent s'utiliser de manière analogue aux pipes. Par exemple, `x$mm(w1)$add(b1)$clamp(min = 0)$mm(w2)$add(b2)`.
+-   `torch_ones(NB_OF_ROWS, NB_OF_COLS, requires_grad = TRUE)` ou `torch_ones(VECTOR_OF_DIMS, requires_grad = TRUE)` : crée un tenseur rempli de 1.
 
-- `output$backward()` : effectue la propagation backward pour calculer les gradients successifs.
-- `input$grad` : récupère le gradient de `output` par rapport à `input`.
-- `midput$retain_grad()` : à lancer avant `$backward()$ et permet de stocker les gradients intermédiaires.
+-   `torch_tensor(OBJECT, requires_grad = TRUE)` : convertit un objet R (vecteur, matrice ou array) en un tenseur torch.
+
+-   `$mean()`, `$sum()`, `$pow(ORDER)`, `$mm(MATRIX)` (matrix multiplication), cf les fonctions torch\_\* de la documentation R de torch.
+
+-   Les fonctions de torch peuvent s'utiliser de manière analogue aux pipes. Par exemple, `x$mm(w1)$add(b1)$clamp(min = 0)$mm(w2)$add(b2)`.
+
+-   `output$backward()` : effectue la propagation backward pour calculer les gradients successifs.
+
+-   `input$grad` : récupère le gradient de `output` par rapport à `input`.
+
+-   `midput$retain_grad()` : à lancer avant \`$backward()$ et permet de stocker les gradients intermédiaires.
 
 ## Comment implémenter une fonction compatible avec autograd
 
 Une fonction compatible avec autograd doit être définie via `autograd_function`, et posséder deux méthodes, `forward` et `backward`, qui déterminent respectivement quelle opération est exécutée par le code et comment calculer le gradient.
 
-- `ctx` correspond aux objets partagés entre la méthode `forward` et la méthode `backward`.
-- `$save_for_backward()` permet de sauvegarder des valeurs des inputs et/ou outputs à utiliser lors du calcul du gradient dans la méthode `backward`.
+-   `ctx` correspond aux objets partagés entre la méthode `forward` et la méthode `backward`.
+-   `$save_for_backward()` permet de sauvegarder des valeurs des inputs et/ou outputs à utiliser lors du calcul du gradient dans la méthode `backward`.
 
 Exemple de code :
 
@@ -243,7 +330,4 @@ y$backward()
 x$grad
 ```
 
-`backward` doit être capable de propager le calcul du gradient aux inputs de la fonction implémentée.
-Par exemple, en considérant que la fonction implémentée correspond à la fonction $f$ dans le chainage 
-$$x \xrightarrow[]{f} y \rightarrow z,$$
-la méthode `backward` doit sortir $\partial z / \partial x = (\partial y / \partial x)(\partial z / \partial y)$, où dans l'exemple précédent $\partial z / \partial y$ est représenté par l'argument `grad_output`.
+`backward` doit être capable de propager le calcul du gradient aux inputs de la fonction implémentée. Par exemple, en considérant que la fonction implémentée correspond à la fonction $f$ dans le chainage $$x \xrightarrow[]{f} y \rightarrow z,$$ la méthode `backward` doit sortir $\partial z / \partial x = (\partial y / \partial x)(\partial z / \partial y)$, où dans l'exemple précédent $\partial z / \partial y$ est représenté par l'argument `grad_output`.

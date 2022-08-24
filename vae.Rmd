@@ -1,0 +1,152 @@
+---
+title: "VAE"
+author: "finister2022"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: yes
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simulation de données
+
+Ce document illustre un essai d'auto-encodeur variationnel utilisant la librairie `torch`.
+
+On commence par simuler des données suivant une gaussienne pseudo-dégénérée, via une matrice $A$ de taille $15 \times 3$
+
+$$
+\begin{align*}
+Z & \sim \mathcal{N}_3(0, I_3) \\
+Y = AZ + E & \sim \mathcal{N}_{15}(0, AA^T + \sigma^2 I_{15})
+\end{align*}
+$$
+
+```{r}
+set.seed(42)
+n <- 200
+k <- 3
+p <- 15
+sigma <- 0.1
+A <- matrix(rnorm(p*k), nrow = p, ncol = k)
+Z <- matrix(rnorm(n*k), nrow = n, ncol = k)
+Y <- Z %*% t(A) + sigma * matrix(rnorm(n*p), nrow = n, ncol = p)
+```
+
+On va construire un auto-encoder avec un espace latent de dimension `latent_dim` égale à 2 pour pouvoir faire des dessins.
+
+```{r}
+latent_dim <- 2
+```
+
+## Définition d'un encodeur
+
+On définit ensuite un encodeur comme un réseau très simple avec deux couches linéaires de tailles 10 puis 5 et des fonctions d'activation relu (hormis pour la couche finale de répresentation). 
+
+La construction passe par la définition d'un module (via `nn_module()`) auquel il faut (au moins) fournir 2 méthodes:
+
+- `initialize()` qui indique comment initialiser une nouvelle instance du réseau (et définit l'architecture du réseau)
+- `forward()` qui indique comment réaliser les calculs
+
+```{r}
+encoder <- nn_module(
+  classname = "encoder", 
+  ## Définition des couches
+  initialize = function(in_features, latent_dim) {
+    self$linear1 <- nn_linear(in_features, 10)
+    self$linear2 <- nn_linear(10, 5)
+    self$mean <- nn_linear(5, latent_dim)
+    self$sd  <- nn_linear(5, latent_dim)
+  }, 
+  ## Définitions des calculs
+  forward = function(input) {
+    ## Combinaison linéaire des features dans la première couche
+    input <- self$linear1(input)
+    ## Activation relu
+    input <- nnf_relu(input)
+    ## Combinaison linéaire des features dans la deuxième couche
+    input <- self$linear2(input)
+    ## Activation relu
+    input <- nnf_relu(input)
+    ## Création des paramètres de moyenne et de variance
+    mean <- self$mean(input)
+    sd   <- self$sd(input)
+    ## L'encodeur renvoie mean et sd
+    list(mean, sd)
+  }
+)
+```
+
+On peut aussi définir ce module de façon plus compacte en utilisant `nn_sequential()` pour chaîner des module et indiquer dans la définition les fonctions d'activation à utiliser. 
+
+```{r}
+## Création d'un module compressor
+create_compressor <- function(in_features) {
+  nn_sequential(
+    nn_linear(in_features, 10),
+    nn_relu(),
+    nn_linear(10, 5),
+    nn_relu()
+  )  
+}
+## Création de l'encodeur à l'aide du compresseur
+encoder <- nn_module(
+  classname = "encoder", 
+  ## Définition des couches
+  initialize = function(in_features, latent_dim) {
+    self$compressor <- create_compressor(in_features)
+    self$mean <- nn_linear(5, latent_dim)
+    self$sd  <- nn_linear(5, latent_dim)
+  }, 
+  ## Définitions des calculs
+  forward = function(input) {
+    ## Calcul des répresentations compressées
+    compressed <- self$compressor(input)
+    ## Création des paramètres de moyenne et de variance
+    mean <- self$mean(compressed)
+    sd   <- self$sd(compressed)
+    ## L'encodeur renvoie mean et sd
+    list(mean, sd)
+  }
+)
+```
+
+L'encodeur produit deux vecteurs de taille `latent_dim` à partir d'un vecteur de données (de taille 15). 
+
+## Définition d'un décodeur
+
+On crée ensuite notre décodeur de la même façon. Ce dernier va partir d'un vecteur de taille `latent_dim` pour construire un vecteur de taille 15. Par souci de simplicité, on adopte une architecture symétrique à celle du décodeur à l'exception de la dernière couche (purement linéaire). 
+
+```{r}
+## Création d'un module decompressor
+create_decompressor <- function(latent_dim, out_features) {
+  nn_sequential(
+    nn_linear(latent_dim, 5),
+    nn_relu(),
+    nn_linear(5, 10),
+    nn_relu(),
+    nn_linear(10, out_features),
+  )  
+}
+## Création de l'encodeur à l'aide du compresseur
+decoder <- nn_module(
+  classname = "decoder", 
+  ## Définition des couches
+  initialize = function(latent_dim, out_features) {
+    self$decompressor <- create_decompressor(latent_dim, in_features)
+  }, 
+  ## Définitions des calculs
+  forward = function(input) {
+    self$decompressor(input)
+  }
+)
+```
+
+## Création de la couche variationnelle
+
+
+
+

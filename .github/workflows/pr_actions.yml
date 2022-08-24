@@ -8,8 +8,7 @@ jobs:
     name: Build website with rmarkdown
     runs-on: ubuntu-latest
     container: stateofther/r-finistr2022:0.5
-
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

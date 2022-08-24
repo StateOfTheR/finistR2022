@@ -402,30 +402,25 @@ summary(Res)$sigma**2
 Theta[12]
 ```
 
-# Section Felix
+# Fonctions de torch compatibles avec autograd
 
-## Fonctions de torch compatibles avec autograd
+## Fonctions usuelles définies dans torch
 
--   `torch_ones(NB_OF_ROWS, NB_OF_COLS, requires_grad = TRUE)` ou `torch_ones(VECTOR_OF_DIMS, requires_grad = TRUE)` : crée un tenseur rempli de 1.
+- `torch_ones(NB_OF_ROWS, NB_OF_COLS, requires_grad = TRUE)` ou `torch_ones(VECTOR_OF_DIMS, requires_grad = TRUE)` : crée un tenseur rempli de 1.
+- `torch_tensor(OBJECT, requires_grad = TRUE)` : convertit un objet R (vecteur, matrice ou array) en un tenseur torch.
+- `$mean()`, `$sum()`, `$pow(ORDER)`, `$mm(MATRIX)` (matrix multiplication), cf les fonctions torch_* de la documentation R de torch.
+- Les fonctions de torch peuvent s'utiliser de manière analogue aux pipes. Par exemple, `x$mm(w1)$add(b1)$clamp(min = 0)$mm(w2)$add(b2)`.
 
--   `torch_tensor(OBJECT, requires_grad = TRUE)` : convertit un objet R (vecteur, matrice ou array) en un tenseur torch.
-
--   `$mean()`, `$sum()`, `$pow(ORDER)`, `$mm(MATRIX)` (matrix multiplication), cf les fonctions torch\_\* de la documentation R de torch.
-
--   Les fonctions de torch peuvent s'utiliser de manière analogue aux pipes. Par exemple, `x$mm(w1)$add(b1)$clamp(min = 0)$mm(w2)$add(b2)`.
-
--   `output$backward()` : effectue la propagation backward pour calculer les gradients successifs.
-
--   `input$grad` : récupère le gradient de `output` par rapport à `input`.
-
--   `midput$retain_grad()` : à lancer avant \`$backward()$ et permet de stocker les gradients intermédiaires.
+- `output$backward()` : effectue la propagation backward pour calculer les gradients successifs.
+- `input$grad` : récupère le gradient de `output` par rapport à `input`.
+- `midput$retain_grad()` : à lancer avant `$backward()$ et permet de stocker les gradients intermédiaires.
 
 ## Comment implémenter une fonction compatible avec autograd
 
-Une fonction compatible avec autograd doit être définie via `autograd_function`, et posséder deux méthodes, `forward` et `backward`, qui déterminent respectivement quelle opération est exécutée par le code et comment calculer le gradient.
+Une fonction compatible avec autograd doit être définie comme une classe via l'opérateur `autograd_function`, et posséder deux méthodes, `forward` et `backward`, qui déterminent respectivement quelle opération est exécutée par le code et comment calculer le gradient.
 
--   `ctx` correspond aux objets partagés entre la méthode `forward` et la méthode `backward`.
--   `$save_for_backward()` permet de sauvegarder des valeurs des inputs et/ou outputs à utiliser lors du calcul du gradient dans la méthode `backward`.
+- `ctx` correspond aux objets partagés entre la méthode `forward` et la méthode `backward`, et est toujours le premier argument de ces deux méthodes.
+- `$save_for_backward()` permet de sauvegarder des valeurs des inputs et/ou outputs à utiliser lors du calcul du gradient dans la méthode `backward`.
 
 Exemple de code :
 
@@ -445,14 +440,16 @@ log_base = autograd_function(
 )
 
 x <- torch_tensor(2, requires_grad = TRUE)
-y <- log_base(x, exp(1))
+y <- log_base(x, 10)
 y$backward()
 x$grad
+1 / (2 * log(10))
 ```
 
-`backward` doit être capable de propager le calcul du gradient aux inputs de la fonction implémentée. Par exemple, en considérant que la fonction implémentée correspond à la fonction $f$ dans le chainage $$x \xrightarrow[]{f} y \rightarrow z,$$ la méthode `backward` doit sortir $\partial z / \partial x = (\partial y / \partial x)(\partial z / \partial y)$, où dans l'exemple précédent $\partial z / \partial y$ est représenté par l'argument `grad_output`.
-
-la méthode `backward` doit sortir $\partial z / \partial x = (\partial y / \partial x)(\partial z / \partial y)$, où dans l'exemple précédent $\partial z / \partial y$ est représenté par l'argument `grad_output`.
+`backward` doit être capable de propager le calcul du gradient aux inputs de la fonction implémentée.
+Par exemple, en considérant que la fonction implémentée correspond à la fonction $f$ dans le chainage 
+$$x \xrightarrow[]{f} y \rightarrow z,$$
+La méthode `backward` de la fonction $f$ doit être capable de sortir $\partial z / \partial x = (\partial y / \partial x)(\partial z / \partial y)$, où dans l'exemple précédent $\partial z / \partial y$ est représenté par l'argument `grad_output`.
 
 # Un exemple pratique: le modèle Poisson Longnormal
 

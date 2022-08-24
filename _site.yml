@@ -18,6 +18,9 @@ navbar:
   - text: "Langage R et pipe"
     icon: fa-brands fa-r-project
     href: pipe.html
+  - text: "Webscrapping"
+    icon: fa-solid fa-earth-africa
+    href: webscraping.html
       
 
 output:

@@ -150,3 +150,147 @@ ggplot(communes) +
 
 ## `st_within`
 
+Si on ne souhaite que les routes **à l'intérieur** de la commune, on utilise `st_within`
+
+```{r sig_plot_routes_dans_gramat, cache = TRUE}
+routes_dans_gramat <- filter(route, st_within(route, gramat, sparse = FALSE))
+
+# On peut faire la représentation graphique.
+ggplot(communes) +
+  geom_sf(color = "black", size = 2)  +
+  geom_sf(data = route, aes(color = "Hors Gramat")) +
+  geom_sf(data = routes_dans_gramat, aes(color = "Traversant Gramat")) +
+  labs(color = "", title = "Commune de Gramat") +
+  coord_sf(xlim = limites_gramat[c("xmin", "xmax")], 
+           ylim = limites_gramat[c("ymin", "ymax")])
+```
+
+## Unions
+
+```{r sig_restaurants_complet}
+restaurants_complet <- st_read("https://github.com/rCarto/geomatique_avec_r/blob/main/data/lot46.gpkg?raw=true", 
+                 layer = "restaurant", quiet = TRUE)
+```
+
+On a importé la liste des restaurants de la région. On voit ci-dessous que nombre d'entre eux sont en dehors du Lot. 
+
+```{r sig_plot_restaurants}
+ggplot(communes) +
+  geom_sf() +
+  geom_sf(data = restaurants_complet, color = "red") +
+  labs(title = "Positions des restaurants")
+```
+
+Ainsi, on souhaite ne conserver que ceux sont qui sont dans notre ensemble de communes.
+On utilisera à nouveau `st_intersects`, mais ici on ne veut pas que le test se fasse pour chaque commune! Ainsi, on regroupera toutes les communes en un seul polygone avec `st_union`.
+
+```{r sig_creation_restaurantst_union}
+restaurant <- filter(restaurants_complet,
+                     st_intersects(restaurants_complet,
+                                   st_union(communes),
+                                   sparse = FALSE))
+```
+
+```{r sig_plot_restaurants_filtres}
+ggplot(communes) +
+  geom_sf() +
+  geom_sf(data = restaurant, color = "red") +
+  labs(title = "Positions des restaurants du Lot")
+```
+
+
+
+## Barycentres et buffers
+
+On peut obtenir le barycentre d'un polygon et/ou faire un *buffer* autour d'un objet géométrique.
+
+```{r sig_centroid}
+buffer_gramat <- st_centroid(gramat) %>% # On extrait le centre de gravité 
+  st_buffer(dist = 15000) # On fait le disque centré en ce point, de rayon 15km 
+# Représentation
+ggplot(buffer_gramat) +
+  geom_sf(data = communes) +
+  geom_sf(alpha = .3, fill = "red")
+```
+
+
+
+## Exercices
+
+Afin de s’entraîner, nous avons répondu aux exercices proposés dans le tutoriel **Géomatique avec `R`** cité plus haut.
+
+1. Quelles communes ont plus de 10 restaurants et moins de 1000 habitants ?
+
+```{r sig_exo_restaurant}
+# Villages de France
+VdF <- communes %>% # Dans communes
+  filter(POPULATION < 1000) %>% # On extrait celles ayant < de 1000 habitants
+  mutate(NbResto = st_intersects(., restaurant) %>%
+           sapply(length)) %>% 
+  filter(NbResto >= 10)
+pull(VdF, NOM_COM)
+```
+
+2. Les représenter sur une carte
+
+```{r representation_graphique}
+ggplot(communes) +
+  geom_sf(fill = "gray") +
+  geom_sf(data = VdF, fill = "red") +
+  geom_sf_label(data = VdF, aes(label = NOM_COM), nudge_x = 20000)
+```
+
+3. Intersecter les routes par les communes
+Découper les routes par les communes. Chaque segment de route récupère l’identifiant de la commune dans laquelle il se trouve.
+Rajouter une colonne longueur qui contient la longueur de chacun des segments.
+
+```{r sig_routes_communes, cache = TRUE}
+routes_communes <- st_intersection(route, communes) %>% 
+  mutate(ID == paste(NUM_ROUTE, NOM_COM)) %>% 
+  select(ID, NUM_ROUTE, NOM_COM) %>% 
+  mutate(longueur = st_length(.))
+```
+
+4. 
+
+- Calculer la longueur totale de route par commune;
+- Joindre ses longueurs à la table des communes;
+- Calculer les superficies des communes;
+- Convertir
+- Calculer les 2 indicateurs suivants:
+    - le rapport entre la longueur des routes et la population des communes.
+    - le rapport entre la longueur des routes et la superficie des communes.
+
+```{r sig_indicateur_communes, cache = TRUE}
+indicateur_communes <- routes_communes %>% 
+  group_by(NOM_COM) %>% 
+  summarise(longueur_totale_route = sum(longueur) * 10^(-3)) %>% # Mise en km 
+  st_drop_geometry() %>%  # Ici, on veut faire une jointure, donc on se débarasse de la geometry
+  merge(communes) %>% 
+  st_as_sf() %>% # Le merge perd le statut sf? A explorer...
+  mutate(surface = st_area(.) * 10^(-6),# Création des nouvelles
+         longueur_par_habitant = longueur_totale_route / POPULATION, 
+         longueur_par_km2 = longueur_totale_route / surface) %>% 
+  select(NOM_COM, longueur_totale_route, longueur_par_habitant, longueur_par_km2)
+```
+
+4. Représenter les deux indicateurs
+
+```{r sig_plot_indicateur_communes}
+p1 <- ggplot(indicateur_communes) + 
+  geom_sf(aes(fill = as.numeric(longueur_par_habitant))) +
+  scale_fill_viridis_c() +
+  geom_sf(data = route, color = "red", size = .5, alpha = .2) +
+  labs(title = "Longueur de route par habitant") +
+  theme(legend.position = "none")
+p2 <- ggplot(indicateur_communes) + 
+  geom_sf(aes(fill = as.numeric(longueur_par_km2))) +
+  scale_fill_viridis_c() +
+  geom_sf(data = route, color = "red", size = .5, alpha = .2) +
+  labs(title = "Longueur de route par km2") +
+  theme(legend.position = "none")
+cowplot::plot_grid(p1, p2)
+```
+
+
+

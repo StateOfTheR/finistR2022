@@ -21,6 +21,8 @@ library(tidyverse)
 
 Ce petit tutoriel décrit l'usage basique de `sf`, les exemples sont extraits de [ce tutoriel complet](https://rcarto.github.io/geomatique_avec_r/index.html) (qui n'utilise cependant pas la logique `tidyverse`).
 
+
+
 # Données 
 
 Les données utilisées sont issues de ce [tutoriel sur la géomatique avec R](https://rcarto.github.io/geomatique_avec_r/) et accessible sur leur répertoire `Github`.
@@ -66,7 +68,7 @@ Pour la France, le CRS 2154 est une bonne (au sens du respect des distances apr�
 
 # Mise au format `sf`
 
-Les objets précédents étant nativement des "objets géographiques", on les chargeait directement avec `st_read`. 
+Les objets précédents étant nativement des "objets géographiques", on les chargeait directement avec `st_read` (formats `.shp`, `.gpkg`, possibles). 
 Cependant, on peut transformer un tableau ayant deux colonnes de coordonnées grâce à la fonction `st_as_sf`.
 
 ```{r sig_population_brute}
@@ -84,7 +86,7 @@ population
 
 # Manipulation et visualisation
 
-La manipulation et la visualisation est calquée sur celle des `data.frame`. 
+La manipulation et la visualisation sont calquées sur celles des `data.frame`. 
 On pourra utiliser tous les verbes de `dplyr`. 
 
 Par exemple, si on veut obtenir la commune ayant la plus grande population
@@ -132,7 +134,8 @@ On utilise ici `st_intersects` qui établit si un un ensemble de `geometry` (dan
 gramat <- filter(communes, NOM_COM == "Gramat") # On extrait la commune Gramat
 limites_gramat <- st_bbox(gramat) # On en extrait ses limites
 # On s'intéresse aux routes qui traversent Gramat, où ici, st_intersects renvoie 
-# un booleen (c'est le role de sparse = FALSE) si la route traverse gramat.
+# un vecteur de booleens (c'est le role de sparse = FALSE) indiquant pour chaque
+# route si elle traverse ou non Gramat.
 routes_gramat <- filter(route, st_intersects(route, gramat, sparse = FALSE))
 
 # On peut faire la représentation graphique.

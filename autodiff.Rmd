@@ -76,12 +76,13 @@ et les fonctions
 $$
 \frac{dx^2}{dx} = 2x \quad \frac{d \log(x)}{dx} = \frac{1}{x}
 $$
+
 Le calcul effectif du gradient est déclenché lors de l'appel à la méthode `$backward()` de `y` et est stocké dans le champ `$grad` de `x`.
 
 ```{r}
 x$grad ## gradient non défini
 y$backward() 
-x$grad ## gradient défini = 1/4
+x$grad ## gradient défini = 1
 ```
 
 On a bien:
@@ -89,7 +90,44 @@ On a bien:
 $$
 \frac{dy}{dx} = \underbrace{\frac{dy}{dz}}_{\log}(z) \times \underbrace{\frac{dz}{dx}}_{\text{power}}(x) = \frac{1}{4} \times 2*2 = 1
 $$
-Intuitivement au moment du calcul de `y`, `torch` construit un graphe computationel qui lui permet d'évaluer **numériquement** $\frac{dy}{dx}$ au moment de l'appel à `$backward()`. Ce graphe est illustré ci dessous pour la fonction $(x_1, x_2) \mapsto z  = sin(x_2) log(x_1 x_2)$
+Intuitivement au moment du calcul de `y`, `torch` construit un graphe computationel qui lui permet d'évaluer **numériquement** $y$ et qui va **également** servir pour calculer $\frac{dy}{dz}$ au moment de l'appel à `$backward()`. 
+
+Essayons de reproduire le calcul dans notre exemple. Le calcul **forward** donne
+
+$$
+x = 2 \xrightarrow{x \mapsto x^2} z = 4 \mapsto \xrightarrow{x \mapsto \log(x)} y = \log(4)
+$$
+
+Pour le calcul **backward**, il faut donc construire le graphe formel suivant. La première étape du graphe est accessible via `$grad_fn`
+
+```{r}
+y$grad_fn
+```
+
+et les fonctions suivantes via `$next_functions`
+
+```{r}
+y$grad_fn$next_functions
+```
+
+Dans notre example, on a donc:
+
+$$
+\frac{dy}{dy} = 1 \xrightarrow{x \mapsto \text{logBackward}(x)} \frac{dy}{dz} = \frac{dy}{dy} \times \text{logBackward}(z) \xrightarrow{x \mapsto \text{powerBackward}(x)} \frac{dy}{dx} = \frac{dy}{dz} \times \text{logBackward}(x)
+$$
+
+Dans cet exemple:
+
+- $\text{logBackward}(x) = \frac{1}{x}$
+- $\text{powBackward}(x) = 2x$
+
+Et la propagation des dérivées donne donc
+
+$$
+\frac{dy}{dy} = 1 \to \frac{dy}{dz} = 1 \times \frac{1}{4} = \frac{1}{4} \to \frac{dy}{dx} = \frac{1}{4} \times 4 = 1
+$$
+
+Ce graphe est illustré ci dessous pour la fonction $(x_1, x_2) \mapsto z  = sin(x_2) log(x_1 x_2)$
 
 ![](https://pytorch.org/assets/images/augmented_computational_graph.png)
 

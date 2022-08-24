@@ -2,4 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-build
+*_cache/
+*_files/
+build/

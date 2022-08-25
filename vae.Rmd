@@ -34,13 +34,13 @@ sigma <- 0.1
 A <- matrix(rnorm(p*k), nrow = p, ncol = k)
 Z <- matrix(rnorm(n*k), nrow = n, ncol = k)
 Y <- Z %*% t(A) + sigma * matrix(rnorm(n*p), nrow = n, ncol = p)
+library(torch)
 input <- torch_tensor(Y)
 ```
 
 On va construire un auto-encoder avec un espace latent de dimension `latent_dim` égale à 2 pour pouvoir faire des dessins.
 
 ```{r}
-library(torch)
 latent_dim <- 2
 ```
 

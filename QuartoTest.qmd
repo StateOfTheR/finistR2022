@@ -79,15 +79,15 @@ class(py$vect)
 Il suffit de changer l'extension de notre fichier. Le code ci-dessous permet d'identifier les fichiers .Rmd et modifier leur extension en .qmd (code issus de https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/)
 
 ```{r}
-# library(fs)
-# library(stringr)
-# rmd_names <- dir_ls(path = ".", glob = "*.Rmd")
-# qmd_names <- str_replace(string = rmd_names,
-#                          pattern = "Rmd",
-#                          replacement = "qmd")
-# file_move(path = rmd_names,
-#           new_path = qmd_names)
-
+#| eval: false
+library(fs)
+library(stringr)
+rmd_names <- dir_ls(path = ".", glob = "*.Rmd")
+qmd_names <- str_replace(string = rmd_names,
+                         pattern = "Rmd",
+                         replacement = "qmd")
+file_move(path = rmd_names,
+          new_path = qmd_names)
 ```
 
 # Marinq

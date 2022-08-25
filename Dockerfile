@@ -13,4 +13,4 @@ ENV R_CRAN_WEB="https://cran.rstudio.com/"
 RUN R -e "install.packages('cowplot')" # GET function
 RUN R -e "install.packages('torch')"
 RUN R -e "torch::install_torch(type = 'cpu')"
-
+RUN R -e "install.packages('PLNmodels')"

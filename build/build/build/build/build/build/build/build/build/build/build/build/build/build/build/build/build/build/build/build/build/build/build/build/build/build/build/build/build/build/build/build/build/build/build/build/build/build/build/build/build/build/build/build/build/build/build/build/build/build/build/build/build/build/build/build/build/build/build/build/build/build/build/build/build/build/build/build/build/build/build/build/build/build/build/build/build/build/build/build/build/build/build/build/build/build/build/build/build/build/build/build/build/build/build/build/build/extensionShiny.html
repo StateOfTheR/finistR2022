@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="State of the R - Aurélie, Cédric et Isabelle" />
+
+<meta name="date" content="2022-08-24" />
+
+<title>Packages des nouveautés pour Shiny</title>
+
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Finist'R 2022</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="https://github.com/StateOfTheR/finistR2022">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    Workflow
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="introDockeR.html">Docker</a>
+    </li>
+    <li>
+      <a href="rebase.html">Git avancé</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="pipe.html">
+    <span class="fa fa-brands fa-r-project"></span>
+     
+    Langage R et pipe
+  </a>
+</li>
+<li>
+  <a href="webscraping.html">
+    <span class="fa fa-solid fa-earth-africa"></span>
+     
+    Webscrapping
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Packages des nouveautés pour Shiny</h1>
+<h4 class="author">State of the R - Aurélie, Cédric et Isabelle</h4>
+<h4 class="date">2022-08-24</h4>
+
+</div>
+
+
+<div id="objectif" class="section level1">
+<h1>Objectif</h1>
+<p>Cette page présente quelques packages permettant d’améliorer
+l’utilisation de Shiny, en terme de validation/test de code, aide à la
+création d’UI, ajouts de nouvelles fonctionnalités…</p>
+</div>
+<div id="validation-entrées-clavier-utilisateurs"
+class="section level1">
+<h1>Validation entrées clavier utilisateurs</h1>
+<div id="fomantic.plus" class="section level2">
+<h2>fomantic.plus</h2>
+<p><a href="https://github.com/ashbaldry/fomantic.plus"
+class="uri">https://github.com/ashbaldry/fomantic.plus</a></p>
+<p><code>fomantic.plus</code> est un package permettant de contrôler et
+valider les entrées clavier d’un utilisateur sur une application shiny.
+Il est disponible sur github mais pas sur le CRAN pour le moment. En
+cours de développement, il serait intéressant à suivre…</p>
+</div>
+<div id="shinyvalidate" class="section level2">
+<h2>shinyvalidate</h2>
+<p><code>shinyvalidate</code> est un package disponible sur le CRAN, en
+version en cours de maturation, développé par Rstudio. Il permet comme
+<code>fomantic.plus</code> de valider les entrées clavier de
+l’utilsateur.</p>
+<p><a href="https://rstudio.github.io/shinyvalidate/"
+class="uri">https://rstudio.github.io/shinyvalidate/</a></p>
+</div>
+</div>
+<div id="shinytest2" class="section level1">
+<h1>shinytest2</h1>
+<p><a href="https://rstudio.github.io/shinytest2/"
+class="uri">https://rstudio.github.io/shinytest2/</a>)</p>
+<p>L’objectif de <code>shinytest2</code> est de tester les sorties d’une
+application shiny en utilisant <code>testthat</code> et est développé
+par Rstudio. Une ancienne version du package était disponible depuis
+2018 (<code>shinytest</code>) mais reposant sur une technologie n’étant
+plus maintenue a été totalement refondue en <code>shinytest2</code>.</p>
+<p><code>shinytest2</code>est disponible sur le CRAN mais est toujours
+en développement donc attention aux évolutions à suivre…</p>
+<p><code>shinytest2</code> permet d’enregistrer à la volée les tests à
+appliquer à une application Shiny puis à comparer les captures d’écran
+en résultant.</p>
+<p><strong>RStudio</strong> permet d’utiliser facilement
+<code>shinytest2</code>en proposant des boutons d’execution et de
+récupération des sorties des tests.</p>
+<p>Les principales fonctions de <code>shinytest2</code> sont:</p>
+<ul>
+<li><code>record_test()</code></li>
+<li><code>test_app()</code></li>
+</ul>
+<p><code>record_test()</code> se déroule en 2 étapes:</p>
+<ul>
+<li><strong>Etape 1</strong>: Lancer l’application via la fonction
+<code>record_test()</code>, intéragir avec l’appli et enregistrer des
+captures (écrans ou autre) aux moments choisis.</li>
+</ul>
+<p>2 sortes de “captures”:</p>
+<ul>
+<li>soit captures de valeurs attendues: inputs, outputs et exported
+values (= reactive() dans shiny) avec le bouton <em>Expect Shiny
+values</em></li>
+<li>soit des captures écran de l’appli avec le bouton <em>Expect
+screenshot</em></li>
+</ul>
+<p>Code généré sous la forme de tests (<code>testthat</code>) et
+captures enregistrées en local.</p>
+<ul>
+<li><p><strong>Etape 2</strong>: Si des modifications sont apportées,
+lors du lancement, le code test reproduit le comportement sur l’appli et
+vérifie que les captures actuelles correspondent aux captures
+initiales.</p></li>
+<li><p>captures d’écran: comparaison via
+<code>testthat::compare_file_binary()</code></p></li>
+<li><p>valeurs attendues: comparaison des .json</p></li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shinytest2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">test_that</span>( <span class="st">&quot;{shinytest2} recording: test-shiny&quot;</span>, { </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  app <span class="ot">&lt;-</span> AppDriver<span class="sc">$</span><span class="fu">new</span>(<span class="at">variant =</span> <span class="fu">platform_variant</span>(), <span class="at">name =</span> <span class="st">&quot;test-shiny&quot;</span>,  </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">height =</span> <span class="dv">746</span>, <span class="at">width =</span> <span class="dv">1235</span>)  </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">x=</span> <span class="fu">character</span>(<span class="dv">0</span>)) </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">x =</span> <span class="dv">9</span>)  </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">z =</span> <span class="dv">10</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">y =</span> <span class="dv">9</span>)  </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">y =</span> <span class="dv">8</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">expect_screenshot</span>()  </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">y =</span> <span class="dv">9</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">y =</span> <span class="dv">10</span>)  </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">y =</span> <span class="dv">11</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">y =</span> <span class="dv">12</span>)  </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">y =</span> <span class="dv">13</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">set_inputs</span>(<span class="at">y =</span> <span class="dv">14</span>)  </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  app<span class="sc">$</span><span class="fu">expect_values</span>() })</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># ==&gt; Testing R file using &#39;testthat&#39;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Le chargement a nécessité le package : shiny</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># ══ Testing test-shinytest2.R ═══════════════════════════════════════════════</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># [ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># [ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># [ FAIL 0 | WARN 0 | SKIP 0 | PASS 2 ] Done!</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Test complete</span></span></code></pre></div>
+</div>
+<div id="shinymeta" class="section level1">
+<h1>shinymeta</h1>
+<p><a href="https://rstudio.github.io/shinymeta/"
+class="uri">https://rstudio.github.io/shinymeta/</a></p>
+<p><code>shinymeta</code> est un package disponible sur le CRAN,
+expérimental (attention aux évolutions). Il permet de capturer
+l’historique d’un objet shiny et de générer le code pour recréer les
+résultats produits par l’utilisateur. Il peut aussi être utilisé pour
+générer des rapports rmarkdown à partir des inputs de l’utilisateur
+(reproductibilité).</p>
+</div>
+<div id="packages-pour-améliorer-le-visuel-de-ui"
+class="section level1">
+<h1>Packages pour améliorer le visuel de UI</h1>
+<ul>
+<li><a
+href="https://rinterface.github.io/shinydashboardPlus/">shinydashboardPlus</a>:
+package disponible sur le CRAN en version stable, permettant d’ajouter
+des fonctionnalités aux dashboards classiques.</li>
+<li><a href="https://dreamrs.github.io/shinyWidgets/">shinyWidgets</a>:
+package disponible sur les CRAN permettant d’améliorer le visuel des
+widgets des applis.</li>
+</ul>
+<p><img
+src="https://dreamrs.github.io/shinyWidgets/reference/figures/dropdown_btn_off.png" /></p>
+<p><img
+src="https://dreamrs.github.io/shinyWidgets/reference/figures/dropdown_btn_on.png" /></p>
+</div>
+<div id="editeurs-dui" class="section level1">
+<h1>Editeurs d’UI</h1>
+<div id="shinyuieditor" class="section level2">
+<h2>shinyuieditor</h2>
+<p><code>shinyuieditor</code> est un package très récent, encore en
+version alpha en cours de développement (par Rstudio) qui permet d’aider
+à la création de la partie UI d’une application, sans écriture de
+code:</p>
+<p><a href="https://rstudio.github.io/shinyuieditor/index.html"
+class="uri">https://rstudio.github.io/shinyuieditor/index.html</a>.</p>
+<p>une présentation du créateur du package: <a
+href="https://nickstrayer.me/rstudioconf2022/#/section-6"
+class="uri">https://nickstrayer.me/rstudioconf2022/#/section-6</a></p>
+<p>Ce package se focalise uniquement sur la partie UI et ne gère pas du
+tout la création de la partie serveur de l’appli.</p>
+<p><a
+href="https://rstudio.github.io/shinyuieditor/articles/how-to.html"
+class="uri">https://rstudio.github.io/shinyuieditor/articles/how-to.html</a></p>
+<p><a
+href="https://rstudio.github.io/shinyuieditor/articles/ui-editor-live-demo.html"
+class="uri">https://rstudio.github.io/shinyuieditor/articles/ui-editor-live-demo.html</a></p>
+</div>
+<div id="designer" class="section level2">
+<h2>designer</h2>
+<p><code>designer</code> est également un package permettant de créer
+des UI d’applications Shiny en “clique-boutons”, disponible sur le CRAN,
+en version expérimentale mais semblant plus stable que
+<code>shinyuieditor</code>.</p>
+<ul>
+<li><a href="https://ashbaldry.github.io/designer/"
+class="uri">https://ashbaldry.github.io/designer/</a></li>
+<li><a href="https://github.com/ashbaldry/designer"
+class="uri">https://github.com/ashbaldry/designer</a></li>
+<li><a
+href="https://cloud.r-project.org/web/packages/designer/index.html"
+class="uri">https://cloud.r-project.org/web/packages/designer/index.html</a></li>
+</ul>
+</div>
+</div>
+<div id="esquisse" class="section level1">
+<h1>esquisse</h1>
+<p><code>esquisse</code> n’est pas vraiment un package pour shiny mais
+une app pour créer des ggplot2 interactivement avec ses données: <a
+href="https://dreamrs.github.io/esquisse/"
+class="uri">https://dreamrs.github.io/esquisse/</a>. Cet addin permet
+d’explorer ses données en les visualisant avec <code>ggplot2</code> et
+en testant différents façons de les représenter. Il est alors possible
+de récupérer le code permettant de créer les graphs.</p>
+<p><img
+src="https://dreamrs.github.io/esquisse/reference/figures/esquisse.gif" /></p>
+</div>
+<div id="golem" class="section level1">
+<h1>golem</h1>
+<p><a href="https://thinkr-open.github.io/golem/"
+class="uri">https://thinkr-open.github.io/golem/</a></p>
+<p><a href="https://thinkr.fr/introduction-au-package-golem-en-video/"
+class="uri">https://thinkr.fr/introduction-au-package-golem-en-video/</a></p>
+<p><code>golem</code> est un framework de construction et packaging
+d’applications shiny. Il permet de construire, tester, déployer une
+appli avec une structure de package: plus couteux en développement mais
+surement plus robuste.</p>
+<p>L’architecture des applications est basée sur les <strong>shiny
+modules</strong>:</p>
+<ul>
+<li><a href="https://emilyriederer.netlify.app/post/shiny-modules/"
+class="uri">https://emilyriederer.netlify.app/post/shiny-modules/</a></li>
+<li><a href="https://mastering-shiny.org/scaling-modules.html"
+class="uri">https://mastering-shiny.org/scaling-modules.html</a></li>
+<li><a href="https://shiny.rstudio.com/articles/modules.html"
+class="uri">https://shiny.rstudio.com/articles/modules.html</a></li>
+</ul>
+</div>
+<div id="reactlog" class="section level1">
+<h1>reactlog</h1>
+<p><a href="https://rstudio.github.io/reactlog/"
+class="uri">https://rstudio.github.io/reactlog/</a></p>
+<p><code>reactlog</code>est un package, disponible sur le CRAN
+permettant de suivre la réactivité et les interactions entre les
+éléments et faciliter le débugage de l’application.</p>
+<p>Il produit un graph de dépendence de réactivité qui permet au
+développeur de naviguer dans l’hstorique des éléments réactifs.
+Visualiser l’arbre permet de chercher des erreurs mais également de le
+simplifier pour optimiser le code.</p>
+<p><img
+src="http://rstudio.github.io/reactlog/readme-images/pythagoras.gif" /></p>
+</div>
+<div id="shiny-for-python" class="section level1">
+<h1>Shiny for Python</h1>
+<p>Un nouveau concurrent de Dash sur Python, évidemment développé par
+Rstudio: <a href="https://shiny.rstudio.com/py/"
+class="uri">https://shiny.rstudio.com/py/</a></p>
+<p>Attantion, pour le moment, <strong>Shiny for Python</strong> est en
+version alpha, potentiellement instable et en cours d’évolution. Ils
+recommandent de ne pas l’utiliser pour des applications à déployer en
+production. <a href="https://shinylive.io/py/examples/#app-with-plot"
+class="uri">https://shinylive.io/py/examples/#app-with-plot</a></p>
+</div>
+<div id="quelques-autres-extensions" class="section level1">
+<h1>Quelques autres extensions</h1>
+<p>Une liste très complète d’extensions de Shiny répertoriée Nan
+Xiao:</p>
+<p><a href="https://github.com/nanxstats/awesome-shiny-extensions"
+class="uri">https://github.com/nanxstats/awesome-shiny-extensions</a></p>
+</div>
+<div id="références" class="section level1">
+<h1>Références</h1>
+<ul>
+<li><a href="https://rstudio.github.io/shinytest2/"
+class="uri">https://rstudio.github.io/shinytest2/</a></li>
+<li><a href="https://rstudio.github.io/shinymeta/"
+class="uri">https://rstudio.github.io/shinymeta/</a></li>
+<li><a href="https://rinterface.github.io/shinydashboardPlus/"
+class="uri">https://rinterface.github.io/shinydashboardPlus/</a></li>
+<li><a href="https://dreamrs.github.io/shinyWidgets/"
+class="uri">https://dreamrs.github.io/shinyWidgets/</a></li>
+<li><a href="https://rstudio.github.io/shinyuieditor/index.html"
+class="uri">https://rstudio.github.io/shinyuieditor/index.html</a></li>
+<li><a href="https://ashbaldry.github.io/designer/"
+class="uri">https://ashbaldry.github.io/designer/</a></li>
+<li><a href="https://github.com/ashbaldry/fomantic.plus"
+class="uri">https://github.com/ashbaldry/fomantic.plus</a></li>
+<li><a href="https://rstudio.github.io/shinyvalidate/"
+class="uri">https://rstudio.github.io/shinyvalidate/</a></li>
+<li><a href="https://dreamrs.github.io/esquisse/"
+class="uri">https://dreamrs.github.io/esquisse/</a></li>
+<li><a href="https://shiny.rstudio.com/py/"
+class="uri">https://shiny.rstudio.com/py/</a></li>
+<li><a href="https://thinkr-open.github.io/golem/"
+class="uri">https://thinkr-open.github.io/golem/</a></li>
+<li><a href="https://rstudio.github.io/reactlog/"
+class="uri">https://rstudio.github.io/reactlog/</a></li>
+</ul>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

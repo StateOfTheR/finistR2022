@@ -11,7 +11,7 @@
 
 <meta name="author" content="Julie Aubert, Julien Chiquet, Marie-Pierre Étienne" />
 
-<meta name="date" content="2022-08-24" />
+<meta name="date" content="2022-08-25" />
 
 <title>Instructions pour le dépot sur le site web</title>
 
@@ -384,7 +384,7 @@ $(document).ready(function () {
 web</h1>
 <h4 class="author">Julie Aubert, Julien Chiquet, Marie-Pierre
 Étienne</h4>
-<h4 class="date">2022-08-24</h4>
+<h4 class="date">2022-08-25</h4>
 
 </div>
 
@@ -432,7 +432,8 @@ de commandes utiles</p>
 Dockerfile qui contient la recette du Docker. Pour ce site le ficher
 Dockerfile a la forme suivante</li>
 </ul>
-<pre><code>FROM rocker/verse:4
+<pre><code>
+FROM rocker/geospatial:4
 RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update \
  &amp;&amp; apt-get install -y pandoc \
     pandoc-citeproc
@@ -442,7 +443,8 @@ RUN R -e &quot;install.packages(&#39;purrr&#39;)&quot; # map function
 RUN R -e &quot;install.packages(&#39;BiocManager&#39;)&quot; # map function
 RUN R -e &quot;BiocManager::install(&#39;BiocPkgTools&#39;)&quot; 
 RUN R -e &quot;install.packages(&#39;httr&#39;)&quot; # GET function
-ENV R_CRAN_WEB=&quot;https://cran.rstudio.com/&quot; </code></pre>
+ENV R_CRAN_WEB=&quot;https://cran.rstudio.com/&quot; 
+RUN R -e &quot;install.packages(&#39;cowplot&#39;)&quot; # GET function</code></pre>
 <p>puis demander la construction de l’image à l’aide de la commande</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> docker build <span class="sc">-</span>t nom_depot_dockerhub<span class="sc">/</span>nom_du_repo<span class="sc">:</span>version  . <span class="do">## avec un nom</span></span></code></pre></div>
 <p>et enfin pousser sur Dockerhub</p>
@@ -463,7 +465,7 @@ jobs:
   build:
     name: Build website with rmarkdown
     runs-on: ubuntu-latest
-    container: stateofther/r-finistr2022:0.5
+    container: stateofther/r-finistr2022:0.6
 
     steps:
       - name: Checkout repository

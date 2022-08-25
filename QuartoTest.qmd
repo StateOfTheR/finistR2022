@@ -19,13 +19,17 @@ browser: true
 
 # Annaïg
 
+## Sources
+
+-   [Notes on Changing from Rmarkdown/Bookdown to Quarto](https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/)
+
 ## Installation
 
 D'abord il faut installer quarto : https://quarto.org/docs/get-started/.
 
 Pour executer des fichiers qmd sur Rstudio, il est nécessaire d'avoir la nouvelle version de RStudio (2022.07). Maintenant on peut créer directement un nouveau fichier qmd dans File \> New File \> Quarto document.
 
-## Coder en R et Python dans un même qmd
+## Coder en R et Python dans un même fichier qmd
 
 ```{r}
 library(reticulate)
@@ -70,14 +74,25 @@ py$vect[1]
 class(py$vect)
 ```
 
+## Transformer un .Rmd en .qmd
 
+Il suffit de changer l'extension de notre fichier. Le code ci-dessous permet d'identifier les fichiers .Rmd et modifier leur extension en .qmd (code issus de https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/)
+
+```{r}
+# library(fs)
+# library(stringr)
+# rmd_names <- dir_ls(path = ".", glob = "*.Rmd")
+# qmd_names <- str_replace(string = rmd_names,
+#                          pattern = "Rmd",
+#                          replacement = "qmd")
+# file_move(path = rmd_names,
+#           new_path = qmd_names)
+
+```
 
 
 # Marina
 
 # Mary
 
-
 # Autre
-
-

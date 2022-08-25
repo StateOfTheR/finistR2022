@@ -20,10 +20,9 @@ browser: true
 # Annaïg
 
 # Marina
-hhhh
+
 # Mary
 
-toto
 
 # Autre
 

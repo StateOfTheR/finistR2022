@@ -133,7 +133,7 @@ class(vect)
 Pour coder en python, préciser {python} au début de la cellule :
 
 ```{python}
-#| echo: true
+#| echo: fenced
 #| label: vecteur_py
 import numpy as np
 vect = np.array([1,2,3])

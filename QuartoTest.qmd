@@ -1,6 +1,6 @@
 ---
 title: "QuartoTest"
-author: "Emré, Annaig, Saint-Clair, Marina et Mary"
+author: "Annaig, Marina et Mary"
 date: today
 engine: knitr
 # title-block-banner: true ("#EEAEEE")
@@ -10,24 +10,21 @@ execute:
   echo: true
 format: 
    html: 
-      theme: flatly
+      theme: 
+          light: flatly
+          dark: darkly
       code-fold: false
       number-sections: true
-      chalkboard: true
-      toc: true #bibliography : biblio.bib
-browser: true
+      toc: true
+#bibliography : biblio.bib
 ---
 
 # Annaïg
 
 ## Sources
 
-<<<<<<< HEAD
--   [Notes on Changing from Rmarkdown/Bookdown to Quarto](https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/)
-=======
 ## Qu'est-ce que le Quarto ? 
 Il s'agit d'un moyen de rendre des fichiers sources en texte qui contiennent du code écrit en Python, R, Observable ou Julia.
->>>>>>> 493764efabd8097823a61c4ef080693468e62a63
 
 ## Installation
 
@@ -76,6 +73,53 @@ library(reticulate)
 ```
 
 Pour coder en R, préciser {r} au début de la cellule :
+
+## Les avantages
+
+Alors que les documents RMarkdown utilisent `R` et `knitr` pour compiler le document, `Quarto` exécute chaque bloc (chunk) avec des "engines" différentes ce qui permet de mélanger les langages de programmations et d'obtenir des documents reproductibles. `Quarto` découle directement de `RMarkdown` ce qui explique de faibles différences en terme d'implémentation.
+
+::: callout-note
+Rmarkdown reste très actif et ne sera pas obsolète !
+:::
+
+## Récupération de variables R dans un code Python
+
+Afin d'utiliser Python, il faut définir dans `Tools --> Global Options --> Python` la version que l'on souhaite utiliser.
+
+::: callout-tip
+Il est possible d'utiliser un environnement Conda.
+:::
+
+On souhaite la récupérer et l'utiliser dans un calcul Python. Par exemple, on considère la variable a :
+
+```{r, eval = TRUE}
+a = 1:30
+```
+
+On récupère le premier élément du vecteur a :
+
+```{python, eval = TRUE}
+print(r.a[0])
+b = r.a[0] + 1
+print(b)
+```
+
+## Récupération de variables Python dans un code Python
+
+Pour réaliser l'inverse, la démarche est moins facilitée par `Quarto`:
+
+::: {.callout-caution collapse="true"}
+## Il faut télécharger reticulate afin de pouvoir récupérer les valeurs de sortie d'une variable `Python` depuis `R`.
+:::
+
+On définit la variable c qui dépend de la variable `Python` b de tout à l'heure et du premier élément de la variable `R` a :
+
+```{r, eval = TRUE}
+c = reticulate::py$b + a[1]
+print(c)
+```
+
+## Tableau
 
 ```{r}
 #| echo: true
@@ -136,12 +180,47 @@ file_move(path = rmd_names,
 
 # Marinq
 
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 493764efabd8097823a61c4ef080693468e62a63
 # Mary
+
+
+## Beaucoup de choses ne changent pas ...
+
+:::: columns
+::: {.column width="50%"} 
+On peut également faire un tableau de texte : couper la page en plusieurs parties (ici à la moitié), pour y insérer du texte en colonne.
+:::
+
+::: {.column width="50%"} 
+Et voici la deuxième moitié.
+:::
+::::
+
+### Diagramme
+```{mermaid}
+flowchart LR
+  A[Hard edge] --> B(Round edge)
+  B --> C{Decision}
+  C --> D[Result one]
+  C --> E[Result two]
+```
+
+### Les listes
+
+-   Faire des listes comme ça
+
+    -   et des plus après pour une sous liste
+    -   et voilà
+
+-   Dernier élément de la liste
+
+### Insertion d'images
+
+::: {layout="[[80], [1,1]]"}
+![Karaoke de ce soir](image02.jpg){#micro}
+
+![Biere artisanale](image01.jpg){#biere}
+
+![Patisseries](image03.jpg){#gateau}
+:::
 
 # Autre

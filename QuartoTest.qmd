@@ -44,7 +44,7 @@ Maintenant on peut créer directement un nouveau fichier qmd dans File \> New Fi
 
 * Au lieu d'être un package R, Quarto est un logiciel distinct, que l'on peut appeler depuis la ligne de commande. Cela signifie que d'autres logiciels peuvent l'utiliser pour créer leurs propres documents de programmation lettrés. Le package `quarto` a pour but essentiel de faciliter l'intégration de `quarto` à Rstudio. 
 
-* Quarto semble être beaucoup plus cohérent. Par exemple, au lieu d'avoir un fichier _bookdown.yml spécial pour le bookdown, qui nécessite également un fichier _output.yml spécial, il y a maintenant un seul fichier _quarto.yml.
+* Quarto semble être beaucoup plus cohérent. Par exemple, au lieu d'avoir un fichier `_bookdown.yml` spécial pour le bookdown, qui nécessite également un fichier `_output.yml` spécial, il y a maintenant un seul fichier `_quarto.yml`.
 
 R markdown utilise knitr pour communiquer avec R et gérer la génération du document. Mais avec quarto, nous avons cette interface générale, où quarto peut parler à différents langages de programmation.
 
@@ -72,7 +72,7 @@ file_move(path = rmd_names,
 library(reticulate)
 ```
 
-Pour coder en R, préciser {r} au début de la cellule :
+Pour coder en R, préciser `{r}` au début de la cellule :
 
 ## Les avantages
 

@@ -20,7 +20,7 @@ navbar:
     menu:
     - text: "pipe"
       href: pipe.html
-    - text: "Git Webscrapping"
+    - text: "Webscrapping"
       href: webscraping.html
     - text: "Shiny extension"
       href: extensionShiny.html

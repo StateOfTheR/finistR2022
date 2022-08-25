@@ -142,7 +142,7 @@ create_decompressor <- function(latent_dim, out_features) {
     nn_linear(10, out_features),
   )  
 }
-## Création de l'encodeur à l'aide du compresseur
+## Création du decodeur à l'aide du decompresseur
 decoder <- nn_module(
   classname = "decoder", 
   ## Définition des couches

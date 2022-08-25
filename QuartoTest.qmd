@@ -13,15 +13,15 @@ format:
       number-sections: true
       chalkboard: true
       toc: true 
-bibliography : biblio.bib
+#bibliography : biblio.bib
 browser: true
 ---
 
 # Annaïg
 
 ## Sources
-
 -   [Notes on Changing from Rmarkdown/Bookdown to Quarto](https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/)
+
 
 ## Installation
 
@@ -90,7 +90,29 @@ Il suffit de changer l'extension de notre fichier. Le code ci-dessous permet d'i
 
 ```
 
-# Marina
+# Marinq
+
+## Qu'est-ce que le Quarto ? 
+Il s'agit d'un moyen de rendre des fichiers sources en texte qui contiennent du code écrit en Python, R, Observable ou Julia.
+
+## Principales différences entre R Markdown et Quarto 
+
+* Il faut appeler rmarkdown depuis R pour l'utiliser. Cela signifie que, par exemple, un utilisateur de Python doit effectuer des installations supplémentaires.
+
+* Au lieu d'être un package R, Quarto est un logiciel distinct, que l'on peut appeler depuis la ligne de commande. Cela signifie que d'autres logiciels peuvent l'utiliser pour créer leurs propres documents de programmation lettrés.
+
+* Quarto semble être beaucoup plus cohérent. Par exemple, au lieu d'avoir un fichier _bookdown.yml spécial pour le bookdown, qui nécessite également un fichier _output.yml spécial, il y a maintenant un seul fichier _quarto.yml.
+
+R markdown utilise knitr pour communiquer avec R et gérer la génération du document. Mais avec quarto, nous avons cette interface générale, où quarto peut parler à différents langages de programmation.
+
+## Passage de rmarkdown à quarto
+
+* Installation
++ [quarto](https://quarto.org/docs/get-started/)
++ [Dernière version de Rstudio](https://dailies.rstudio.com/)
+* Modifier les noms de fichiers : filename.Rmd —> filename.qmd
+* Remplacer _bookdown.yml par _quarto.yml et supprimer _output.yml
+
 
 # Mary
 

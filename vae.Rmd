@@ -34,11 +34,13 @@ sigma <- 0.1
 A <- matrix(rnorm(p*k), nrow = p, ncol = k)
 Z <- matrix(rnorm(n*k), nrow = n, ncol = k)
 Y <- Z %*% t(A) + sigma * matrix(rnorm(n*p), nrow = n, ncol = p)
+input <- torch_tensor(Y)
 ```
 
 On va construire un auto-encoder avec un espace latent de dimension `latent_dim` égale à 2 pour pouvoir faire des dessins.
 
 ```{r}
+library(torch)
 latent_dim <- 2
 ```
 
@@ -59,7 +61,7 @@ encoder <- nn_module(
     self$linear1 <- nn_linear(in_features, 10)
     self$linear2 <- nn_linear(10, 5)
     self$mean <- nn_linear(5, latent_dim)
-    self$sd  <- nn_linear(5, latent_dim)
+    self$log_var  <- nn_linear(5, latent_dim)
   }, 
   ## Définitions des calculs
   forward = function(input) {
@@ -73,9 +75,10 @@ encoder <- nn_module(
     input <- nnf_relu(input)
     ## Création des paramètres de moyenne et de variance
     mean <- self$mean(input)
-    sd   <- self$sd(input)
+    log_var   <- self$log_var(input)
     ## L'encodeur renvoie mean et sd
-    list(mean, sd)
+    list(mean    = mean, 
+         log_var = log_var)
   }
 )
 ```
@@ -99,7 +102,7 @@ encoder <- nn_module(
   initialize = function(in_features, latent_dim) {
     self$compressor <- create_compressor(in_features)
     self$mean <- nn_linear(5, latent_dim)
-    self$sd  <- nn_linear(5, latent_dim)
+    self$log_var  <- nn_linear(5, latent_dim)
   }, 
   ## Définitions des calculs
   forward = function(input) {
@@ -107,14 +110,22 @@ encoder <- nn_module(
     compressed <- self$compressor(input)
     ## Création des paramètres de moyenne et de variance
     mean <- self$mean(compressed)
-    sd   <- self$sd(compressed)
-    ## L'encodeur renvoie mean et sd
-    list(mean, sd)
+    log_var   <- self$log_var(compressed)
+    ## L'encodeur renvoie mean et log_var
+    list(mean    = mean, 
+         log_var = log_var)
   }
 )
 ```
 
 L'encodeur produit deux vecteurs de taille `latent_dim` à partir d'un vecteur de données (de taille 15). 
+
+On peut le vérifier sur un exemple simple
+
+```{r}
+enc <- encoder(15, 2)
+enc(input[1:5, ])
+```
 
 ## Définition d'un décodeur
 
@@ -136,7 +147,7 @@ decoder <- nn_module(
   classname = "decoder", 
   ## Définition des couches
   initialize = function(latent_dim, out_features) {
-    self$decompressor <- create_decompressor(latent_dim, in_features)
+    self$decompressor <- create_decompressor(latent_dim, out_features)
   }, 
   ## Définitions des calculs
   forward = function(input) {
@@ -145,8 +156,131 @@ decoder <- nn_module(
 )
 ```
 
-## Création de la couche variationnelle
+Le décodeur produit un vecteur de taille `out_features` à partir d'un vecteur de taille `latent_dim`. On peut le vérifier sur un exemple simple. 
+
+```{r}
+dec <- decoder(2, 15)
+latent_vectors <- matrix(0, nrow = 5, ncol = 2) |> torch_tensor() 
+dec(latent_vectors)
+```
+
+## Définition du VAE
+
+La dernière étape consiste à coupler l'encodeur et le décodeur via un échantillonneur:
+
+```{r}
+vae_module <- nn_module(
+  classname = "sampler", 
+  initialize = function(n_features, latent_dim) {
+    self$latent_dim <- latent_dim
+    self$encoder <- encoder(n_features, latent_dim)
+    self$decoder <- decoder(latent_dim, n_features)
+  },
+  forward = function(input) {
+    ## compression des données
+    comp_input <- self$encoder(input)
+    mean <- comp_input$mean
+    log_var <- comp_input$log_var
+    ## échantillonnage dans l'espace latent
+    z <- mean + torch_exp(log_var$mul(0.5))*torch_randn(c(dim(input)[1], self$latent_dim))
+    ## décompression de la représentation latente
+    decomp_input <- self$decoder(z)
+    
+    list(decomp_input = decomp_input, 
+         z            = z, 
+         mean         = mean, 
+         log_var      = log_var)
+  }
+)
+```
+
+Pour chaque vecteur de taille `n_features`, notre vae produit:
+
+- 3 vecteurs de taille `latent_dim` (dont un aléatoire)
+- 1 vecteurs de taille `n_features`
+
+```{r}
+vae <- vae_module(n_features = 15, latent_dim = 2)
+vae(input[1, , drop = FALSE])
+```
+
+On peut vérifier que le composant `z` est aléatoire en appelant `vae()` deux fois. 
+
+```{r}
+## Premier appel
+vae(input[1, , drop = FALSE])$z
+## Deuxième appel
+vae(input[1, , drop = FALSE])$z
+```
+
+## Création du VAE et de l'optimiseur
+
+On (ré-)initialise notre VAE
+
+```{r}
+vae <- vae_module(n_features = 15, latent_dim = 2)
+```
+
+Et on prépare un optimiseur
+
+```{r}
+optimizer_vae <- optim_adam(vae$parameters, lr = 0.001)
+```
+
+## Entraînement du VAE
+
+Dans cette partie, on se contente de charger l'ensemble des données, on ne travaille par batch (ce qui nécessiterait de définir un `dataloader()`). 
+
+On commence par définir une fonction de perte comme la somme de l'entropie croisée et de la divergence de Kullback-Leibler
+
+```{r}
+loss_fun <- function(input) {
+  target <- input
+  results <- vae(input)
+  
+  mean <- results$mean
+  log_var <- results$log_var
+  prediction <- results$decomp_input
+  
+  ## cross entropy part of the loss
+  cross_entropy <- nn_bce_loss(reduction = "sum")
+  
+  ## KL part of the loss
+  kl <- function(mean, log_var) {
+    kl_div <- 1 + log_var - mean$square() - log_var$exp()
+    kl_div$multiply(-0.5)$sum()
+  }
+  
+  cross_entropy(prediction, target) + kl(mean, log_var)
+}
+```
+
+On vérifie sur un exemple simple que la fonction de perte est bien définie:
+
+```{r}
+
+loss_fun(input[1, , drop = FALSE])
+```
 
 
 
+Puis on entraîne notre modèle (comme vu dans l'atelier sur `torch`) pendant 100 itérations. 
+```{r}
+input <- torch_tensor(Y)
+num_iterations <- 5
+loss_vector <- vector("numeric", num_iterations)
+for (i in 1:num_iterations) {
+  optimizer_vae$zero_grad()
+  loss <- loss_fun(input)
+  loss$backward()
+  loss_vector[i] <- loss |> as.numeric()
+  optimizer_vae$step()
+}
+```
+
+On peut regarder l'évolution de la perte au fil du temps. 
+
+```{r}
+plot(1:num_iterations, loss_vector)
+```
 

@@ -50,7 +50,7 @@ R markdown utilise knitr pour communiquer avec R et gérer la génération du do
 
 ## Transformer un .Rmd en .qmd
 
-Il suffit de changer l'extension de notre fichier. Le code ci-dessous permet d'identifier les fichiers .Rmd et modifier leur extension en .qmd (code issus de https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/)
+Il suffit de changer l'extension de notre fichier. Le code ci-dessous permet d'identifier les fichiers .Rmd et modifier leur extension en .qmd (code issu du [blog de Nick Tierney](https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/))
 
 ```{r}
 #| eval: false

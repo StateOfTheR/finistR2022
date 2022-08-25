@@ -79,9 +79,9 @@ Pour coder en R, préciser {r} au début de la cellule :
 #| echo: true
 #| label: vecteur_R
 vect <- 1:6
-cat(vect)
-cat(vect[1])
-cat(class(vect))
+vect
+vect[1]
+class(vect)
 ```
 
 Pour coder en python, préciser {python} au début de la cellule :

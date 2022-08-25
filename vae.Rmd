@@ -12,6 +12,11 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, message=FALSE}
+library(tidyverse)
+library(torch)
+```
+
 ## Simulation de données
 
 Ce document illustre un essai d'auto-encodeur variationnel utilisant la librairie `torch`.
@@ -34,7 +39,6 @@ sigma <- 0.1
 A <- matrix(rnorm(p*k), nrow = p, ncol = k)
 Z <- matrix(rnorm(n*k), nrow = n, ncol = k)
 Y <- Z %*% t(A) + sigma * matrix(rnorm(n*p), nrow = n, ncol = p)
-library(torch)
 input <- torch_tensor(Y)
 ```
 
@@ -288,3 +292,43 @@ On peut regarder l'évolution de la perte au fil du temps.
 plot(1:num_iterations, loss_vector)
 ```
 
+ ## Exploration des résultats
+
+On peut visualiser la représentation des données dans notre espace latent
+ 
+```{r}
+latents <- vae(input)$mean
+```
+ 
+Et les afficher
+
+```{r, fig.height=6, fig.width=7}
+latents |> as.matrix() |> `colnames<-`(c("x", "y")) |> as_tibble() |> 
+  ggplot() + aes(x, y) + 
+  geom_point() + 
+  coord_equal() + 
+  theme_minimal() + 
+  theme(text = element_text(size = 16))
+```
+
+On peut aussi vérifier comment se positionne les reconstructions par rapport aux données originales (après avoir fait une ACP sur le tableau complet). 
+ 
+```{r}
+reconstructions <- vae(input)$decomp_input |> 
+  as.matrix() %>% `colnames<-`(paste0("D", 1:ncol(.)))
+pca <- prcomp(rbind(Y, reconstructions), scale. = TRUE, center = TRUE)
+point_data <- pca$x %>% as_tibble() %>% mutate(origin = rep(c("true", "fake"), each = nrow(Y)))
+line_data <- point_data |> mutate(ID = rep(1:nrow(Y), 2)) |> 
+  pivot_wider(id_cols = ID, names_from = origin, values_from = starts_with("PC"))
+```
+ 
+```{r, fig.height=5, fig.width=7}
+ggplot() + 
+  geom_point(data = point_data, mapping = aes(x = PC1, y = PC2, color = origin)) + 
+  geom_segment(data = line_data, mapping = aes(x = PC1_true, xend = PC1_fake, y = PC2_true, yend = PC2_fake)) + 
+  coord_equal() + 
+  theme_minimal() + 
+  theme(text = element_text(size = 16))
+```
+
+ 

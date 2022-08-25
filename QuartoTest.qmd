@@ -25,9 +25,15 @@ browser: true
 
 ## Installation
 
-D'abord il faut installer quarto : https://quarto.org/docs/get-started/.
+D'abord il faut installer quarto en suivant les [instructions](https://quarto.org/docs/get-started/).
 
-Pour executer des fichiers qmd sur Rstudio, il est nécessaire d'avoir la nouvelle version de RStudio (2022.07). Maintenant on peut créer directement un nouveau fichier qmd dans File \> New File \> Quarto document.
+Pour éxécuter des fichiers qmd sur Rstudio et pouvoir les prévisualiser, il est nécessaire d'avoir la nouvelle version de RStudio (2022.07) et d'installer le package `quarto`.
+```{r}
+#| eval: false
+install.packages("quarto")
+```
+
+Maintenant on peut créer directement un nouveau fichier qmd dans File \> New File \> Quarto document.
 
 ## Coder en R et Python dans un même fichier qmd
 

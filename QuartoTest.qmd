@@ -72,6 +72,7 @@ file_move(path = rmd_names,
 ```
 
 
+<<<<<<< HEAD
 ## Coder en R et Python dans un même fichier qmd
 
 ```{r}
@@ -80,6 +81,9 @@ library(reticulate)
 ```
 
 Pour coder en R, préciser `{r}` au début de la cellule :
+=======
+# Coder en R et Python dans un même fichier qmd
+>>>>>>> on enleve des titres
 
 
 ## Récupération de variables R dans un code Python

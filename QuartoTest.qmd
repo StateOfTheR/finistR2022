@@ -13,7 +13,7 @@ format:
       number-sections: true
       chalkboard: true
       toc: true 
-bibliography : biblio.bib
+#bibliography : biblio.bib
 browser: true
 ---
 

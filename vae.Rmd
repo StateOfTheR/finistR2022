@@ -234,14 +234,7 @@ Dans cette partie, on se contente de charger l'ensemble des données, on ne trav
 On commence par définir une fonction de perte comme la somme de l'entropie croisée et de la divergence de Kullback-Leibler
 
 ```{r}
-loss_fun <- function(input) {
-  target <- input
-  results <- vae(input)
-  
-  mean <- results$mean
-  log_var <- results$log_var
-  prediction <- results$decomp_input
-  
+loss_fn <- function(prediction, target, mean, log_var) {
   ## Perte L2 pour la reconstruction 
   cross_entropy <- nn_mse_loss(reduction = "sum")
   
@@ -251,27 +244,38 @@ loss_fun <- function(input) {
     kl_div$multiply(-0.5)$sum()
   }
   
-  cross_entropy(prediction, target) + kl(mean, log_var)
+  ## Addition des deux 
+  cross_entropy(prediction, target) + kl(mean, log_var)  
+}
+eval_loss <- function(input) {
+  target <- input
+  
+  ## Extraction des composant prediction, mean, log_var depuis le VAE
+  results <- vae(input)
+  mean <- results$mean
+  log_var <- results$log_var
+  prediction <- results$decomp_input
+  
+  loss_fn(prediction, target, mean, log_var)
 }
 ```
 
-On vérifie sur un exemple simple que la fonction de perte est bien définie:
+On vérifie sur un exemple simple que la fonction de perte est bien définie et vaut ce qu'on pense sur des exemples simples. 
 
 ```{r}
-debugonce(loss_fun)
-loss_fun(input[1, , drop = FALSE])
+loss_fn(prediction = input[1, , drop = FALSE], 
+        target = input[1, , drop = FALSE], 
+        mean = torch_zeros(2),
+        log_var = torch_zeros(2))
 ```
-
-
 
 Puis on entraîne notre modèle (comme vu dans l'atelier sur `torch`) pendant 100 itérations. 
 ```{r}
-input <- torch_tensor(Y)
 num_iterations <- 5
 loss_vector <- vector("numeric", num_iterations)
 for (i in 1:num_iterations) {
   optimizer_vae$zero_grad()
-  loss <- loss_fun(input)
+  loss <- eval_loss(input)
   loss$backward()
   loss_vector[i] <- loss |> as.numeric()
   optimizer_vae$step()

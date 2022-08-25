@@ -275,7 +275,7 @@ loss_fn(prediction = input[1, , drop = FALSE],
 
 Puis on entraîne notre modèle (comme vu dans l'atelier sur `torch`) pendant 100 itérations. 
 ```{r}
-num_iterations <- 100
+num_iterations <- 1000
 loss_vector <- vector("numeric", num_iterations)
 for (i in 1:num_iterations) {
   optimizer_vae$zero_grad()

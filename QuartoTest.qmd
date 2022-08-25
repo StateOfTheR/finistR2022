@@ -21,32 +21,39 @@ format:
 
 # Annaïg
 
-## Sources
+## Qu'est-ce que `Quarto` ? 
+Il s'agit d'un moyen de rendre des fichiers sources en texte qui contiennent du code écrit en Python, R, Observable ou Julia.[^2]
 
-## Qu'est-ce que le Quarto ? 
-Il s'agit d'un moyen de rendre des fichiers sources en texte qui contiennent du code écrit en Python, R, Observable ou Julia.
+[^2]:https://quarto.org/docs/guide/
 
 ## Installation
 
-D'abord il faut installer quarto en suivant les [instructions](https://quarto.org/docs/get-started/).
+D'abord il faut installer `Quarto` en suivant les [instructions](https://quarto.org/docs/get-started/).
 
-Pour éxécuter des fichiers qmd sur Rstudio et pouvoir les prévisualiser, il est nécessaire d'avoir la nouvelle version de RStudio (2022.07) et d'installer le package `quarto`.
+Pour éxécuter des fichiers qmd sur Rstudio et pouvoir les prévisualiser, il est nécessaire d'avoir la nouvelle version de RStudio (2022.07) et d'installer le package `Quarto`.
 ```{r}
 #| eval: false
 install.packages("quarto")
 ```
 
-Maintenant on peut créer directement un nouveau fichier qmd dans File \> New File \> Quarto document.
+Maintenant on peut créer directement un nouveau fichier qmd dans File \> New File \> `Quarto` document.
 
-## Principales différences entre R Markdown et Quarto 
+## Principales différences entre R Markdown et `Quarto` 
 
 * Il faut appeler rmarkdown depuis R pour l'utiliser. Cela signifie que, par exemple, un utilisateur de Python doit effectuer des installations supplémentaires.
 
-* Au lieu d'être un package R, Quarto est un logiciel distinct, que l'on peut appeler depuis la ligne de commande. Cela signifie que d'autres logiciels peuvent l'utiliser pour créer leurs propres documents de programmation lettrés. Le package `quarto` a pour but essentiel de faciliter l'intégration de `quarto` à Rstudio. 
+* Au lieu d'être un package R, `Quarto` est un logiciel distinct, que l'on peut appeler depuis la ligne de commande. Cela signifie que d'autres logiciels peuvent l'utiliser pour créer leurs propres documents de programmation lettrés. Le package `quarto` a pour but essentiel de faciliter l'intégration de `quarto` à Rstudio. 
 
-* Quarto semble être beaucoup plus cohérent. Par exemple, au lieu d'avoir un fichier `_bookdown.yml` spécial pour le bookdown, qui nécessite également un fichier `_output.yml` spécial, il y a maintenant un seul fichier `_quarto.yml`.
+## Les avantages
 
-R markdown utilise knitr pour communiquer avec R et gérer la génération du document. Mais avec quarto, nous avons cette interface générale, où quarto peut parler à différents langages de programmation.
+* Alors que les documents RMarkdown utilisent `R` et `knitr` pour compiler le document, `Quarto` exécute chaque bloc (chunk) avec des "engines" différentes ce qui permet de mélanger les langages de programmation et d'obtenir des documents reproductibles. `Quarto` découle directement de `RMarkdown` ce qui explique les faibles différences en terme d'implémentation.
+
+* Pour compiler un livre, `Quarto` semble être beaucoup plus cohérent que `RMarkdown` concernant la configuration. Par exemple, au lieu d'avoir un fichier _bookdown.yml spécifique au bookdown qui nécessite également un fichier _output.yml, il ne requiert qu'un seul fichier _quarto.yml.
+
+::: callout-note
+Rmarkdown reste très actif et ne sera pas obsolète dans un future proche !
+:::
+
 
 ## Transformer un .Rmd en .qmd
 
@@ -74,13 +81,6 @@ library(reticulate)
 
 Pour coder en R, préciser `{r}` au début de la cellule :
 
-## Les avantages
-
-Alors que les documents RMarkdown utilisent `R` et `knitr` pour compiler le document, `Quarto` exécute chaque bloc (chunk) avec des "engines" différentes ce qui permet de mélanger les langages de programmations et d'obtenir des documents reproductibles. `Quarto` découle directement de `RMarkdown` ce qui explique de faibles différences en terme d'implémentation.
-
-::: callout-note
-Rmarkdown reste très actif et ne sera pas obsolète !
-:::
 
 ## Récupération de variables R dans un code Python
 
@@ -106,6 +106,18 @@ print(b)
 
 ## Récupération de variables Python dans un code Python
 
+Pour coder en python, préciser {python} au début de la cellule :
+
+```{python}
+#| echo: fenced
+#| label: vecteur_py
+import numpy as np
+vect = np.array([1,2,3])
+print(vect)
+print(vect[0])
+type(vect)
+```
+
 Pour réaliser l'inverse, la démarche est moins facilitée par `Quarto`:
 
 ::: {.callout-caution collapse="true"}
@@ -128,18 +140,6 @@ vect <- 1:6
 vect
 vect[1]
 class(vect)
-```
-
-Pour coder en python, préciser {python} au début de la cellule :
-
-```{python}
-#| echo: fenced
-#| label: vecteur_py
-import numpy as np
-vect = np.array([1,2,3])
-print(vect)
-print(vect[0])
-type(vect)
 ```
 
 Pour utiliser un objet R avec python, appeler l'objet avec "r." devant :

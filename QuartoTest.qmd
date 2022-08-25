@@ -90,13 +90,13 @@ Afin d'utiliser Python, il faut définir dans `Tools --> Global Options --> Pyth
 Il est possible d'utiliser un environnement Conda.
 :::
 
-On souhaite la récupérer et l'utiliser dans un calcul Python. Par exemple, on considère la variable a :
+On souhaite récupérer une variable R et l'utiliser dans un calcul Python. Par exemple, on considère la variable `a` :
 
 ```{r, eval = TRUE}
 a = 1:30
 ```
 
-On récupère le premier élément du vecteur a :
+On récupère le premier élément du vecteur `a` :
 
 ```{python, eval = TRUE}
 print(r.a[0])

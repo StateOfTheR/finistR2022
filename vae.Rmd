@@ -21,19 +21,21 @@ library(torch)
 
 Ce document illustre un essai d'auto-encodeur variationnel utilisant la librairie `torch`.
 
-On commence par simuler des données suivant une gaussienne pseudo-dégénérée, via une matrice $A$ de taille $15 \times 3$
+On commence par simuler des données suivant des gaussiennes pseudo-dégénérées, via une matrice $R$ de taille $15 \times 2$
 
 $$
 \begin{align*}
-Z & \sim \mathcal{N}_3(0, I_3) \\
-Y = AZ + E & \sim \mathcal{N}_{15}(0, AA^T + \sigma^2 I_{15})
+Z & \sim \mathcal{N}_2(0, I_2) \\
+Y = \mu + RZ + E & \sim \mathcal{N}_{15}(0, RR^T + \sigma^2 I_{15})
 \end{align*}
 $$
+
+Pour créer une structure de groupe naturelle, on simule 2 groupes de données, chacun avec son propre $\mu$ et son propre $R$
 
 ```{r}
 set.seed(42)
 n <- 200
-k <- 3
+k <- 2
 p <- 15
 sigma <- 0.1
 A <- matrix(rnorm(p*k), nrow = p, ncol = k)
@@ -297,10 +299,10 @@ plot(1:num_iterations, loss_vector)
 
  ## Exploration des résultats
 
-On peut visualiser la représentation des données dans notre espace latent
+On peut visualiser la représentation des données dans notre espace latent. On peut se contenter de faire tourner l'encodeur pour ça. 
  
 ```{r}
-latents <- vae(input)$mean
+latents <- vae$encoder(input)$mean
 ```
  
 Et les afficher
@@ -326,17 +328,33 @@ point_data <- pca$x %>%
   mutate(origin = rep(c("true", "fake"), each = nrow(input)), 
          group = rep(c("A", "B", "A", "B"), each = n))
 line_data <- point_data |> mutate(ID = rep(1:nrow(input), 2)) |> 
-  pivot_wider(id_cols = c(ID, group), names_from = origin, values_from = starts_with("PC"))
+  pivot_wider(id_cols = c(ID, egroup), names_from = origin, values_from = starts_with("PC"))
+```
+ 
+```{r}
+ggplot() +
+  geom_point(data = point_data, mapping = aes(x = PC1, y = PC2, color = origin, shape = group)) +
+  # geom_segment(data = line_data, mapping = aes(x = PC1_true, xend = PC1_fake, y = PC2_true, yend = PC2_fake), color = "grey80") +
+  coord_equal() +
+  theme_minimal() +
+  facet_wrap(~ group) +
+  theme(text = element_text(size = 16))
 ```
  
 ```{r, fig.height=5, fig.width=9}
-ggplot() + 
-  geom_point(data = point_data, mapping = aes(x = PC1, y = PC2, color = origin, shape = group)) + 
-  geom_segment(data = line_data, mapping = aes(x = PC1_true, xend = PC1_fake, y = PC2_true, yend = PC2_fake)) + 
-  coord_equal() + 
-  theme_minimal() + 
-  facet_wrap(~ group) + 
-  theme(text = element_text(size = 16))
+plot_data <- point_data |> mutate(ID = rep(1:nrow(input), 2)) |> 
+  pivot_longer(cols = starts_with("PC"), names_to = "PC", values_to = "value") |> 
+  pivot_wider(id_cols = c(ID, group, PC), names_from = "origin", values_from = "value") |> 
+  filter(PC %in% paste0("PC", 1:4))
+```
+
+```{r, fig.height=4, fig.width=9}
+ggplot(plot_data, aes(x = true, y = fake, color = group)) + 
+  geom_point() + 
+  geom_abline(slope = 1, intercept = 0, color = "grey80") + 
+  labs(x = "Original value", y = "Reconstructed value") + 
+  facet_grid(group ~ PC) + 
+  theme_minimal()
 ```
 
  

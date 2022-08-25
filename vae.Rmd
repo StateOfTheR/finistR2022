@@ -357,4 +357,236 @@ ggplot(plot_data, aes(x = true, y = fake, color = group)) +
   theme_minimal()
 ```
 
+
+## Exemple MNIST
+
+On applique maintenant cette même approche VAE à un jeu de données réel - et très original : MNIST, qui regroupe 70,000 exemples de caractères numériques manuscrits (ie des exemples de digits de 0 à 9). Chaque observation est une image, i.e. une matrice de taille $28\times 28$ où chaque entrée correspond à un niveau de gris quantifié de 0 à 256. On va ici analyser ces données 
+- sans prendre en compte l'aspect "image": chaque image converti en un vecteur de taille $784$,
+- sans prendre en compte l'information du label (du digit). 
+
+On charge les données à partir du package **keras** et on les reformate
+
+```{r}
+library(keras)
+library(tidyverse)
+
+## Chargement des donnees mnist
+c(c(xtrain, ytrain), c(xtest, ytest)) %<-% dataset_mnist()
+## On passe l'echelle de gris en [0,1]
+x_train = xtrain/255
+x_test = xtest/255
+image(x_train[3,,])
+## On passe les images en vecteur
+input_dim = dim(xtrain)[2]*dim(xtrain)[3]
+xtrain <- array_reshape(x_train, c(nrow(x_train), input_dim)) %>% torch_tensor
+xtest <- array_reshape(x_test, c(nrow(x_test), input_dim)) %>% torch_tensor
+print(dim(xtrain))
+```
+
+
+On choisit la taille de l'espce latent (ici deux pour faciliter les représentations graphiques des données)
+
+```{r}
+latent_dim = 2
+```
+
+
+### Création de l'encodeur
+
+Il sera constitué de 2 couches denses avec fonction d'activation RELU:
+
+```{r}
+## Création d'un module compressor, qui genere un objet nn_module
+create_compressor <- function(input_dim) {
+  nn_sequential(
+    nn_linear(input_dim, 100),
+    nn_relu(),
+    nn_linear(100, 20),
+    nn_relu(),
+  )  
+}
+
+## Verification
+create_compressor(input_dim)
+```
+
+Le résultat issu du compresseur est ensuite utilisé pour générer la moyenne et la variance de la variable latente :
+
+```{r}
+## Création de l'encodeur à l'aide du compresseur
+encoder <- nn_module(
+  classname = "encoder", 
+  ## Définition des couches
+  initialize = function(input_dim, latent_dim) {
+  self$compressor <- create_compressor(input_dim)
+  self$mean <- nn_linear(20, latent_dim)
+  self$log_var  <- nn_linear(20, latent_dim)
+  }, 
+  ## Définitions des calculs
+  forward = function(input) {
+    ## Calcul des répresentations compressées
+    compressed <- self$compressor(input)
+    ## Création des paramètres de moyenne et de variance
+    mean <- self$mean(compressed)
+    log_var <- self$log_var(compressed)
+    ## L'encodeur renvoie mean et log_var
+    list(mean = mean, log_var = log_var)
+  }
+)
+
+## Vérification
+enc <- encoder(input_dim, latent_dim)
+enc(xtrain[1:2, ])
+```
+
+### Création du décodeur
+
+Le décompresseur est ici le symétrique du compresseur : deux couches denses avec fonction d'activation RELU :
+
+```{r}
+## Création d'un module decompressor
+create_decompressor <- function(latent_dim, input_dim) {
+  nn_sequential(
+    nn_linear(latent_dim, 20),
+    nn_relu(),
+    nn_linear(20, 100),
+    nn_relu(),
+    nn_linear(100, input_dim),
+  )  
+}
+
+## Verif
+create_decompressor(latent_dim,input_dim)
+
+## Création du decodeur à l'aide du decompresseur
+decoder <- nn_module(
+  classname = "decoder", 
+  ## Définition des couches
+  initialize = function(latent_dim, input_dim) {
+    self$decompressor <- create_decompressor(latent_dim, input_dim)
+  }, 
+  ## Définitions des calculs
+  forward = function(input) {
+    self$decompressor(input)
+  }
+)
+
+## Verif
+dec <- decoder(latent_dim, input_dim)
+latent_vectors <- matrix(0, nrow = 5, ncol = latent_dim) %>% torch_tensor() 
+dec(latent_vectors)
+```
+
+### Création de l'échantillonneur
+
+```{r}
+vae_sampler <- nn_module(
+  classname = "sampler", 
+  initialize = function(input_dim, latent_dim) {
+    self$latent_dim <- latent_dim
+    self$encoder <- encoder(input_dim, latent_dim)
+    self$decoder <- decoder(latent_dim, input_dim)
+  },
+  forward = function(input) {
+    ## compression des données
+    comp_input <- self$encoder(input)
+    mean <- comp_input$mean
+    log_var <- comp_input$log_var
+    ## échantillonnage dans l'espace latent
+    z <- mean + torch_exp(log_var$mul(0.5))*torch_randn(nrow(input), self$latent_dim)
+    ## décompression de la représentation latente
+    decomp_input <- self$decoder(z)
+    
+    list(decomp_input = decomp_input, 
+         z            = z, 
+         mean         = mean, 
+         log_var      = log_var)
+  }
+)
+## Verification
+vae <- vae_sampler(input_dim, latent_dim)
+vae(xtrain[1, , drop = FALSE])
+
+```
+
+### Optimisation
+
+La méthode d'optimisation choisie est ADAM :
+
+```{r}
+## Definition de l'optimiseur
+optimizer_vae <- optim_adam(vae$parameters, lr = 0.001)
+```
+
+et la fonction de perte combine ici l'entropie croisée (pour le terme d'ajustement) et la pénalité Kullback Leibler :
+
+```{r}
+## Entraînement du VAE
+loss_fn <- function(prediction, target, mean, log_var) {
+  ## Perte L2 pour la reconstruction 
+  #cross_entropy <- nn_mse_loss(reduction = "sum")
+  cross_entropy <- nn_cross_entropy_loss(reduction = "sum")
+  
+  ## KL part of the loss
+  kl <- function(mean, log_var) {
+    kl_div <- 1 + log_var - mean$square() - log_var$exp()
+    kl_div$multiply(-0.5)$sum()
+  }
+  
+  ## Addition des deux 
+  cross_entropy(prediction, target) + kl(mean, log_var)  
+}
+eval_loss <- function(input) {
+  target <- input
+  
+  ## Extraction des composant prediction, mean, log_var depuis le VAE
+  results <- vae(input)
+  mean <- results$mean
+  log_var <- results$log_var
+  prediction <- results$decomp_input
+  
+  loss_fn(prediction, target, mean, log_var)
+}
+```
+
+On lance l'optimisation :
+
+```{r}
+num_iterations <- 1000
+loss_vector <- vector("numeric", num_iterations)
+for (i in 1:num_iterations) {
+  cat(i,sep='\n')
+  optimizer_vae$zero_grad()
+  loss <- eval_loss(xtrain[1:10000,])
+  loss$backward()
+  loss_vector[i] <- loss %>% as.numeric()
+  optimizer_vae$step()
+}
+```
+
+On observe l'évolution de la fonction de perte :
+
+```{r}
+plot(loss_vector)
+```
+
+On peut récupérer directement la matrice des moyennes inférées 
+
+```{r}
+Res1 <- vae$encoder(xtrain)$mean
+```
+
+afin de représenter les données dans l'espace latent 
+
+```{r}
+Res1 %>% as.matrix %>% as.data.frame() %>% mutate(Label = as.factor(ytrain)) %>%
+```
+
+Alternativement, on peut générer la représentation graphique correspondant à un point donné dans l'espace latent :
+
+```{r}
+ggplot(aes(x=V1,y=V2,col=Label)) + geom_point()
+vae$decoder(c(-2,3) %>% torch_tensor) %>% torch_reshape(c(28,28)) %>% as.matrix() %>% image
+```
+
  

@@ -278,7 +278,7 @@ loss_fn(prediction = input[1, , drop = FALSE],
         log_var = torch_zeros(2))
 ```
 
-Puis on entraîne notre modèle (comme vu dans l'atelier sur `torch`) pendant 100 itérations. 
+Puis on entraîne notre modèle (comme vu dans l'atelier sur `torch`) pendant 1000 itérations. 
 ```{r}
 num_iterations <- 1000
 loss_vector <- vector("numeric", num_iterations)
@@ -328,7 +328,7 @@ point_data <- pca$x %>%
   mutate(origin = rep(c("true", "fake"), each = nrow(input)), 
          group = rep(c("A", "B", "A", "B"), each = n))
 line_data <- point_data |> mutate(ID = rep(1:nrow(input), 2)) |> 
-  pivot_wider(id_cols = c(ID, egroup), names_from = origin, values_from = starts_with("PC"))
+  pivot_wider(id_cols = c(ID, group), names_from = origin, values_from = starts_with("PC"))
 ```
  
 ```{r}

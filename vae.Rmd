@@ -37,9 +37,12 @@ k <- 3
 p <- 15
 sigma <- 0.1
 A <- matrix(rnorm(p*k), nrow = p, ncol = k)
-Z <- matrix(rnorm(n*k), nrow = n, ncol = k)
-Y <- Z %*% t(A) + sigma * matrix(rnorm(n*p), nrow = n, ncol = p)
-input <- torch_tensor(Y)
+B <- matrix(rnorm(p*k), nrow = p, ncol = k)
+Y_A <- matrix(rnorm(n*k), nrow = n, ncol = k)  %*% t(A) + sigma * matrix(rnorm(n*p), nrow = n, ncol = p)
+mean_A <- rep(1, n) %o% rnorm(p)
+Y_B <- matrix(rnorm(n*k), nrow = n, ncol = k)  %*% t(B) + sigma * matrix(rnorm(n*p), nrow = n, ncol = p)
+mean_B <- rep(1,n) %o% rnorm(p)
+input <- torch_tensor(rbind(Y_A + mean_A, Y_B + mean_B))
 ```
 
 On va construire un auto-encoder avec un espace latent de dimension `latent_dim` égale à 2 pour pouvoir faire des dessins.
@@ -304,7 +307,8 @@ Et les afficher
 
 ```{r, fig.height=6, fig.width=7}
 latents |> as.matrix() |> `colnames<-`(c("x", "y")) |> as_tibble() |> 
-  ggplot() + aes(x, y) + 
+  mutate(group = rep(c("A", "B"), each = n)) |> 
+  ggplot() + aes(x, y, color = group) + 
   geom_point() + 
   coord_equal() + 
   theme_minimal() + 
@@ -316,18 +320,22 @@ On peut aussi vérifier comment se positionne les reconstructions par rapport au
 ```{r}
 reconstructions <- vae(input)$decomp_input |> 
   as.matrix() %>% `colnames<-`(paste0("D", 1:ncol(.)))
-pca <- prcomp(rbind(Y, reconstructions), scale. = TRUE, center = TRUE)
-point_data <- pca$x %>% as_tibble() %>% mutate(origin = rep(c("true", "fake"), each = nrow(Y)))
-line_data <- point_data |> mutate(ID = rep(1:nrow(Y), 2)) |> 
-  pivot_wider(id_cols = ID, names_from = origin, values_from = starts_with("PC"))
+pca <- prcomp(rbind(input |> as.matrix(), reconstructions), scale. = TRUE, center = TRUE)
+point_data <- pca$x %>% 
+  as_tibble() %>% 
+  mutate(origin = rep(c("true", "fake"), each = nrow(input)), 
+         group = rep(c("A", "B", "A", "B"), each = n))
+line_data <- point_data |> mutate(ID = rep(1:nrow(input), 2)) |> 
+  pivot_wider(id_cols = c(ID, group), names_from = origin, values_from = starts_with("PC"))
 ```
  
-```{r, fig.height=5, fig.width=7}
+```{r, fig.height=5, fig.width=9}
 ggplot() + 
-  geom_point(data = point_data, mapping = aes(x = PC1, y = PC2, color = origin)) + 
+  geom_point(data = point_data, mapping = aes(x = PC1, y = PC2, color = origin, shape = group)) + 
   geom_segment(data = line_data, mapping = aes(x = PC1_true, xend = PC1_fake, y = PC2_true, yend = PC2_fake)) + 
   coord_equal() + 
   theme_minimal() + 
+  facet_wrap(~ group) + 
   theme(text = element_text(size = 16))
 ```
 

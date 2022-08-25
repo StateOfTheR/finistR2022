@@ -6,10 +6,12 @@ engine: knitr
 # title-block-banner: true ("#EEAEEE")
 # title-block-banner: "#EEAEEE"
 title-block-banner: true
+execute:
+  echo: true
 format: 
    html: 
       theme: flatly
-      code-fold: true
+      code-fold: false
       number-sections: true
       chalkboard: true
       toc: true 
@@ -22,6 +24,8 @@ browser: true
 ## Sources
 -   [Notes on Changing from Rmarkdown/Bookdown to Quarto](https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/)
 
+## Qu'est-ce que le Quarto ? 
+Il s'agit d'un moyen de rendre des fichiers sources en texte qui contiennent du code écrit en Python, R, Observable ou Julia.
 
 ## Installation
 
@@ -35,25 +39,55 @@ install.packages("quarto")
 
 Maintenant on peut créer directement un nouveau fichier qmd dans File \> New File \> Quarto document.
 
+## Principales différences entre R Markdown et Quarto 
+
+* Il faut appeler rmarkdown depuis R pour l'utiliser. Cela signifie que, par exemple, un utilisateur de Python doit effectuer des installations supplémentaires.
+
+* Au lieu d'être un package R, Quarto est un logiciel distinct, que l'on peut appeler depuis la ligne de commande. Cela signifie que d'autres logiciels peuvent l'utiliser pour créer leurs propres documents de programmation lettrés.
+
+* Quarto semble être beaucoup plus cohérent. Par exemple, au lieu d'avoir un fichier _bookdown.yml spécial pour le bookdown, qui nécessite également un fichier _output.yml spécial, il y a maintenant un seul fichier _quarto.yml.
+
+R markdown utilise knitr pour communiquer avec R et gérer la génération du document. Mais avec quarto, nous avons cette interface générale, où quarto peut parler à différents langages de programmation.
+
+## Transformer un .Rmd en .qmd
+
+Il suffit de changer l'extension de notre fichier. Le code ci-dessous permet d'identifier les fichiers .Rmd et modifier leur extension en .qmd (code issus de https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/)
+
+```{r}
+# library(fs)
+# library(stringr)
+# rmd_names <- dir_ls(path = ".", glob = "*.Rmd")
+# qmd_names <- str_replace(string = rmd_names,
+#                          pattern = "Rmd",
+#                          replacement = "qmd")
+# file_move(path = rmd_names,
+#           new_path = qmd_names)
+
+```
+
+
 ## Coder en R et Python dans un même fichier qmd
 
 ```{r}
+#| echo: true
 library(reticulate)
 ```
 
 Pour coder en R, préciser {r} au début de la cellule :
 
 ```{r}
+#| echo: true
 #| label: vecteur_R
 vect <- 1:6
-vect
-vect[1]
-class(vect)
+cat(vect)
+cat(vect[1])
+cat(class(vect))
 ```
 
 Pour coder en python, préciser {python} au début de la cellule :
 
 ```{python}
+#| echo: true
 #| label: vecteur_py
 import numpy as np
 vect = np.array([1,2,3])
@@ -65,6 +99,7 @@ type(vect)
 Pour utiliser un objet R avec python, appeler l'objet avec "r." devant :
 
 ```{python}
+#| echo: true
 #| label: vecteur_rInpy
 print(r.vect)
 print(r.vect[0])
@@ -74,6 +109,7 @@ type(r.vect)
 Pour utiliser un objet python avec R, appeler l'objet avec "py\$" devant :
 
 ```{r}
+#| echo: true
 #| label: vecteur_pyInR
 py$vect
 py$vect[1]
@@ -82,7 +118,7 @@ class(py$vect)
 
 ## Transformer un .Rmd en .qmd
 
-Il suffit de changer l'extension de notre fichier. Le code ci-dessous permet d'identifier les fichiers .Rmd et modifier leur extension en .qmd (code issus de https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/)
+Il suffit de changer l'extension de notre fichier. Le code ci-dessous permet d'identifier les fichiers .Rmd et modifier leur extension en .qmd (code issus du [blog de njtierney](https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/))
 
 ```{r}
 #| eval: false
@@ -98,26 +134,7 @@ file_move(path = rmd_names,
 
 # Marinq
 
-## Qu'est-ce que le Quarto ? 
-Il s'agit d'un moyen de rendre des fichiers sources en texte qui contiennent du code écrit en Python, R, Observable ou Julia.
 
-## Principales différences entre R Markdown et Quarto 
-
-* Il faut appeler rmarkdown depuis R pour l'utiliser. Cela signifie que, par exemple, un utilisateur de Python doit effectuer des installations supplémentaires.
-
-* Au lieu d'être un package R, Quarto est un logiciel distinct, que l'on peut appeler depuis la ligne de commande. Cela signifie que d'autres logiciels peuvent l'utiliser pour créer leurs propres documents de programmation lettrés.
-
-* Quarto semble être beaucoup plus cohérent. Par exemple, au lieu d'avoir un fichier _bookdown.yml spécial pour le bookdown, qui nécessite également un fichier _output.yml spécial, il y a maintenant un seul fichier _quarto.yml.
-
-R markdown utilise knitr pour communiquer avec R et gérer la génération du document. Mais avec quarto, nous avons cette interface générale, où quarto peut parler à différents langages de programmation.
-
-## Passage de rmarkdown à quarto
-
-* Installation
-+ [quarto](https://quarto.org/docs/get-started/)
-+ [Dernière version de Rstudio](https://dailies.rstudio.com/)
-* Modifier les noms de fichiers : filename.Rmd —> filename.qmd
-* Remplacer _bookdown.yml par _quarto.yml et supprimer _output.yml
 
 
 # Mary

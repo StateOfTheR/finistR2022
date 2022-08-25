@@ -242,8 +242,8 @@ loss_fun <- function(input) {
   log_var <- results$log_var
   prediction <- results$decomp_input
   
-  ## cross entropy part of the loss
-  cross_entropy <- nn_bce_loss(reduction = "sum")
+  ## Perte L2 pour la reconstruction 
+  cross_entropy <- nn_mse_loss(reduction = "sum")
   
   ## KL part of the loss
   kl <- function(mean, log_var) {
@@ -258,7 +258,7 @@ loss_fun <- function(input) {
 On vérifie sur un exemple simple que la fonction de perte est bien définie:
 
 ```{r}
-
+debugonce(loss_fun)
 loss_fun(input[1, , drop = FALSE])
 ```
 

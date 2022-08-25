@@ -19,6 +19,60 @@ browser: true
 
 # Annaïg
 
+## Installation
+
+D'abord il faut installer quarto : https://quarto.org/docs/get-started/.
+
+Pour executer des fichiers qmd sur Rstudio, il est nécessaire d'avoir la nouvelle version de RStudio (2022.07). Maintenant on peut créer directement un nouveau fichier qmd dans File \> New File \> Quarto document.
+
+## Coder en R et Python dans un même qmd
+
+```{r}
+library(reticulate)
+```
+
+Pour coder en R, préciser {r} au début de la cellule :
+
+```{r}
+#| label: vecteur_R
+vect <- 1:6
+vect
+vect[1]
+class(vect)
+```
+
+Pour coder en python, préciser {python} au début de la cellule :
+
+```{python}
+#| label: vecteur_py
+import numpy as np
+vect = np.array([1,2,3])
+print(vect)
+print(vect[0])
+type(vect)
+```
+
+Pour utiliser un objet R avec python, appeler l'objet avec "r." devant :
+
+```{python}
+#| label: vecteur_rInpy
+print(r.vect)
+print(r.vect[0])
+type(r.vect)
+```
+
+Pour utiliser un objet python avec R, appeler l'objet avec "py\$" devant :
+
+```{r}
+#| label: vecteur_pyInR
+py$vect
+py$vect[1]
+class(py$vect)
+```
+
+
+
+
 # Marina
 
 # Mary

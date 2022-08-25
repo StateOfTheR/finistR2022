@@ -122,7 +122,7 @@ print(c)
 ## Tableau
 
 ```{r}
-#| echo: true
+#| echo: fenced
 #| label: vecteur_R
 vect <- 1:6
 vect

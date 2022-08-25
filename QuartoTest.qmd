@@ -7,7 +7,7 @@ engine: knitr
 # title-block-banner: "#EEAEEE"
 title-block-banner: true
 execute:
-  echo: true
+  echo: fenced
 format: 
    html: 
       theme: 
@@ -19,14 +19,13 @@ format:
 #bibliography : biblio.bib
 ---
 
-# Annaïg
 
-## Qu'est-ce que `Quarto` ? 
+# Qu'est-ce que `Quarto` ? 
 Il s'agit d'un moyen de rendre des fichiers sources en texte qui contiennent du code écrit en Python, R, Observable ou Julia.[^2]
 
 [^2]:https://quarto.org/docs/guide/
 
-## Installation
+# Installation
 
 D'abord il faut installer `Quarto` en suivant les [instructions](https://quarto.org/docs/get-started/).
 
@@ -38,24 +37,24 @@ install.packages("quarto")
 
 Maintenant on peut créer directement un nouveau fichier qmd dans File \> New File \> `Quarto` document.
 
-## Principales différences entre R Markdown et `Quarto` 
+# Principales différences entre R Markdown et `Quarto` 
 
 * Il faut appeler rmarkdown depuis R pour l'utiliser. Cela signifie que, par exemple, un utilisateur de Python doit effectuer des installations supplémentaires.
 
 * Au lieu d'être un package R, `Quarto` est un logiciel distinct, que l'on peut appeler depuis la ligne de commande. Cela signifie que d'autres logiciels peuvent l'utiliser pour créer leurs propres documents de programmation lettrés. Le package `quarto` a pour but essentiel de faciliter l'intégration de `quarto` à Rstudio. 
 
-## Les avantages
+# Les avantages
 
-* Alors que les documents RMarkdown utilisent `R` et `knitr` pour compiler le document, `Quarto` exécute chaque bloc (chunk) avec des "engines" différentes ce qui permet de mélanger les langages de programmation et d'obtenir des documents reproductibles. `Quarto` découle directement de `RMarkdown` ce qui explique les faibles différences en terme d'implémentation.
+* Alors que les documents RMarkdown utilisent `R` et `knitr` pour compiler le document, `Quarto` exécute chaque bloc (chunk) avec des engins différents ce qui permet de mélanger les langages de programmation et d'obtenir des documents reproductibles. `Quarto` découle directement de `RMarkdown` ce qui explique les faibles différences en terme d'implémentation.
 
 * Pour compiler un livre, `Quarto` semble être beaucoup plus cohérent que `RMarkdown` concernant la configuration. Par exemple, au lieu d'avoir un fichier _bookdown.yml spécifique au bookdown qui nécessite également un fichier _output.yml, il ne requiert qu'un seul fichier _quarto.yml.
 
 ::: callout-note
-Rmarkdown reste très actif et ne sera pas obsolète dans un future proche !
+Rmarkdown reste très actif et ne sera pas obsolète dans un futur proche !
 :::
 
 
-## Transformer un .Rmd en .qmd
+# Transformer un .Rmd en .qmd
 
 Il suffit de changer l'extension de notre fichier. Le code ci-dessous permet d'identifier les fichiers .Rmd et modifier leur extension en .qmd (code issu du [blog de Nick Tierney](https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/))
 
@@ -71,21 +70,7 @@ file_move(path = rmd_names,
           new_path = qmd_names)
 ```
 
-
-<<<<<<< HEAD
-## Coder en R et Python dans un même fichier qmd
-
-```{r}
-#| echo: true
-library(reticulate)
-```
-
-Pour coder en R, préciser `{r}` au début de la cellule :
-=======
-# Coder en R et Python dans un même fichier qmd
->>>>>>> on enleve des titres
-
-
+# Coder en `R` et en `python` dans un même script
 ## Récupération de variables R dans un code Python
 
 Afin d'utiliser Python, il faut définir dans `Tools --> Global Options --> Python` la version que l'on souhaite utiliser.
@@ -100,94 +85,36 @@ On souhaite récupérer une variable R et l'utiliser dans un calcul Python. Par 
 a = 1:30
 ```
 
+Pour coder en python, préciser {python} au début de la cellule.
 On récupère le premier élément du vecteur `a` :
 
 ```{python, eval = TRUE}
-print(r.a[0])
+print('a[0] = ', r.a[0])
 b = r.a[0] + 1
-print(b)
+print('b = ', b)
 ```
 
-## Récupération de variables Python dans un code Python
+## Récupération de variables Python dans un code R
 
-Pour coder en python, préciser {python} au début de la cellule :
-
-```{python}
-#| echo: fenced
-#| label: vecteur_py
-import numpy as np
-vect = np.array([1,2,3])
-print(vect)
-print(vect[0])
-type(vect)
-```
-
-Pour réaliser l'inverse, la démarche est moins facilitée par `Quarto`:
 
 ::: {.callout-caution collapse="true"}
-## Il faut télécharger reticulate afin de pouvoir récupérer les valeurs de sortie d'une variable `Python` depuis `R`.
+## Il faut charger le package **reticulate** afin de pouvoir récupérer les valeurs de sortie d'une variable `Python` depuis `R`.
 :::
 
-On définit la variable c qui dépend de la variable `Python` b de tout à l'heure et du premier élément de la variable `R` a :
+```{r}
+library(reticulate)
+```
+
+Reprenons les variables a et b de l'exemple précédent.
+Pour utiliser un objet python avec R, il faut appeler l'objet avec "py\$" devant.
+On définit la variable c qui dépend de la variable `Python` b et du premier élément de la variable `R` a :
 
 ```{r, eval = TRUE}
-c = reticulate::py$b + a[1]
-print(c)
+c = py$b + a[1]
+print(paste0('c=', c))
 ```
 
-## Tableau
-
-```{r}
-#| echo: fenced
-#| label: vecteur_R
-vect <- 1:6
-vect
-vect[1]
-class(vect)
-```
-
-Pour utiliser un objet R avec python, appeler l'objet avec "r." devant :
-
-```{python}
-#| echo: true
-#| label: vecteur_rInpy
-print(r.vect)
-print(r.vect[0])
-type(r.vect)
-```
-
-Pour utiliser un objet python avec R, appeler l'objet avec "py\$" devant :
-
-```{r}
-#| echo: true
-#| label: vecteur_pyInR
-py$vect
-py$vect[1]
-class(py$vect)
-```
-
-## Transformer un .Rmd en .qmd
-
-Il suffit de changer l'extension de notre fichier. Le code ci-dessous permet d'identifier les fichiers .Rmd et modifier leur extension en .qmd (code issus du [blog de njtierney](https://www.njtierney.com/post/2022/04/11/rmd-to-qmd/))
-
-```{r}
-#| eval: false
-library(fs)
-library(stringr)
-rmd_names <- dir_ls(path = ".", glob = "*.Rmd")
-qmd_names <- str_replace(string = rmd_names,
-                         pattern = "Rmd",
-                         replacement = "qmd")
-file_move(path = rmd_names,
-          new_path = qmd_names)
-```
-
-# Marinq
-
-# Mary
-
-
-## Beaucoup de choses ne changent pas ...
+## Séparer la page en plusieurs parties verticales
 
 :::: columns
 ::: {.column width="50%"} 
@@ -199,7 +126,25 @@ Et voici la deuxième moitié.
 :::
 ::::
 
-### Diagramme
+Le code correspondant est le suivant : 
+
+```{r}
+# :::: columns
+# ::: {.column width="50%"} 
+# On peut également faire un tableau de texte : couper la page en plusieurs parties (ici à la moitié), pour y insérer du texte en colonne.
+# :::
+# 
+# ::: {.column width="50%"} 
+# Et voici la deuxième moitié.
+# :::
+# ::::
+```
+
+
+## Beaucoup de choses ne changent pas ...
+
+
+### Faire des diagrammes en mermaid
 ```{mermaid}
 flowchart LR
   A[Hard edge] --> B(Round edge)
@@ -207,15 +152,6 @@ flowchart LR
   C --> D[Result one]
   C --> E[Result two]
 ```
-
-### Les listes
-
--   Faire des listes comme ça
-
-    -   et des plus après pour une sous liste
-    -   et voilà
-
--   Dernier élément de la liste
 
 ### Insertion d'images
 
@@ -226,5 +162,3 @@ flowchart LR
 
 ![Patisseries](image03.jpg){#gateau}
 :::
-
-# Autre

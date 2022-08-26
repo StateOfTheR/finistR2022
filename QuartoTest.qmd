@@ -1,6 +1,6 @@
 ---
 title: "QuartoTest"
-author: "Annaig, Marina et Mary"
+author: "Annaig, Mahendra, Marina et Mary"
 date: today
 engine: knitr
 # title-block-banner: true ("#EEAEEE")
@@ -69,6 +69,23 @@ qmd_names <- str_replace(string = rmd_names,
 file_move(path = rmd_names,
           new_path = qmd_names)
 ```
+
+Il faut également changer les options du chunk global  
+```{r, echo=TRUE, eval=FALSE}
+
+---
+title: "We don't talk about Quarto"
+subtitle: "Until now!"
+execute:
+  echo: false
+---
+```
+à la place de 
+```{r, eval=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
 
 # Coder en `R` et en `python` dans un même script
 ## Récupération de variables R dans un code Python
@@ -156,9 +173,19 @@ flowchart LR
 ### Insertion d'images
 
 ::: {layout="[[80], [1,1]]"}
-![Karaoke de ce soir](image02.jpg){#micro}
+![Karaoke d'hier soir](image02.jpg){#micro}
 
 ![Biere artisanale](image01.jpg){#biere}
 
 ![Patisseries](image03.jpg){#gateau}
 :::
+
+### Insertion d'une carte
+```{r}
+#| column: screen-inset-shaded
+
+library(leaflet)
+leaflet() %>%
+  addTiles() %>%
+  addMarkers(lng=2.3476575, lat=48.8397733, popup="The birthplace of R")
+```

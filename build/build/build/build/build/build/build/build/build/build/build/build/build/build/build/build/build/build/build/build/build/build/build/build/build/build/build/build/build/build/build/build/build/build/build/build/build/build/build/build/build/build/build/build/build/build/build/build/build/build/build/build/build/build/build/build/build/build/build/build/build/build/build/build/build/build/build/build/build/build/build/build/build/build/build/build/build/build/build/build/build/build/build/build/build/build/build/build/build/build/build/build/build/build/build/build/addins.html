@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Tâm Le Minh" />
+
+<meta name="date" content="2022-08-23" />
+
+<title>Addins</title>
+
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Finist'R 2022</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="https://github.com/StateOfTheR/finistR2022">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    Workflow
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="introDockeR.html">Docker</a>
+    </li>
+    <li>
+      <a href="rebase.html">Git avancé</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-brands fa-r-project"></span>
+     
+    Langage R et pipe
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="pipe.html">pipe</a>
+    </li>
+    <li>
+      <a href="webscraping.html">Webscrapping</a>
+    </li>
+    <li>
+      <a href="extensionShiny.html">Shiny extension</a>
+    </li>
+    <li>
+      <a href="sig_with_sf.html">R et SIG</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="autodiff.html">Différention automatique</a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Addins</h1>
+<h4 class="author">Tâm Le Minh</h4>
+<h4 class="date">2022-08-23</h4>
+
+</div>
+
+
+<p>Les addins permettent d’appeler des fonctions R directement à partir
+de l’interface de RStudio. Ils visent principalement à améliorer
+l’expérience de l’utilisateur de RStudio. Les addins peuvent notamment
+communiquer avec l’IDE à travers la bibliothèque de fonctions
+rstudioapi. En effet, RStudio est capable de récupérer ces données grâce
+à la fonction getActiveDocumentContext(). Il est également possible de
+rajouter ou de remplacer du texte dans les fichiers ouverts.</p>
+<p><img src="resources/figs/addins_getcontext.png"
+style="width:50.0%" /></p>
+<p>Ils sont fournis par des packages. Une fois les packages installés,
+les addins sont automatiquement détectés par RStudio qui les ajoute à
+l’interface sans avoir besoin de charger les packages correspondant. Les
+addins installés apparaissent dans la barre d’outils.</p>
+<p><img src="resources/figs/addins_toolbar.png"
+style="width:50.0%" /></p>
+<p>Il est également possible de leur assigner un raccourci clavier (dans
+Tools -&gt; Addins -&gt; Browse addins).</p>
+<p><img src="resources/figs/addins_keyboard.png"
+style="width:50.0%" /></p>
+<div id="les-deux-types-daddins" class="section level2">
+<h2>Les deux types d’addins</h2>
+<p>Il y a principalement deux types d’addins :</p>
+<ul>
+<li><p>les macros textuelles,</p></li>
+<li><p>les gadgets Shiny.</p></li>
+</ul>
+<p>À travers des examples donnés dans le package addinexamples, on
+présente les possibilités offertes par les addins.</p>
+<p><img src="resources/figs/addins_addinexamples.png"
+style="width:50.0%" /></p>
+<div id="les-macros-textuelles" class="section level3">
+<h3>Les macros textuelles</h3>
+<p>Ces addins modifient et tranforment du texte sur les fichiers de
+travail. Deux exemples de macros textuelles sont données : ‘Insert %in%’
+et ‘Reformat R code’.</p>
+</div>
+<div id="les-gadgets-shiny" class="section level3">
+<h3>Les gadgets Shiny</h3>
+<p>Ces addins ouvrent des applications Shiny dans RStudio, qui ont pour
+but de modifier ou de générer du code. Deux exemples sont fournis par
+addinexamples. ‘Find and replace’ recherche et remplace des chaînes de
+caractères par un autre dans tout le fichier. ‘Subset a data frame’
+propose d’ouvrir une dataframe et de la visualiser en applicant des
+filtres, la commande permettant d’obtenir la dernière dataframe filtrée
+peut être exportée pour être incluse dans le code.</p>
+<p><img src="resources/figs/addins_findandreplace.png"
+style="width:50.0%" /></p>
+<p><img src="resources/figs/addins_subset.png"
+style="width:50.0%" /></p>
+<p>Autres exemples d’applications possibles : tracer des graphiques,
+modifier des objets, générer du code</p>
+</div>
+</div>
+<div id="faire-ses-propres-addins-un-exemple" class="section level2">
+<h2>Faire ses propres addins : un exemple</h2>
+<p>On conçoit un addin scriptinfo qui compte les lignes et les
+charactères d’un document ouvert dans RStudio. On veut fournir un addin
+qui affiche les résultats dans la console et un addin qui les affiche
+sous la forme d’un Shiny gadget.</p>
+<p>Pour créer et ajouter un addin à RStudio, il faut obligatoirement
+passer par un package.</p>
+<p>Afin de signifier que le package contient des addins, il faut
+l’indiquer à RStudio avec un fichier inst/rstudio/addins.dcf dans le
+package. Ce fichier contient les informations des addins et les relie
+aux fonctions R qu’ils exécutent. À partir de cela, RStudio détecte
+automatiquement les addins si le package est installé.</p>
+<p><img src="resources/figs/addins_package.png"
+style="width:50.0%" /></p>
+<p><img src="resources/figs/addins_addinsdcf.png"
+style="width:50.0%" /></p>
+<p>Une fois le package compilé. Il peut être installé et les addins
+s’ajoutent automatiquement à RStudio.</p>
+<p><img src="resources/figs/addins_scriptinfoaddins.png"
+style="width:50.0%" /></p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

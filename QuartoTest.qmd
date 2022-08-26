@@ -141,6 +141,7 @@ On peut également faire un tableau de texte : couper la page en plusieurs parti
 
 ::: {.column width="50%"} 
 Et voici la deuxième moitié.
+Cela nous permet d'avoir deux blocs et comparer des scripts entre eux par exemple.
 :::
 ::::
 

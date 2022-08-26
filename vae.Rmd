@@ -358,29 +358,46 @@ ggplot(plot_data, aes(x = true, y = fake, color = group)) +
 ```
 
 
+
+
+
+
 ## Exemple MNIST
+
+
+
+
+
 
 On applique maintenant cette même approche VAE à un jeu de données réel - et très original : MNIST, qui regroupe 70,000 exemples de caractères numériques manuscrits (ie des exemples de digits de 0 à 9). Chaque observation est une image, i.e. une matrice de taille $28\times 28$ où chaque entrée correspond à un niveau de gris quantifié de 0 à 256. On va ici analyser ces données 
 - sans prendre en compte l'aspect "image": chaque image converti en un vecteur de taille $784$,
 - sans prendre en compte l'information du label (du digit). 
 
-On charge les données à partir du package **keras** et on les reformate
+On charge les données à partir du package `torchvision` et on les reformate
 
 ```{r}
-library(keras)
-library(tidyverse)
 
 ## Chargement des donnees mnist
-c(c(xtrain, ytrain), c(xtest, ytest)) %<-% dataset_mnist()
+## Les donnnes vont etre chargees depuis le web  
+## et stockees dans le repertoire "dir".
+library(torchvision)
+dir = './'
+x_train <- mnist_dataset(
+  dir, 
+  download = TRUE, 
+) 
+
 ## On passe l'echelle de gris en [0,1]
-x_train = xtrain/255
-x_test = xtest/255
-image(x_train[3,,])
+xtrain = x_train$data/255
+image(xtrain[3,,])
+
 ## On passe les images en vecteur
 input_dim = dim(xtrain)[2]*dim(xtrain)[3]
-xtrain <- array_reshape(x_train, c(nrow(x_train), input_dim)) %>% torch_tensor
-xtest <- array_reshape(x_test, c(nrow(x_test), input_dim)) %>% torch_tensor
+xtrain <- torch_reshape(xtrain, c(nrow(xtrain), input_dim)) %>% torch_tensor
 print(dim(xtrain))
+
+## On recupere les labels
+ytrain <- x_train$targets
 ```
 
 
@@ -518,14 +535,14 @@ La méthode d'optimisation choisie est ADAM :
 optimizer_vae <- optim_adam(vae$parameters, lr = 0.001)
 ```
 
-et la fonction de perte combine ici l'entropie croisée (pour le terme d'ajustement) et la pénalité Kullback Leibler :
+et la fonction de perte combine ici MSE (pour le terme d'ajustement) et la pénalité Kullback Leibler :
 
 ```{r}
 ## Entraînement du VAE
 loss_fn <- function(prediction, target, mean, log_var) {
   ## Perte L2 pour la reconstruction 
-  #cross_entropy <- nn_mse_loss(reduction = "sum")
-  cross_entropy <- nn_cross_entropy_loss(reduction = "sum")
+  cross_entropy <- nn_mse_loss(reduction = "sum")
+  #cross_entropy <- nn_cross_entropy_loss(reduction = "sum")
   
   ## KL part of the loss
   kl <- function(mean, log_var) {
@@ -549,7 +566,7 @@ eval_loss <- function(input) {
 }
 ```
 
-On lance l'optimisation :
+On lance l'optimisation (sur 10,000 observations seulement) :
 
 ```{r}
 num_iterations <- 1000
@@ -579,14 +596,39 @@ Res1 <- vae$encoder(xtrain)$mean
 afin de représenter les données dans l'espace latent 
 
 ```{r}
-Res1 %>% as.matrix %>% as.data.frame() %>% mutate(Label = as.factor(ytrain)) %>%
+Res1 %>% 
+  as.matrix %>% 
+  as.data.frame() %>% 
+  mutate(Label = as.factor(ytrain)) %>%
+  ggplot(aes(x=V1,y=V2,col=Label)) + geom_point()
 ```
 
 Alternativement, on peut générer la représentation graphique correspondant à un point donné dans l'espace latent :
 
 ```{r}
-ggplot(aes(x=V1,y=V2,col=Label)) + geom_point()
+
 vae$decoder(c(-2,3) %>% torch_tensor) %>% torch_reshape(c(28,28)) %>% as.matrix() %>% image
 ```
 
+
+
+
+
+
+## Pour aller plus loin: convolution et mini-batch
+
+
+
  
+
+ 
+On reprend ici l'exemple MNIST en apportant deux nouveautés dans l'analyse :
+- l'utilisation de réseaux convolutionnels prenant en compte la nature des données. On gardera donc intacte la structure matricielle des données initiales dans ce qui suit;
+- l'utilisation de batchs lors de l'optimisation. Plutôt que d'utiliser systématiquement l'ensemble des données d'entrainement, on échantillonnera un sous-ensemble de ces données à chaque étape d'optimisation, i.e. on réalisera une descente de gradient stochastique.
+
+L'utilisation d'une procédure d'optimisation stochastique requiert un formattage particulier des données, afin que l'algorithme d'optimisation soit en mesure de réaliser l'échantillonnage à chaque étape. 
+
+
+###  Le format `dataloader`
+
+

@@ -172,6 +172,20 @@ flowchart LR
 
 ### Insertion d'images
 
+On peut insérer des images via le code 
+
+````
+::: {layout="[[80], [1,1]]"}
+![Karaoke d'hier soir](image02.jpg){#micro}
+
+![Biere artisanale](image01.jpg){#biere}
+
+![Patisseries](image03.jpg){#gateau}
+:::
+````
+
+qui donne le résultat:
+
 ::: {layout="[[80], [1,1]]"}
 ![Karaoke d'hier soir](image02.jpg){#micro}
 

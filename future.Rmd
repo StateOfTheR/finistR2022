@@ -1,0 +1,191 @@
+---
+title: "future"
+author: "Tâm Le Minh"
+date: "2022-08-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Future
+
+future est un package de programmation parallèle, permettant de réaliser des opérations sur différents coeurs ou clusters. L'atout principal de future de pouvoir switcher entre une exécution parallèle et séquentielle sans changer le code.
+
+Pour illustrer cela, on prend l'exemple suivant : inverser une matrice de grande taille.
+
+```{r, results='hide'}
+library(future)
+
+create_and_invert_matrix <- function(n) {
+  x <- rnorm(n, 0, 1)
+  xinv <- solve(x%*%t(x) + diag(n))
+  return(xinv)
+}
+
+n <- 1600
+
+availableCores()
+```
+
+```
+##system 
+##     4 
+```
+
+On voit que cet ordinateur possède 4 coeurs disponibles. Afin de voir les effets de la parallélisation, on va essayer d'inverser 5 matrices.
+
+## Séquentiel
+
+On commence d'abord par inverser les 5 matrices de manière séquentielle.
+
+```{r, echo=TRUE, warning = FALSE, results='hide'}
+plan(sequential)
+{
+  inv <- list()
+  t1 <- Sys.time()
+  for (i in 1:5) {
+    inv[i] <- create_and_invert_matrix(n)
+    te <- Sys.time()
+    print(paste("Matrix inversion n°",i, ":"))
+    print(te-t1)
+  }
+  t2 <- Sys.time()
+  print(paste("Total:"))
+  print(t2 - t1)
+}
+```
+
+```
+## [1] "Matrix inversion n° 1 :"
+## Time difference of 5.329002 secs
+## [1] "Matrix inversion n° 2 :"
+## Time difference of 10.78002 secs
+## [1] "Matrix inversion n° 3 :"
+## Time difference of 15.8628 secs
+## [1] "Matrix inversion n° 4 :"
+## Time difference of 21.06527 secs
+## [1] "Matrix inversion n° 5 :"
+## Time difference of 26.28708 secs
+## [1] "Total:"
+## Time difference of 26.28737 secs
+```
+
+Chaque inversion de matrice prend environ 5 secondes, ce qui fait un temps total de 25 secondes environ.
+
+## Multisession
+
+Pour passer en multisession, on écrit le code suivant utilisant future. Si on souhaite repasser en séquentiel, il suffit de changer plan(multisession) en plan(sequential) dans le bout de code ci-dessous.
+
+Les objets f1, f2, f3, f4, f5 sont des "futures". Il apparaissent comme des environnements dans R. Les tâches associées sont attribuées aux différents coeurs selon le fait que l'on soit en multisession ou en séquentiel.
+
+```{r, echo=TRUE, warning = FALSE, message = FALSE, results='hide'}
+plan(multisession)
+{
+  inv <- list()
+  t1 <- Sys.time()
+  f1 <- future(create_and_invert_matrix(n), seed=FALSE)
+  f2 <- future(create_and_invert_matrix(n), seed=FALSE)
+  f3 <- future(create_and_invert_matrix(n), seed=FALSE)
+  f4 <- future(create_and_invert_matrix(n), seed=FALSE)
+  f5 <- future(create_and_invert_matrix(n), seed=FALSE)
+  while (!resolved(f1)) {
+  }
+  te1 <- Sys.time()
+  print(paste("Matrix inversion n°",1, ":"))
+  print(te1-t1)
+  while (!resolved(f2)) {
+  }
+  te2 <- Sys.time()
+  print(paste("Matrix inversion n°",2, ":"))
+  print(te2-t1)
+  while (!resolved(f3)) {
+  }
+  te3 <- Sys.time()
+  print(paste("Matrix inversion n°",3, ":"))
+  print(te3-t1)
+  while (!resolved(f4)) {
+  }
+  te4 <- Sys.time()
+  print(paste("Matrix inversion n°",4, ":"))
+  print(te4-t1)
+  while (!resolved(f5)) {
+  }
+  te5 <- Sys.time()
+  print(paste("Matrix inversion n°",5, ":"))
+  print(te5-t1)
+  
+  inv[1] <- value(f1)
+  inv[2] <- value(f2)
+  inv[3] <- value(f3)
+  inv[4] <- value(f4)
+  inv[5] <- value(f5)
+  t2 <- Sys.time()
+  print(paste("Total:"))
+  print(t2 - t1)
+}
+```
+
+```
+## [1] "Matrix inversion n° 1 :"
+## Time difference of 9.607713 secs
+## [1] "Matrix inversion n° 2 :"
+## Time difference of 9.725218 secs
+## [1] "Matrix inversion n° 3 :"
+## Time difference of 9.810268 secs
+## [1] "Matrix inversion n° 4 :"
+## Time difference of 10.07667 secs
+## [1] "Matrix inversion n° 5 :"
+## Time difference of 14.59463 secs
+## [1] "Total:"
+## Time difference of 16.22387 secs
+```
+
+Ici, on voit que 4 inversions de matrices se font en parallèle (sur les 4 coeurs) pendant 10 secondes, ce qui est 2 fois plus long qu'une inversion de matrice en séquentiel. 
+
+Suggestion d'explication : Vu que j'utilise déjà de base des bibliothèques de calcul d'algèbre linéaire parallélisé, forcer chaque inversion à ne se faire que sur 1 seul coeur fait perdre une partie de ces bénéfices. 
+
+On voit notamment que la 5ème inversion de matrice se fait bien en 5 secondes, retrouvant cet efficacité.
+
+## apply
+
+future permet donc de réaliser des instructions en parallèle. Dans le cas des fonctions de type apply, une seule instruction est émise, qui n'est donc pas parallélisée.
+
+```{r, echo=TRUE, warning = FALSE, message = FALSE, results='hide'}
+plan(multisession)
+{
+t1 <- Sys.time()
+inv <- lapply(1:5, function(x) create_and_invert_matrix(n))
+t2 <- Sys.time()
+print(paste("Total:"))
+print(t2 - t1)
+}
+```
+
+```
+## [1] "Total:"
+## Time difference of 24.92484 secs
+```
+
+## future.apply
+
+Le package future.apply propose des implémentations des fonctions apply sous future, ce qui permet d'utiliser la parallélisation. De nombreux packages similaires existent : cf. le futureverse.
+
+
+```{r, echo=TRUE, warning = FALSE, message = FALSE, results='hide'}
+library(future.apply)
+plan(multisession)
+{
+t1 <- Sys.time()
+inv <- future_lapply(1:5, function(x) create_and_invert_matrix(n))
+t2 <- Sys.time()
+print(paste("Total:"))
+print(t2 - t1)
+}
+```
+
+```
+## [1] "Total:"
+## Time difference of 14.98006 secs
+```

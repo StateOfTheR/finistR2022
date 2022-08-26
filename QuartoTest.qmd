@@ -80,6 +80,7 @@ execute:
   echo: false
 ---
 ```
+
 à la place de 
 ```{r, eval=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
@@ -162,6 +163,17 @@ Le code correspondant est le suivant :
 
 
 ### Faire des diagrammes en mermaid
+
+````
+```{mermaid}
+flowchart LR
+  A[Hard edge] --> B(Round edge)
+  B --> C{Decision}
+  C --> D[Result one]
+  C --> E[Result two]
+```
+````
+
 ```{mermaid}
 flowchart LR
   A[Hard edge] --> B(Round edge)

@@ -146,17 +146,17 @@ Et voici la deuxième moitié.
 
 Le code correspondant est le suivant : 
 
-```{r}
-# :::: columns
-# ::: {.column width="50%"} 
-# On peut également faire un tableau de texte : couper la page en plusieurs parties (ici à la moitié), pour y insérer du texte en colonne.
-# :::
-# 
-# ::: {.column width="50%"} 
-# Et voici la deuxième moitié.
-# :::
-# ::::
-```
+````
+:::: columns
+::: {.column width="50%"}
+On peut également faire un tableau de texte : couper la page en plusieurs parties (ici à la moitié), pour y insérer du texte en colonne.
+:::
+
+::: {.column width="50%"}
+Et voici la deuxième moitié.
+:::
+::::
+````
 
 
 ## Beaucoup de choses ne changent pas ...

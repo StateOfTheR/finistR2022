@@ -588,7 +588,6 @@ On lance l'optimisation (sur 10,000 observations seulement) :
 num_iterations <- 1000
 loss_vector <- vector("numeric", num_iterations)
 for (i in 1:num_iterations) {
-  cat(i,sep='\n')
   optimizer_vae$zero_grad()
   loss <- eval_loss(xtrain[1:10000,])
   loss$backward()
@@ -616,7 +615,8 @@ Res1 %>%
   as.matrix %>% 
   as.data.frame() %>% 
   mutate(Label = as.factor(ytrain)) %>%
-  ggplot(aes(x=V1,y=V2,col=Label)) + geom_point()
+  ggplot(aes(x=V1,y=V2,col=Label)) + geom_point() + 
+  scale_color_brewer(palette = "Paired")
 ```
 
 Alternativement, on peut générer la représentation graphique correspondant à un point donné dans l'espace latent :

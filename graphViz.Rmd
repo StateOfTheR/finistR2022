@@ -93,6 +93,8 @@ visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph basique")
 
 </br></br>
 
+### Personnalisation des formes, couleurs, de la légende
+
 On peut faire apparaître le sens des relations entre les noeuds.
 
 ```{r}
@@ -105,11 +107,11 @@ visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph dirigé") %>%
 On peut attribuer une couleur par groupe (si groupe il y a).
 
 ```{r}
-visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec couleurs customisées") %>%
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec couleurs et formes customisées") %>%
   visGroups(groupname = "Stark", color = "lightseagreen") %>% # only one group can be specified in the function..
   visGroups(groupname = "Lannister", color = "#9e1549") %>%
   visGroups(groupname = "Baratheon", color = "#3a4991") %>%
-  visGroups(groupname = "Unknown", color = "#a19d91")
+  visGroups(groupname = "Unknown", color = "#a19d91", shape = "square")
 ```
 
 </br></br>
@@ -122,6 +124,8 @@ visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec légende") %
 ```
 
 </br></br>
+
+### Interations avec le réseau
 
 On affiche uniquement les noeuds dont le degré de connexion est égal à un avec noeud donné (celui sur lequel on clique).
 
@@ -156,7 +160,7 @@ visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec boutons de n
 ... ou de quoi éditer le réseau soit même (ajouter ou supprimer des noeuds, renommer un noeud... etc).
 
 ```{r}
-visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec boutons de navigation") %>%
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec bouton d'édition") %>%
   visOptions(manipulation = TRUE)
 ```
 
@@ -177,6 +181,8 @@ visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec bulle d'info
 
 </br></br>
 
+### Layouts
+
 A chaque fois que l'on va représenter le graphique, la disposition des noeuds changera, à moins d'utiliser une graine pour fixer l'aléa. Cette représentation peut être optimisée via l'option concernant le *layout*. Le layout peut être pratique dans certains cas, surtout si l'algorithme de visNetwork ne trouve pas de disposition optimale pour les noeuds. Ces derniers ne vont pas arrêter de bouger, s'entrechoquer, sans arriver à se stabiliser.
 
 ```{r}
@@ -193,13 +199,51 @@ visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec un layout sp
 
 </br>
 
+On peut finalement figer le réseau, pour conserver la disposition des noeuds et des arêtes calculée par une fonction layout spécifique par exemple. L'utilisateur ne pourra bouger aucun des éléments du graph. 
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph figé") %>%
+  visLayout(randomSeed = 220826, improvedLayout = TRUE) %>%
+  visInteraction(dragNodes = FALSE, dragView = FALSE, zoomView = FALSE)
+```
+
+
+</br></br>
+
+### Performence
+
+En plus d'utiliser un layout d'`igraph` spécifique pour diminuer le temps que peut mettre le réseau à être représenté (via `visIgraphLayout()` utilisé ci-dessus), on peut jouer sur:
+
+- la forme des flèches, en les rendant droites
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec flèches rectilignes") %>%
+  visEdges(smooth = FALSE)
+```
+
+- la stabilisation du graph. En effet, `vis.js` calcule les coordonnées des noeuds de manière dynamique et attend que ce calcul soit stable avant d'afficher le réseau. On peut désactiver cela avec:
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph en cours de stabilisation") %>%
+  visPhysics(stabilization = FALSE) # not waiting for coordinates to be stable to plot the network
+```
+
+</br></br>
+
+### Autres fonctions
+
 D'autres fonctions spécifiques:
 
-- `visCollapse`: pour avoir une représentation groupe à groupe, plutôt que noeud à noeud (tout les noeuds sont regroupés en un seul)
-- `visSetOptions`: pour tout customiser (précise que l'option est à utiliser à ses risques et périls)
-- `visSave`: pour sauvegarder le réseau dans un fichier .html par exemple
+- `visSave()`: pour exporter le réseau dans un fichier .html
+- `visCollapse()`: pour avoir une représentation groupe à groupe, plutôt que noeud à noeud (tout les noeuds sont regroupés en un seul)
+- `visNetworkEditor()`: pour customiser le réseau via une application shiny dédiée (clique-bouton)
+- `visSetOptions()`: pour tout customiser (précise que l'option est à utiliser à ses risques et périls)
 
-Plein d'autres petites fonctions utiles pour l'intégration des réseaux dans Shiny.
+Plein d'autres petites fonctions utiles pour l'intégration des réseaux dans Shiny, telles `renderVisNetwork()` (partie *server*), `visNetworkOutput()` (partie *ui*) ou encore `visExport()` pour exporter le réseau en .png via un bouton dans l'application.
+
+Une fonction `visTree()` pour représenter des arbres (régression, classification) générés avec `rpart`.
+
+Enfin, des fonctions de type clustering, telle `visClusteringByGroup()` (ressemble fortement à `visCollapse()`, statut expérimental).
 
 </br></br></br>
 

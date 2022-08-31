@@ -618,7 +618,17 @@ Alternativement, on peut générer la représentation graphique correspondant à
 vae$decoder(c(-2,3) %>% torch_tensor) %>% torch_reshape(c(28,28)) %>% as.matrix() %>% plot_image()
 ```
 
+
+
+
+
+
 ## Pour aller plus loin: convolution et mini-batch
+
+
+
+
+
  
 On reprend ici l'exemple MNIST en apportant deux nouveautés dans l'analyse :
 - l'utilisation de réseaux convolutionnels prenant en compte la nature des données. On gardera donc intacte la structure matricielle des données initiales dans ce qui suit;
@@ -650,7 +660,7 @@ mnist.dataset.constructor <- dataset(
   }
   
 )
-mnist.ds <- mnist.dataset.constructor(xtrain[1:10000,,])
+mnist.ds <- mnist.dataset.constructor(xtrain[1:10000,])
 class(mnist.ds)
 ```
 
@@ -801,7 +811,7 @@ vae_constructor <- nn_module(
 
 ## Initialization du VAE 
 vae <- vae_constructor(latent_dim=latent_dim)
-vae(batch)
+vae(batch) %>% dim
 ```
 
 On peut maintenant préciser les modalités de l'optimisation 
@@ -811,16 +821,15 @@ On peut maintenant préciser les modalités de l'optimisation
 optimizer <- optim_adam(vae$parameters, lr = 0.001)
 
 ## Choix du nombre d'epochs
-epochs = 5
+epochs = 100
 ```
 
 et lancer l'optimisation. Celle-ci consiste maintenant en une double boucle: dans la première boucle on réalise à chaque étape un découpage du jeu de données en batchs, et dans la deuxième on réalise à chaque étape un pas de descente de gradient calculé avec les données du batch courant. La deuxième boucle nécessite l'instruction *loop* du package **coro** qui réalise automatiquement l'itération sur les batchs:
 
 ```{r}
 ## Boucle for classique sur les epochs
+loss <- rep(0,epochs)
 for(epoch in 1:epochs) {
-  
-  loss.epoch = 0
   
   ## Boucle for "coro" pour itérer sur les batchs
   coro::loop(for (minibatch in mnist.dl) {  
@@ -840,7 +849,7 @@ for(epoch in 1:epochs) {
     output <- loss(forward$pred, minibatch) + kl_div_sum
     
     ## On cumule les pertes des batchs pour obtenir in fine celle de l'epoch  
-    loss.epoch = loss.epoch + as.numeric(output)
+    loss.epoch[epoch] = loss.epoch[epoch] + as.numeric(output)
     # 
     optimizer$zero_grad()
     output$backward()
@@ -848,7 +857,7 @@ for(epoch in 1:epochs) {
     
   })
   
-  cat(sprintf("Loss at epoch %d: %1f\n", epoch, loss.epoch))
+  #cat(sprintf("Loss at epoch %d: %1f\n", epoch, loss.epoch))
 }
 
 ```
@@ -872,3 +881,18 @@ for (epoch in 1:num_epochs) {
 }
 ```
 
+
+```{r}
+Res1 <- vae$encoder(mnist.dl$dataset$data)$mean
+```
+
+afin de représenter les données dans l'espace latent 
+
+```{r}
+Res1 %>% 
+  as.matrix %>% 
+  as.data.frame() %>% 
+  mutate(Label = as.factor(as.numeric(ytrain[1:10000]))) %>%
+  ggplot(aes(x=V1,y=V2,col=Label)) + geom_point() + 
+  scale_color_brewer(palette = "Paired")
+```

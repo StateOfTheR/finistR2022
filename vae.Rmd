@@ -828,7 +828,7 @@ et lancer l'optimisation. Celle-ci consiste maintenant en une double boucle: dan
 
 ```{r}
 ## Boucle for classique sur les epochs
-loss <- rep(0,epochs)
+loss.epoch <- rep(0,epochs)
 for(epoch in 1:epochs) {
   
   ## Boucle for "coro" pour itérer sur les batchs

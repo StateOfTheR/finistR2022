@@ -607,7 +607,7 @@ afin de représenter les données dans l'espace latent
 Res1 %>% 
   as.matrix %>% 
   as.data.frame() %>% 
-  mutate(Label = as.factor(ytrain)) %>%
+  mutate(Label = as.factor(ytrain - 1L)) %>%
   ggplot(aes(x=V1,y=V2,col=Label)) + geom_point() + 
   scale_color_brewer(palette = "Paired")
 ```
@@ -892,7 +892,7 @@ afin de représenter les données dans l'espace latent
 Res1 %>% 
   as.matrix %>% 
   as.data.frame() %>% 
-  mutate(Label = as.factor(as.numeric(ytrain[1:10000]))) %>%
+  mutate(Label = as.factor(ytrain[1:10000] - 1L)) %>%
   ggplot(aes(x=V1,y=V2,col=Label)) + geom_point() + 
   scale_color_brewer(palette = "Paired")
 ```

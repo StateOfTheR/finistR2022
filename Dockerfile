@@ -14,3 +14,4 @@ RUN R -e "install.packages('cowplot')" # GET function
 RUN R -e "install.packages('torch')"
 RUN R -e "torch::install_torch(type = 'cpu')"
 RUN R -e "install.packages('PLNmodels')"
+RUN R -e "install.packages('torchvision')"

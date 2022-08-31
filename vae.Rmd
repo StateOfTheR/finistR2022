@@ -367,12 +367,7 @@ ggplot(plot_data, aes(x = true, y = fake, color = group)) +
 
 ## Exemple MNIST
 
-
-
-
-
-
-On applique maintenant cette même approche VAE à un jeu de données réel - et très original : MNIST, qui regroupe 70,000 exemples de caractères numériques manuscrits (ie des exemples de digits de 0 à 9). Chaque observation est une image, i.e. une matrice de taille $28\times 28$ où chaque entrée correspond à un niveau de gris quantifié de 0 à 256. On va ici analyser ces données 
+On applique maintenant cette même approche VAE à un jeu de données réel --- et très original : MNIST, qui regroupe 70,000 exemples de caractères numériques manuscrits (ie des exemples de digits de 0 à 9). Chaque observation est une image, i.e. une matrice de taille $28\times 28$ où chaque entrée correspond à un niveau de gris quantifié de 0 à 255. On va ici analyser ces données 
 - sans prendre en compte l'aspect "image": chaque image converti en un vecteur de taille $784$,
 - sans prendre en compte l'information du label (du digit). 
 
@@ -397,8 +392,8 @@ On peut afficher chaque image:
 ```{r, fig.width=3, fig.height=3}
 plot_image <- function(input) {
   par(mar = c(0, 0, 0, 0))
-  image(input[28:1,28:1] |> t(), 
-        col = gray.colors(256, start = 0, end = 1, rev = TRUE), 
+  image(input[28:1,] |> t(), 
+        col = gray.colors(256, start = 0, end = 1, rev = FALSE), 
         axes = FALSE)  
 }
 plot_image(xtrain[3,,])
@@ -409,20 +404,18 @@ Et on continue le traitement des données:
 ```{r, fig.width=5, fig.height=5}
 ## On passe les images en vecteur
 input_dim = dim(xtrain)[2]*dim(xtrain)[3]
-xtrain <- torch_reshape(xtrain, c(nrow(xtrain), input_dim)) %>% torch_tensor
+xtrain <- torch_reshape(xtrain, c(nrow(xtrain), input_dim))
 dim(xtrain)
 
 ## On recupere les labels
 ytrain <- x_train$targets
 ```
 
-
-On choisit la taille de l'espce latent (ici deux pour faciliter les représentations graphiques des données)
+On choisit la taille de l'espace latent (ici deux pour faciliter les représentations graphiques des données)
 
 ```{r}
 latent_dim = 2
 ```
-
 
 ### Création de l'encodeur
 
@@ -625,27 +618,15 @@ Alternativement, on peut générer la représentation graphique correspondant à
 vae$decoder(c(-2,3) %>% torch_tensor) %>% torch_reshape(c(28,28)) %>% as.matrix() %>% plot_image()
 ```
 
-
-
-
-
-
 ## Pour aller plus loin: convolution et mini-batch
-
-
-
- 
-
  
 On reprend ici l'exemple MNIST en apportant deux nouveautés dans l'analyse :
 - l'utilisation de réseaux convolutionnels prenant en compte la nature des données. On gardera donc intacte la structure matricielle des données initiales dans ce qui suit;
 - l'utilisation de batchs lors de l'optimisation. Plutôt que d'utiliser systématiquement l'ensemble des données d'entrainement, on échantillonnera un sous-ensemble de ces données à chaque étape d'optimisation, i.e. on réalisera une descente de gradient stochastique.
 
-L'utilisation d'une procédure d'optimisation stochastique requiert un formattage particulier des données, afin que l'algorithme d'optimisation soit en mesure de réaliser l'échantillonnage à chaque étape. 
-
+L'utilisation d'une procédure d'optimisation stochastique requiert un formattage particulier des données, sous la forme d'un objet de classe `dataloader`, afin que l'algorithme d'optimisation soit en mesure de réaliser l'échantillonnage à chaque étape. 
 
 ###  Le format `dataloader`
-
 
 On repart du jeu de données formatté *xtrain* que l'on avait créé dans la section précédente.
 Le formattage des données en dataloader se fait en deux étapes. La première consiste à mettre les données sous format "dataset" :
@@ -657,14 +638,11 @@ mnist.dataset.constructor <- dataset(
   name = "mnist_dataset",
   
   initialize = function(input) {
-    self$data <- torch_reshape(input, list(input$size(1), 1, 28, 28))
+    self$data <- torch_reshape(input, c(dim(input)[1], 1, 28, 28))
   },
   
   .getitem = function(index) {
-    
-    x <- self$data[index, ]
-    
-    x
+    self$data[index, ]
   },
   
   .length = function() {
@@ -672,13 +650,23 @@ mnist.dataset.constructor <- dataset(
   }
   
 )
-mnist.ds <- mnist.dataset.constructor(xtrain[1:10000])
+mnist.ds <- mnist.dataset.constructor(xtrain[1:10000,,])
 class(mnist.ds)
 ```
 
-L'objet dataset ainsi créé possède en interne une fonction *.getitem* qui explicite la manière d'échantillonner une observation dans le jeu de données. On remarque par ailleurs que l'on a au passage reformaté les données : chaque observation est maintenant un array de dimension $1\times28\times28$, i.e une image de taille $28\times28$ décrite par 1 canal. De manière générale la définition du dataset permet d'inclure une étape de preprocessing des données.
+L'objet dataset ainsi créé possède en interne une fonction `.getitem` qui explicite la manière d'extraire une (ou plusieurs) observation(s) dans le jeu de données. 
+Il s'agit de la méthode qui sera appelée par `NOM_DU_DATASET[index]`.
+De même, la méthode `.length` explicite la taille du jeu de données.
+Ces deux méthodes doivent être définies car elles seront ensuite appelées par le dataloader lors de l'étape de création des batchs.
+De manière générale, la définition du dataset permet aussi d'inclure une étape de preprocessing des données (ici directement dans la méthode `initialize`).
 
-Dans la deuxième étape, on va préciser comment l'on souhaite échantillonner des batchs (i.e. des sous-échantillons) qui seront utilisés lors de l'optimisation. Ici on souhaite que les batchs soient de taille 250 (option *batch_size*), que la constitution des batchs change à chaque epoch (option *shuffle*), et que le dernier batch - qui en général est de taille plus petite que les autres lorsque la division du nombre d'observations par la taille d'un batch ne tombe pas rond - ne soit pas utilisé (option *drop_last*) :
+En pratique, les données sont stockées dans le membre `$data` du dataset.
+On remarque par ailleurs que l'on a au passage reformaté les données : chaque observation est maintenant un array de dimension $1\times28\times28$, i.e une image de taille $28\times28$ décrite par 1 canal. 
+En analyse d'images, le nombre de canaux représente la quantité d'information contenue dans chaque pixel. 
+Par exemple, pour une image en couleurs, il faut 3 canaux : pour le rouge, le bleu et le vert (format RGB), ou pour la luminance et les deux degrés de chrominance (format YCbCr).
+Ici, pour une image en niveaux de gris, il n'y a qu'un seul canal.
+
+Dans la deuxième étape, on va préciser comment l'on souhaite échantillonner des batchs (i.e. des sous-échantillons) qui seront utilisés lors de l'optimisation. Ici on souhaite que les batchs soient de taille 250 (option `batch_size`), que la constitution des batchs change à chaque epoch (option `shuffle`), et que le dernier batch - qui en général est de taille plus petite que les autres lorsque la division du nombre d'observations par la taille d'un batch ne tombe pas rond - ne soit pas utilisé (option `drop_last`) :
 
 ```{r}
 ## Definition du dataloader
@@ -686,7 +674,8 @@ mnist.dl <- dataloader(mnist.ds, batch_size = 250, shuffle = TRUE, drop_last=TRU
 mnist.dl$dataset$data %>% dim
 ```
 
-A chaque itération (epoch) on génère un découpage des données, et pour un découpage donné on peut aller chercher le premier batch. Ce batch est un tenseur dont la taille est celle que l'on attend (ie nb d'obs $\times$ dimension de chaque obs) :
+A chaque itération (epoch) on génère un découpage des données (méthode `$.iter()`), et pour un découpage donné on peut aller chercher le prochain batch (méthode `$.next()`). Ce batch est un tenseur dont la taille est celle que l'on attend (ie nb d'obs $\times$ dimension de chaque obs) :
+
 ```{r}
 mnist.it = mnist.dl$.iter()
 batch = mnist.it$.next()
@@ -704,41 +693,41 @@ Maintenant que les données sont sous le format attendu, on définit le réseau 
 
 ```{r}
 ## Choix de la dimension latente 
-latent_dim <- 10
+latent_dim <- 2
 
 ## Definition de l'encodeur 
 encoder.constructor <- nn_module(
   
-  "encoder",
+  name = "encoder",
   
-  initialize = function(latent_dim) {
-    # in_channels, out_channels, kernel_size, stride = 1, padding = 0
-    self$conv1 <- nn_conv2d(1, 32, 3)
-    self$conv2 <- nn_conv2d(32, 64, 3)
-    self$dropout1 <- nn_dropout2d(0.25)
-    self$dropout2 <- nn_dropout2d(0.5)
-    self$fc1 <- nn_linear(9216, 128)
-    self$fc2 <- nn_linear(128, latent_dim)
-    self$fc3 <- nn_linear(128, latent_dim)
-  },
+  ## Définition des couches
+    initialize = function(latent_dim) {
+        self$conv = nn_conv2d(1, 4, kernel_size = 5, stride = 2)
+        self$linear = nn_linear(576, 20)
+        self$dropout1 = nn_dropout(.25)
+        self$dropout2 = nn_dropout(.25)
+        self$mean = nn_linear(20, latent_dim)
+        self$log_var = nn_linear(20, latent_dim)
+    }, 
   
-  forward = function(x) {
-    score <- x %>% 
-      self$conv1() %>%
-      nnf_relu() %>%
-      self$conv2() %>%
-      nnf_relu() %>%
-      nnf_max_pool2d(2) %>%
-      self$dropout1() %>%
-      torch_flatten(start_dim = 2) %>%
-      self$fc1() %>%
-      nnf_relu() %>%
-      self$dropout2() 
-    mean <- self$fc2(score)
-    log_var <- self$fc3(score)
-    list(mean=mean, log_var=log_var)
-    
-  }
+    ## Définitions des calculs
+    forward = function(input) {
+        input = input %>%                           # N x 1 x 28 x 28
+            self$conv() %>%                         # N x 4 x 12 x 12
+            nnf_relu() %>% 
+            torch_flatten(start_dim = 2) %>%        # N x 576
+            self$dropout1() %>% 
+            self$linear() %>%                       # N x 20
+            nnf_relu() %>% 
+            self$dropout2()
+        ## Création des paramètres de moyenne et de variance
+        mean <- self$mean(input)                    # N x latent_dim
+        log_var <- self$log_var(input)              # N x latent_dim
+        ## L'encodeur renvoie mean et sd
+        list(mean    = mean, 
+             log_var = log_var)
+    }
+  
 )
 ```
 
@@ -755,25 +744,28 @@ Même chose pour le décodeur
 
 ```{r}
 decoder.constructor <- nn_module(
-  "decoder",
-  initialize = function(latent_dim){
-    self$fc1 <- nn_linear(latent_dim, 128)
-    self$fc2 <- nn_linear(128, 128)
-    self$conv1 <- nn_conv_transpose2d(128, 256, 1)
-    self$conv2 <- nn_conv_transpose2d(256, 784, 1) 
-  },
-  forward = function(x) {
-    x = self$fc1(x)
-    x1 = nnf_relu(x)
-    x2 = self$fc2(x1)
-    x3 = nnf_relu(x2)
-    x4 = torch_reshape(x3, list(x3$size(1), 64*2, 1, 1))
-    x5 = self$conv1(x4)
-    x6 = nnf_relu(x5)
-    x7 = self$conv2(x6)
-    x8 = torch_reshape(x7, list(x$size(1), 1,28,28))
-    nnf_sigmoid(x8)
-  }
+  name = "decoder",
+  
+  ## Définition des couches
+    initialize = function(latent_dim) {
+        self$linear = nn_linear(latent_dim, 576)
+        self$unflatten = nn_unflatten(2, c(4, 12, 12))
+        self$convt = nn_conv_transpose2d(4, 1, kernel_size = 5, 
+                                         stride = 2, output_padding = 1)
+        self$dropout = nn_dropout(.25)
+    }, 
+    ## Définitions des calculs
+    forward = function(input) {
+        input = input %>%                           # N x latent_dim
+            self$linear() %>%                       # N x 576
+            nnf_relu() %>% 
+            self$dropout() %>% 
+            self$unflatten() %>%                    # N x 4 x 12 x 12
+            self$convt() %>%                        # N x 1 x 28 x 28
+            nnf_sigmoid()        
+        input
+    }
+  
 )
 
 decoder <- decoder.constructor(latent_dim)
@@ -859,5 +851,24 @@ for(epoch in 1:epochs) {
   cat(sprintf("Loss at epoch %d: %1f\n", epoch, loss.epoch))
 }
 
+```
+
+A noter qu'il est également possible d'effectuer de l'optimisation par batchs *manuellement*, sans passer par un dataloader.
+Il faut en ce cas définir dans la boucle comment s'effectue le choix des batchs.
+
+```{r eval = FALSE}
+for (epoch in 1:num_epochs) {
+    cat("Epoch #", epoch, ": ", sep = "")
+    rand_sample = sample(nrow(xtrain)) # Génère une permutation de [1:n]
+    for (iter in 1:240) {               # batch size of 250 for n = 60000
+        if (iter %% 10 == 0) cat(iter, ", ", sep = "")
+        istart = (iter-1)*250 + 1
+        iend = iter*250
+        batch_sample = rand_sample[istart:iend]
+        output <- loss(forward$pred, xtrain[batch_sample, ]) + kl_div_sum
+        [...]
+    }
+    cat(".\nLoss = ", loss_vector[epoch], ".\n", sep = "")
+}
 ```
 

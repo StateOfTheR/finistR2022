@@ -25,7 +25,7 @@ Il s'agit de la sixième édition de l'atelier Finist'R. Cet atelier réunit ann
 Le résultat de cette semaine sera posté au fur et à mesure  [sur cette page](https://stateofther.github.io/finistR2022/index.html)
 
 ## Participants
-Emré Anakok, Julie Aubert,  Pierre Barbillon, Anna Bonnet, Saint-Clair Chabert, Félix Cheysson, Julien Chiquet, Anaig De Walshe,  Sophie Donnet, Marie-Pierre Etienne, Pierre Gloaguen, Marina Gomtsyana,  Tam Le Minh, Mahendra Mariadassou, Tristan Mary-Huard, Aurélie Mercadier, Cédric Midoux, Isabelle Sanchez, Mary Savino.
+Emré Anakok, Julie Aubert,  Pierre Barbillon, Anna Bonnet, Saint-Clair Chabert, Félix Cheysson, Julien Chiquet, Annaïg De Walsche,  Sophie Donnet, Marie-Pierre Etienne, Pierre Gloaguen, Marina Gomtsyana,  Tam Le Minh, Mahendra Mariadassou, Tristan Mary-Huard, Aurélie Mercadier, Cédric Midoux, Isabelle Sanchez, Mary Savino.
 
 
 ## Idées à explorer

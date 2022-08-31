@@ -17,10 +17,19 @@ navbar:
       href: rebase.html
   - text: "Langage R et pipe"
     icon: fa-brands fa-r-project
-    href: pipe.html
-  - text: "Webscrapping"
-    icon: fa-solid fa-earth-africa
-    href: webscraping.html
+    menu:
+    - text: "pipe"
+      href: pipe.html
+    - text: "Webscrapping"
+      href: webscraping.html
+    - text: "Shiny extension"
+      href: extensionShiny.html
+    - text: "R et SIG"
+      href: sig_with_sf.html
+  - text: "Différention automatique"
+    href: autodiff.html
+    
+  
       
 
 output:

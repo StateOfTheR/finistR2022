@@ -578,7 +578,7 @@ eval_loss <- function(input) {
 On lance l'optimisation (sur 10,000 observations seulement) :
 
 ```{r, train-vae-mnist}
-num_iterations <- 1000
+num_iterations <- 250
 loss_vector <- vector("numeric", num_iterations)
 for (i in 1:num_iterations) {
   optimizer_vae$zero_grad()
@@ -598,7 +598,7 @@ plot(loss_vector)
 On peut récupérer directement la matrice des moyennes inférées 
 
 ```{r}
-Res1 <- vae$encoder(xtrain)$mean
+Res1 <- vae$encoder(xtrain[1:10000,])$mean
 ```
 
 afin de représenter les données dans l'espace latent 
@@ -607,7 +607,7 @@ afin de représenter les données dans l'espace latent
 Res1 %>% 
   as.matrix %>% 
   as.data.frame() %>% 
-  mutate(Label = as.factor(ytrain - 1L)) %>%
+  mutate(Label = as.factor(ytrain[1:10000] - 1L)) %>%
   ggplot(aes(x=V1,y=V2,col=Label)) + geom_point() + 
   scale_color_brewer(palette = "Paired")
 ```
@@ -676,11 +676,11 @@ En analyse d'images, le nombre de canaux représente la quantité d'information 
 Par exemple, pour une image en couleurs, il faut 3 canaux : pour le rouge, le bleu et le vert (format RGB), ou pour la luminance et les deux degrés de chrominance (format YCbCr).
 Ici, pour une image en niveaux de gris, il n'y a qu'un seul canal.
 
-Dans la deuxième étape, on va préciser comment l'on souhaite échantillonner des batchs (i.e. des sous-échantillons) qui seront utilisés lors de l'optimisation. Ici on souhaite que les batchs soient de taille 250 (option `batch_size`), que la constitution des batchs change à chaque epoch (option `shuffle`), et que le dernier batch - qui en général est de taille plus petite que les autres lorsque la division du nombre d'observations par la taille d'un batch ne tombe pas rond - ne soit pas utilisé (option `drop_last`) :
+Dans la deuxième étape, on va préciser comment l'on souhaite échantillonner des batchs (i.e. des sous-échantillons) qui seront utilisés lors de l'optimisation. Ici on souhaite que les batchs soient de taille 250 (option `batch_size`), que la constitution des batchs change à chaque epoch (option `shuffle`), et que le dernier batch - qui en général est de taille plus petite que les autres lorsque la division du nombre d'observations par la taille d'un batch ne tombe pas rond - soit tout de même utilisé (option `drop_last`) :
 
 ```{r}
 ## Definition du dataloader
-mnist.dl <- dataloader(mnist.ds, batch_size = 250, shuffle = TRUE, drop_last=TRUE)
+mnist.dl <- dataloader(mnist.ds, batch_size = 256, shuffle = TRUE, drop_last=FALSE)
 mnist.dl$dataset$data %>% dim
 ```
 
@@ -708,31 +708,34 @@ latent_dim <- 2
 ## Definition de l'encodeur 
 encoder.constructor <- nn_module(
   
-  name = "encoder",
+    name = "encoder",
   
-  ## Définition des couches
+    ## Définition des couches
     initialize = function(latent_dim) {
-        self$conv = nn_conv2d(1, 4, kernel_size = 5, stride = 2)
-        self$linear = nn_linear(576, 20)
+        self$conv1 = nn_conv2d(1, 4, kernel_size = 3, stride = 1, padding = 0)
+        self$conv2 = nn_conv2d(4, 8, kernel_size = 3, stride = 1, padding = 0)
+        self$linear = nn_linear(1152, 256)
         self$dropout1 = nn_dropout(.25)
         self$dropout2 = nn_dropout(.25)
-        self$mean = nn_linear(20, latent_dim)
-        self$log_var = nn_linear(20, latent_dim)
+        self$mean = nn_linear(256, latent_dim)
+        self$log_var = nn_linear(256, latent_dim)
     }, 
-  
     ## Définitions des calculs
     forward = function(input) {
-        input = input %>%                           # N x 1 x 28 x 28
-            self$conv() %>%                         # N x 4 x 12 x 12
+        input = input %>%                                   # N x 1 x 28 x 28
+            self$conv1() %>%                                # N x 4 x 26 x 26
             nnf_relu() %>% 
-            torch_flatten(start_dim = 2) %>%        # N x 576
-            self$dropout1() %>% 
-            self$linear() %>%                       # N x 20
+            self$conv2() %>%                                # N x 8 x 24 x 24
+            nnf_relu() %>% 
+            nnf_max_pool2d(2) %>%                           # N x 8 x 12 x 12
+            self$dropout1() %>%
+            torch_flatten(start_dim = 2) %>%                # N x 1152
+            self$linear() %>%                               # N x 256
             nnf_relu() %>% 
             self$dropout2()
         ## Création des paramètres de moyenne et de variance
-        mean <- self$mean(input)                    # N x latent_dim
-        log_var <- self$log_var(input)              # N x latent_dim
+        mean <- self$mean(input)                            # N x latent_dim
+        log_var <- self$log_var(input)                      # N x latent_dim
         ## L'encodeur renvoie mean et sd
         list(mean    = mean, 
              log_var = log_var)
@@ -754,24 +757,31 @@ Même chose pour le décodeur
 
 ```{r}
 decoder.constructor <- nn_module(
-  name = "decoder",
+    
+    name = "decoder",
   
-  ## Définition des couches
+    ## Définition des couches
     initialize = function(latent_dim) {
-        self$linear = nn_linear(latent_dim, 576)
-        self$unflatten = nn_unflatten(2, c(4, 12, 12))
-        self$convt = nn_conv_transpose2d(4, 1, kernel_size = 5, 
-                                         stride = 2, output_padding = 1)
-        self$dropout = nn_dropout(.25)
+        self$linear1 = nn_linear(latent_dim, 256)
+        self$linear2 = nn_linear(256, 1152)
+        self$unflatten = nn_unflatten(2, c(8, 12, 12))
+        self$convt1 = nn_conv_transpose2d(8, 4, kernel_size = 3, stride = 2, padding = 1, output_padding = 1)
+        self$convt2 = nn_conv_transpose2d(4, 2, kernel_size = 3, stride = 1, output_padding = 0)
+        self$convt3 = nn_conv_transpose2d(2, 1, kernel_size = 3, stride = 1, output_padding = 0)
     }, 
     ## Définitions des calculs
     forward = function(input) {
         input = input %>%                           # N x latent_dim
-            self$linear() %>%                       # N x 576
+            self$linear1() %>%                      # N x 256
             nnf_relu() %>% 
-            self$dropout() %>% 
-            self$unflatten() %>%                    # N x 4 x 12 x 12
-            self$convt() %>%                        # N x 1 x 28 x 28
+            self$linear2() %>%                      # N x 1152
+            nnf_relu() %>% 
+            self$unflatten() %>%                    # N x 8 x 12 x 12
+            self$convt1() %>%                       # N x 4 x 24 x 24
+            nnf_relu() %>% 
+            self$convt2() %>%                       # N x 2 x 26 x 26
+            nnf_relu() %>% 
+            self$convt3() %>%                       # N x 1 x 28 x 28
             nnf_sigmoid()        
         input
     }
@@ -821,7 +831,7 @@ On peut maintenant préciser les modalités de l'optimisation
 optimizer <- optim_adam(vae$parameters, lr = 0.001)
 
 ## Choix du nombre d'epochs
-epochs = 100
+epochs = 10
 ```
 
 et lancer l'optimisation. Celle-ci consiste maintenant en une double boucle: dans la première boucle on réalise à chaque étape un découpage du jeu de données en batchs, et dans la deuxième on réalise à chaque étape un pas de descente de gradient calculé avec les données du batch courant. La deuxième boucle nécessite l'instruction *loop* du package **coro** qui réalise automatiquement l'itération sur les batchs:
@@ -830,6 +840,7 @@ et lancer l'optimisation. Celle-ci consiste maintenant en une double boucle: dan
 ## Boucle for classique sur les epochs
 loss.epoch <- rep(0,epochs)
 for(epoch in 1:epochs) {
+  cat("Epoch #", epoch, ": ", sep = "")
   
   ## Boucle for "coro" pour itérer sur les batchs
   coro::loop(for (minibatch in mnist.dl) {  
@@ -846,7 +857,7 @@ for(epoch in 1:epochs) {
     kl_div_sum = - 0.5 *kl_div$sum()
     
     ## Perte à cette étape
-    output <- loss(forward$pred, minibatch) + kl_div_sum
+    output <- loss(forward$pred, minibatch) + 2 * kl_div_sum
     
     ## On cumule les pertes des batchs pour obtenir in fine celle de l'epoch  
     loss.epoch[epoch] = loss.epoch[epoch] + as.numeric(output)
@@ -857,7 +868,7 @@ for(epoch in 1:epochs) {
     
   })
   
-  #cat(sprintf("Loss at epoch %d: %1f\n", epoch, loss.epoch))
+  cat(sprintf("Loss = %1f\n", loss.epoch[epoch]))
 }
 
 ```

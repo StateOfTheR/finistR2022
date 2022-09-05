@@ -1,0 +1,330 @@
+---
+title: "Jags, Stan ou Nimble"
+author: "FinistR 2022"
+date: "24/08/2022"
+output:
+  html_document :
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#  Introduction 
+
+
+
+Plusieurs outils existent pour réaliser l'inférence bayésienne d'un modèle en générant un échantillon des paramètres sous la loi a posteriori par une chaîne MCMC. 
+
+Depuis le premier logiciel Winbugs (codé en Pascal, utilisable seulement sous Windows par presse bouton), plusieurs outils ont été développés, tous appelables depuis R.  Les 3 plus utilisés sont les suivants: 
+
+- **WinBUGS** : BUGS écrit en Pascal (sur Windows seulement),
+interface clique-bouton
+
+- **JAGS** : Just Another Gibbs Sampler (Martyn Plummer),
+package R `rjags`
+
+-  **Stan** : Stanislas Ulaw, co-inventeur des méthodes de Monte
+Carlo, package R `rstan`
+
+- **Nimble**: Package R écrit par Perry De Valpine. 
+
+Nous avons regardé les différences entre JAGS, Stan et Nimble. 
+Les trois peuvent être installés au travers de R. 
+
+```{r packages install, eval = FALSE, message = FALSE}
+install.packages("rjags")
+install.packages("rstan")
+install.packages("nimble")
+``` 
+
+`rjags` et `rstan` installent `jags` et `nimble`.
+
+```{r packages library, eval = TRUE, message = FALSE}
+library(rjags)
+library(rstan)
+library(nimble)
+``` 
+
+- **JAGS** est le plus ancien et implémente un **Metropolis Hastings within Gibbs**. 
+
+-  **Stan** implémente un **hamiltonian Monte Carlo** (marche aléatoire guidée par le gradient de la posterior). La chaîne explore la loi a posteriori de façon plus efficace (donc moins d'itérations nécéssaires) mais chaque itération est plus couteuse. Par ailleurs, stan ne peut être utilisé si certains paramètres (ou même variables latentes) sont discrètes (par de différenciation possible). Voir Saint-Clair pour une discussion plus argumentée. 
+
+- **Nimble** permet de choisir son algorithme d'échantillonage de façon plus souple. Il implémente de plus les filtres particulaires. 
+
+
+Tous fonctionnent de la même façon. 
+Il faut d'abord écrire un **modèle dans un fichier txt**.  
+Le modèle est écrit  de façon hiérarchique (exactement comme le modèle d'origine). 
+$$Y | X  \sim F(y,X,\theta) \quad  X\sim G(x,\theta)  \quad \theta \sim \pi(\theta)$$
+ 
+Puis ce code est interprété pour générer les chaînes MCMC de loi stationnaire $$p(\theta  | Y) \propto \ell(Y | \theta)\pi(\theta).$$ 
+Cette souplesse de modèle est à l'origine du succès de l'inférence bayésienne. 
+Cependant, aucun algorithme n'échappe aux problèmes inhérents à l'inférence bayésienne (initialisation, etc...). 
+
+
+
+
+
+
+
+
+# Exemple jouet de croissance d'orangers
+
+## Les données
+On considère les données dans le fichier `myOrange.Rdata` qui sont des données (simulées) de croissance d'orangers.  
+
+```{r data myOrange, echo=TRUE}
+load("myOrange.Rdata")
+g <- ggplot(Orange,aes(x=age,y = circumference,colour = Tree)) + geom_point() + geom_line()+theme(legend.position="none")
+g
+``` 
+
+
+## Le modèle à effets fixes 
+
+On considère le modèle de croissance suivant:
+$$ Y_{ij} = \frac{A}{1+e^{-\left(\frac{ t_{ij} - B}{C}\right)}} + \varepsilon_{ij},\quad   \varepsilon_{ij} \sim  \mathcal{N}(0,\sigma^2)$$
+
+Les paramètres peuvent être estimés en fréquentiste de la façon suivante: 
+```{r nls, eval  = TRUE}
+fm1 <- nls(circumference ~ SSlogis(age, Asym, xmid, scal),data = Orange)
+fm1$m$getPars()
+``` 
+
+
+
+Tous les logiciels demandent de stocker les données dans une liste. 
+
+```{r data orange}
+orange_data <- list(
+  y = Orange$circumference,
+  age =  Orange$age,
+  n = nrow(Orange)
+)
+``` 
+
+Nimble met à part les constantes
+```{r data orange nimble}
+orange_data_nimble <- list(
+  y = Orange$circumference,
+  age =  Orange$age)
+orange_constants <- list(n = nrow(Orange))
+```
+
+
+# Ecriture des modèles dans les différents languages. 
+
+
+Il est possible d'écrire les modèles directement dans un script R ou bien  dans un fichier text qui sera sauvé sous le format `.txt` pour JAGS et `.stan` pour Stan. Il est aussi possible de définir le modèle comme un objet R (chaîne de caractère). 
+
+
+C'est là que réside la différence pour l'utilisateur entre les outils. La structure est globalement la même, mais il y a des petites différences dans les noms de fonctions. De plus, Stan demande de déclarer les types d'objets. 
+
+## Modèle sous JAGS
+
+```{r model JAGS fixe, eval=TRUE}
+model_jags="
+model{
+# observations
+for (i in 1:n){
+  y[i] ~ dnorm(mu[i],tau)
+  mu[i] <- (A)/(1+exp(-(age[i]- B)/(C)))
+}
+# priors
+tau ~ dgamma(10,2000)
+A  ~ dnorm(100,1/100000)
+B  ~ dnorm(100,1/100000)
+C  ~ dnorm(100,1/100000)
+# quantities of interest
+sigma2 <- 1/tau
+}
+"
+```
+Le modèle est construit par `jags.models`. 
+
+
+```{r define model JAGS fixe, eval=TRUE}
+chains <- 3
+growth_inits <- list(tau = rgamma(1,10,2000),
+                     A = rnorm(1,200,30),
+                     B = rnorm(1,700,200),
+                     C = rnorm(1,300,100))
+
+myJAGSmodel <- jags.model(textConnection(model_jags), data = orange_data,inits = growth_inits , n.chains = chains,n.adapt = 1000)
+```
+
+
+## Modèle sous Nimble
+
+C'est la même écriture que sous Jags qu'on commence par une accolade `{`. 
+
+```{r }
+growth_code_dcat <- nimbleCode({
+  
+  # observations
+  for (i in 1:n){
+    y[i] ~ dnorm(mu[i],tau)
+    mu[i] <- (A)/(1+exp(-(age[i]- B)/(C)))
+  }
+  
+  # priors
+  tau ~ dgamma(10,2000)
+  A  ~ dnorm(100,1/100000)
+  B  ~ dnorm(100,1/100000)
+  C  ~ dnorm(100,1/100000)
+  
+  # quantities of interest
+  sigma2 <- 1/tau
+  
+})
+``` 
+
+La fonction `nimbleModel`premet de compiler le models. 
+
+```{r compile model Nimble}
+# Create model
+orange_model_nimble <- nimbleModel(code = growth_code_dcat,
+                            constants = orange_constants,
+                            data = orange_data_nimble,     # data can be set later
+                            inits = growth_inits  # inits can be set later.
+                            )
+```
+
+
+
+
+## Modèle sous Stan
+
+Ecrit dans un fichier `.stan` 
+A  noter que Rstudio offre des templates de modèles/fichiers `stan`. 
+
+````
+// to be inputted b the user
+data {
+  int<lower=0> n;
+  vector[n] y;
+  vector[n] age;
+}
+
+
+// parameters to be sampled
+parameters {
+  real A;
+  real B;
+  real C;
+  real<lower=0> sigma;
+}
+
+
+transformed parameters{
+   vector[n] mu;
+ for (i in 1:n)
+  mu[i] = (A)/(1+exp(-(age[i]- B)/(C)));
+}
+
+// model for the likelihood and the priors
+model {
+  for (i in 1:n)
+     y[i] ~ normal(mu[i], sigma);
+  A ~ normal(0,100);
+  B ~ normal(0,100);
+  C ~ normal(0,100);
+}
+````
+
+
+Notez que les 3 outils permettent de compiler et vérifier le modèle. Des fonctions combinants toutes les étapes sont disponibles. 
+
+# Echantillonnage de la posterior
+
+```{r }
+iterations <- 50000
+burnin <- 10000
+chains <- 3
+```
+
+## Stan
+
+```{r stan run,  eval  = FALSE}
+samples_stan <- stan(file = "modnonlin.stan",data=orange_data, pars = c("sigma", "A","B","C"), include = TRUE, verbose=FALSE,chains = chains,iter=iterations,  thin = 10,warmup = burnin)
+```
+
+## Jags
+```{r jags run, eval  = FALSE}
+update(myJAGSmodel,burnin)
+samples_jags <- coda.samples(myJAGSmodel, variable.names = c("sigma2", "A","B","C"), n.iter= iterations ,thin = 10)
+```
+
+
+
+## Nimble 
+
+```{r Nimble run, eval  = FALSE}
+growth_MCMCconf <- configureMCMC(orange_model_nimble, monitors = c("A",
+                                                            "B",
+                                                            "C",
+                                                            "tau")) 
+growth_MCMC <- buildMCMC(growth_MCMCconf)
+
+# Compile model
+C_growth_model <- compileNimble(orange_model_nimble,showCompilerOutput = TRUE)
+C_growth_MCMC <- compileNimble(growth_MCMC, project = orange_model_nimble)
+
+# Run MCMC sampler
+samples_nimble <- runMCMC(C_growth_MCMC, niter = 10000,
+                   nburnin = 2000, samplesAsCodaMCMC = TRUE, nchains = chains)
+                   
+```
+
+# Analyse des posterior. 
+
+
+
+A la fin, il est possible de mettre toutes les sorties au même format et d'analyser la qualité des inférences avec les mêmes packages (`ggmcmc` pour les graphes en `ggplot` et `coda` pour le calcul des indicateurs de convergence des chaînes).  
+
+Les packages utiles sont: 
+```{r packages, message = FALSE}
+library(ggplot2)
+library(ggmcmc)
+library(coda)
+``` 
+
+
+Pour tracer des trajectoires et des autocorrelations, on utilise la package ggmcmc. L'outil ggs permet de convertir les sorties des différents outils dans le bon format. 
+
+```{r  verif converegence fixed, eval = FALSE}
+samples.gg <- ggs(samples_stan)
+#samples.gg <- ggs(samples_nimble)
+#samples.gg <- ggs(samples_jags)
+
+
+ggs_traceplot(samples.gg) ## ----ploT autocorrelation, 
+ggs_autocorrelation(samples.gg)
+
+
+``` 
+
+Le package 'coda' permet de calculer des indicateurs de convergence. 
+L'échantillon sous 'stan' doit être transformé en list.mcmc avec la fonction `As.mcmc.list`
+
+```{r  verif converegence indic  fixed, eval = FALSE}
+
+## ----ESS, 
+samples_mcmc_list <- samples_jags
+samples_mcmc_list <- samples_nimble
+samples_mcmc_list <-As.mcmc.list(samples_stan)
+
+lapply(samples_mcmc_list,effectiveSize)
+
+## ----Gelman----------------------------
+gelman.diag(samples_mcmc_list)
+## ----Geweke----------------------------------------------------------------------------------------------
+geweke.diag(samples_mcmc_list)
+```
+
+

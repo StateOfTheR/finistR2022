@@ -16,7 +16,6 @@ navbar:
     - text: "Git avancé"
       href: rebase.html
   - text: "Développement"
-    icon: fas fa-box-open
     menu:
     - text: "pipe"
       href: pipe.html
@@ -44,11 +43,9 @@ navbar:
       href: addins.html  
   - text: "Quarto"
     icon: fa-microphone
-    menu:
-    - text: "Quarto"
-     # href: QuartoTest.html
+    # href: QuartoTest.html
   - text: "Machine learning"
-      menu:
+    menu:
     - text: "Différentiation automatique"
       href: autodiff.html
     - text: "Autoencodeurs variationnels"

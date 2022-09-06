@@ -359,9 +359,7 @@ $(document).ready(function () {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <span class="fa fa-brands fa-r-project"></span>
-     
-    Langage R et pipe
+    Développement
      
     <span class="caret"></span>
   </a>
@@ -370,17 +368,32 @@ $(document).ready(function () {
       <a href="pipe.html">pipe</a>
     </li>
     <li>
+      <a href="future.html">future</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fas fa-chart-bar"></span>
+     
+    Analyse de données et modélisation
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
       <a href="webscraping.html">Webscrapping</a>
     </li>
     <li>
       <a href="sig_with_sf.html">R et SIG</a>
     </li>
     <li class="dropdown-header">R et Bayésien</li>
+    <li class="dropdown-header">tidymodels</li>
   </ul>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <span class="fa fa-light fa-chart-network"></span>
+    <span class="fas fa-chart-network"></span>
      
     Visualisation et interaction
      
@@ -390,14 +403,27 @@ $(document).ready(function () {
     <li>
       <a href="extensionShiny.html">Shiny extension</a>
     </li>
-    <li class="dropdown-header">Visualisation de réseaux</li>
+    <li>
+      <a href="graphViz.html">Visualisation de réseaux</a>
+    </li>
     <li>
       <a href="addins.html">Addins</a>
     </li>
   </ul>
 </li>
-<li>
-  <a href="autodiff.html">Différention automatique</a>
+<li class="dropdown-header">Quarto</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Machine learning
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="autodiff.html">Différentiation automatique</a>
+    </li>
+    <li class="dropdown-header">Autoencodeurs variationnels</li>
+  </ul>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -1290,21 +1316,21 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="#cb1
 <span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>  myPLN_classical <span class="ot">&lt;-</span> <span class="fu">PLN</span>(Abundance <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(Offset)), <span class="at">data =</span> oaks,</span>
 <span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">control =</span> <span class="fu">list</span>(<span class="at">trace =</span> <span class="dv">0</span>)))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.378   0.359   0.904</code></pre>
+##   1.633   0.392   1.063</code></pre>
 <div class="sourceCode" id="cb105"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
 <span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>  myPLN <span class="ot">&lt;-</span> PLN<span class="sc">$</span><span class="fu">new</span>(<span class="at">Y =</span> Y, <span class="at">O =</span> <span class="fu">log</span>(O), <span class="at">X =</span> X)</span>
 <span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a>  myPLN<span class="sc">$</span><span class="fu">fit</span>(<span class="dv">30</span>, <span class="fl">0.1</span>, <span class="at">tol =</span> <span class="fl">1e-5</span>)}</span>
 <span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.187   0.324   0.765</code></pre>
+##   1.333   0.393   0.874</code></pre>
 <p>On est proche en terme d’objectif</p>
 <div class="sourceCode" id="cb107"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>myPLN_classical<span class="sc">$</span>loglik</span></code></pre></div>
-<pre><code>## [1] -32274.96</code></pre>
+<pre><code>## [1] -32283.43</code></pre>
 <div class="sourceCode" id="cb109"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">last</span>(myPLN<span class="sc">$</span>ELBO_list)</span></code></pre></div>
-<pre><code>## [1] -32279.25</code></pre>
+<pre><code>## [1] -32280</code></pre>
 </div>
 </div>
 <div id="les-modules-torch" class="section level1">
@@ -1334,16 +1360,16 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="#cb1
 <span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">mylinearmod</span>(data)</span>
 <span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a>out</span></code></pre></div>
 <pre><code>## torch_tensor
-## -0.0709
-##  1.9541
-## -0.0455
-##  0.0039
-##  2.1943
-##  1.0632
-## -2.3110
-## -0.9928
-##  1.8479
-##  1.1392
+##  0.3137
+##  1.2410
+##  0.4386
+##  0.0995
+##  0.6583
+##  0.7328
+##  0.2632
+##  0.0256
+##  0.4636
+##  1.1135
 ## [ CPUFloatType{10,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 <div class="sourceCode" id="cb115"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>grad_fn</span></code></pre></div>
@@ -1365,7 +1391,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="#cb1
 <span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span><span class="fu">backward</span>(<span class="at">gradient =</span> d_avg_d_out)</span>
 <span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>mylinearmod<span class="sc">$</span>weight<span class="sc">$</span>grad</span></code></pre></div>
 <pre><code>## torch_tensor
-## -23.9762   8.1826 -15.2305
+## -16.4998   3.6575   0.0160
 ## [ CPUFloatType{1,3} ]</code></pre>
 <div class="sourceCode" id="cb123"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>mylinearmod<span class="sc">$</span>bias<span class="sc">$</span>grad</span></code></pre></div>
@@ -1395,16 +1421,16 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="#cb1
 <span id="cb127-3"><a href="#cb127-3" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">model</span>(data)</span>
 <span id="cb127-4"><a href="#cb127-4" aria-hidden="true" tabindex="-1"></a>output</span></code></pre></div>
 <pre><code>## torch_tensor
-## -0.0472
-## -0.1119
-## -0.1308
-## -0.2578
-## -0.4916
-## -0.2075
-## -0.3619
-## -0.3598
-##  0.1058
-## -0.1898
+##  0.2902
+## -0.0511
+## -0.1790
+##  0.0195
+##  0.2306
+## -0.3153
+## -0.1946
+##  0.0686
+## -0.1155
+##  0.1584
 ## [ CPUFloatType{10,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 </div>
 </div>

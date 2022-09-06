@@ -361,9 +361,7 @@ $(document).ready(function () {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <span class="fa fa-brands fa-r-project"></span>
-     
-    Langage R et pipe
+    Développement
      
     <span class="caret"></span>
   </a>
@@ -372,17 +370,32 @@ $(document).ready(function () {
       <a href="pipe.html">pipe</a>
     </li>
     <li>
+      <a href="future.html">future</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fas fa-chart-bar"></span>
+     
+    Analyse de données et modélisation
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
       <a href="webscraping.html">Webscrapping</a>
     </li>
     <li>
       <a href="sig_with_sf.html">R et SIG</a>
     </li>
     <li class="dropdown-header">R et Bayésien</li>
+    <li class="dropdown-header">tidymodels</li>
   </ul>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <span class="fa fa-light fa-chart-network"></span>
+    <span class="fas fa-chart-network"></span>
      
     Visualisation et interaction
      
@@ -392,14 +405,27 @@ $(document).ready(function () {
     <li>
       <a href="extensionShiny.html">Shiny extension</a>
     </li>
-    <li class="dropdown-header">Visualisation de réseaux</li>
+    <li>
+      <a href="graphViz.html">Visualisation de réseaux</a>
+    </li>
     <li>
       <a href="addins.html">Addins</a>
     </li>
   </ul>
 </li>
-<li>
-  <a href="autodiff.html">Différention automatique</a>
+<li class="dropdown-header">Quarto</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Machine learning
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="autodiff.html">Différentiation automatique</a>
+    </li>
+    <li class="dropdown-header">Autoencodeurs variationnels</li>
+  </ul>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -468,7 +494,7 @@ illustré sur notre suite d’opérations simples:</p>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"3.9","3":"4.0","4":"4.204","5":"4.1","6":"4.30","7":"9.4","8":"100"},{"1":"magrittr","2":"6.5","3":"6.7","4":"7.461","5":"6.8","6":"7.05","7":"56.9","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"3.6","3":"4.2","4":"6.834","5":"4.9","6":"5.6","7":"24.8","8":"100"},{"1":"magrittr","2":"6.8","3":"7.6","4":"11.094","5":"8.2","6":"9.3","7":"87.3","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Cependant, en pratique, dans l’usage classique impliquant des
@@ -488,7 +514,7 @@ manipulations (notamment les copies des tableaux) effectuées.</p>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"18.1137","3":"18.64600","4":"19.42959","5":"18.9843","6":"19.8532","7":"29.2554","8":"100"},{"1":"magritr","2":"17.9901","3":"18.77185","4":"19.71219","5":"19.2492","6":"20.0512","7":"38.8606","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"21.0202","3":"22.25415","4":"23.62506","5":"23.2037","6":"24.41305","7":"32.4346","8":"100"},{"1":"magritr","2":"20.7712","3":"22.55560","4":"23.89941","5":"23.5280","6":"24.65675","7":"45.4857","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Cette subtilité peut induire des comportements insidieux, notamment

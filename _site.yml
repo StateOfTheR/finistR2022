@@ -22,7 +22,7 @@ navbar:
       href: pipe.html
     - text: "future"
       href: future.html
-   - text: "Analyse de données et modélisation"
+  - text: "Analyse de données et modélisation"
     icon: fas fa-chart-bar
     menu:
     - text: "Webscrapping"
@@ -54,8 +54,7 @@ navbar:
       href: autodiff.html
     - text: "Autoencodeurs variationnels"
       # href: VAE.html
-
-
+      
 output:
   html_document:
     theme: flatly

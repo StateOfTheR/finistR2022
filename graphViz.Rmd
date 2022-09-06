@@ -1,0 +1,291 @@
+---
+title: "Visualisation dynamique de réseaux"
+author: "FinistR"
+date: '2022-08-26'
+output:
+  html_document:
+    toc: yes
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+Avant de commencer, voici un super tutoriel sur les réseaux et leur représentation graphique réalisé par Ognyanova, K. (2021) : [Network visualization with R](www.kateto.net/network-visualization) (mini-introduction sur la construction de réseaux, réseaux statiques, réseaux dynamiques, inventaire de packages R à utiliser).
+
+La représentation de réseaux a également été abordée lors du [bootcamp Finist'R de 2020](https://stateofther.github.io/finistR2020/widget_graph_visualization.html).
+
+La représentation peut être statique, en utilisant le package R `igraph` ou encore en passant par le language *ggplot* avec `ggraph`. Elle peut également être dynamique. L'un des avantages d'une représentation dynamique est qu'il est possible d'intéragir avec le réseau, i.e. zoomer, se déplacer, déplacer les noeuds...etc (pratique pour un premier travail exploratoire par exemple). 
+
+Pour illustrer les différentes fonctionnalités de `visNetwork`, nous allons utiliser un jeu de données sur les personnages du premier tome de Game of Thrones.
+
+```{r loadDataSet}
+# Import the data set
+got <- read.csv(file = "https://raw.githubusercontent.com/YunranChen/STA650Lab/master/lab2_igraph2/gotstark_lannister.csv",
+                stringsAsFactors = FALSE)[c(1:100),] # take only a reduced set for example
+```
+
+</br></br></br>
+
+# `visNetwork`
+
+`visNetwork`, déployé sur le CRAN, est une librairie de visualisation de réseaux utilisant vis.js (librairie JavaScript). Une [vignette](https://cran.r-project.org/web/packages/visNetwork/vignettes/Introduction-to-visNetwork.html) ainsi qu'un [tutoriel](http://datastorm-open.github.io/visNetwork/) sont disponibles.
+
+</br>
+
+**Note:** Il existe aussi un autre package pour réaliser des réseaux en 3D, `networkD3`, disponible sur le CRAN mais ce dernier semble ne plus être développé depuis un moment. Les sorties sont également moins informatives/pratiques à manipuler ou utiliser.
+
+</br>
+
+Quelques particularités:
+
+* Des **objets igraph** peuvent être utilisés. La fonction `toVisNetworkData()` permet de convertir les données igraph en données adaptées aux fonctions de visNetwork. Les attributs des noeuds (*vertices*) et des arêtes (*edges*) sont conservés et utilisés comme dans igraph. Par exemple, la couleur des arêtes spécifiée par `E(graph)$color` sera réutilisée par visNetwork pour colorer le graph. 
+(On peut directement représenter le réseau igraph en visNetwork via `visIgraph`.)
+
+* Plein d'options de customisation graphique, qui fonctionnent bien avec `shiny`
+
+* La légende de `visNetwork` n'est pas très esthétique.. mais modifiable (avec pas mal d'investissement!)
+
+> **Attention**: Lorsque le nombre de noeuds et/ou d'arêtes est important (e.g. plusieurs centaines d'arêtes), le graph peut mettre beaucoup de temps à s'afficher, voire crasher...
+
+```{r, message = FALSE, warning = FALSE}
+# Load the package
+library(visNetwork)
+```
+
+## En construisant le réseau 'à la main'
+
+La fonction `visNetwork()` prend comme entrées principales deux data.frames (ou listes):
+
+- **nodes**, avec au minimum une colonne `id` indiquant l'identifiant unique de chaque noeud
+- **edges**, avec au minimum deux colonnes, `from` et `to`, indiquant les noeuds de départ et d'arrivée de chaque arête
+
+Le reste des variables pouvant être ajoutées aux data.frames correspondent à des options graphiques. Deux possibilités pour la représentation: 
+
+- soit les arguments du type *couleur*, *taille*, *étiquette* sont spécifiés dans les data.frames en entrée de `visNetwork()`, 
+- soit ces arguments sont spécifiés au fur et à mesure dans des fonctions complémentaires telles `visEdges()`, `visNodes()`, `visGroups()`... etc.
+
+```{r dataTransformation}
+# Extract identifier and family name to create got.nodes data.frame
+id <- unique(c(got$Source, got$Target))
+family <- ifelse(grepl(x = id, pattern = "-"),
+                 sapply(strsplit(id, "-"), "[", 2),
+                 "Unknown") # too many, reduce a bit
+family[!(family%in%c("Stark","Lannister","Baratheon"))] <- "Unknown"
+
+# Create data set of nodes
+got.nodes <- data.frame(id = id, label = id,
+                        group = family)
+
+# Create data set of edges
+got.edges <- data.frame(from = got$Source, to = got$Target,
+                        weight = got$weight)
+```
+
+</br>
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph basique")
+```
+
+</br></br>
+
+### Personnalisation des formes, couleurs, de la légende
+
+On peut faire apparaître le sens des relations entre les noeuds.
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph dirigé") %>%
+  visEdges(arrows = "to") # indicate towards what arrows should point
+```
+
+</br></br>
+
+On peut attribuer une couleur par groupe (si groupe il y a).
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec couleurs et formes customisées") %>%
+  visGroups(groupname = "Stark", color = "lightseagreen") %>% # only one group can be specified in the function..
+  visGroups(groupname = "Lannister", color = "#9e1549") %>%
+  visGroups(groupname = "Baratheon", color = "#3a4991") %>%
+  visGroups(groupname = "Unknown", color = "#a19d91", shape = "square")
+```
+
+</br></br>
+
+Pour faire apparaître la légende de nos groupes, on utilise la fonction `visLegend()` comme ci-dessous.
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec légende") %>%
+  visLegend(position = "right", main = "Family") # change the initial place of the legend and add a title
+```
+
+</br></br>
+
+### Interations avec le réseau
+
+On affiche uniquement les noeuds dont le degré de connexion est égal à un avec noeud donné (celui sur lequel on clique).
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph surlignant les noeuds et arêtes les plus proches d'un noeud donné") %>%
+  visOptions(highlightNearest = list(enabled = TRUE, # authorize nodes to be highlighted
+                                     degree = 1) # only the ones separated by 1 edge at most
+             )
+```
+
+</br></br>
+
+On peut sélectionner les noeuds à faire apparaître nettement sur le graphique (les autres seront en nuances de gris en arrière plan) en fonction d'une autre variable que le groupe.
+
+```{r}
+got.nodes$teams <- c(rep(c("TeamA", "TeamB"), nrow(got.nodes)/2),"TeamA") # create new feature (a random one)
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec sélection sur co-variable") %>%
+  visOptions(selectedBy = "teams")
+```
+
+</br></br>
+
+Pour faciliter la manipulation du réseau, on peut afficher des boutons de navigation...
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec boutons de navigation") %>%
+  visInteraction(navigationButtons = TRUE)
+```
+
+</br></br>
+
+... ou de quoi éditer le réseau soit même (ajouter ou supprimer des noeuds, renommer un noeud... etc).
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec bouton d'édition") %>%
+  visOptions(manipulation = TRUE)
+```
+
+</br></br>
+
+Il est possible de faire apparaître une bulle d'information en passant au-dessus d'un noeud. Le contenu de la bulle correspond normalement à l'option `title` (*ne fonctionne pas très bien dans l'exemple ici*).
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec bulle d'information") %>%
+  visNodes(title = paste0("Named ",got.nodes$id)) %>%
+  # to custom the hover boxes, use CSS
+  visInteraction(tooltipStyle = 'position: fixed;visibility: hidden;padding: 5px;
+                font-family: verdana;font-size: 14px;font-color: black;background-color: white;
+                -moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;
+                 border: 1px solid #808074;box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+                 max-width: 200px;word-break: break-all')
+```
+
+</br></br>
+
+### Layouts
+
+A chaque fois que l'on va représenter le graphique, la disposition des noeuds changera, à moins d'utiliser une graine pour fixer l'aléa. Cette représentation peut être optimisée via l'option concernant le *layout*. Le layout peut être pratique dans certains cas, surtout si l'algorithme de visNetwork ne trouve pas de disposition optimale pour les noeuds. Ces derniers ne vont pas arrêter de bouger, s'entrechoquer, sans arriver à se stabiliser.
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec un layout spécifique (dynamique)") %>%
+  visLayout(randomSeed = 220826, improvedLayout = TRUE)
+```
+
+</br>
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec un layout spécifique (fixe)") %>%
+  visIgraphLayout(randomSeed = 220826) # layout-nicely from igraph chosen by default
+```
+
+</br>
+
+On peut finalement figer le réseau, pour conserver la disposition des noeuds et des arêtes calculée par une fonction layout spécifique par exemple. L'utilisateur ne pourra bouger aucun des éléments du graph. 
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph figé") %>%
+  visLayout(randomSeed = 220826, improvedLayout = TRUE) %>%
+  visInteraction(dragNodes = FALSE, dragView = FALSE, zoomView = FALSE)
+```
+
+
+</br></br>
+
+### Performence
+
+En plus d'utiliser un layout d'`igraph` spécifique pour diminuer le temps que peut mettre le réseau à être représenté (via `visIgraphLayout()` utilisé ci-dessus), on peut jouer sur:
+
+- la forme des flèches, en les rendant droites
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph avec flèches rectilignes") %>%
+  visEdges(smooth = FALSE)
+```
+
+- la stabilisation du graph. En effet, `vis.js` calcule les coordonnées des noeuds de manière dynamique et attend que ce calcul soit stable avant d'afficher le réseau. On peut désactiver cela avec:
+
+```{r}
+visNetwork(nodes = got.nodes, edges = got.edges, main = "Graph en cours de stabilisation") %>%
+  visPhysics(stabilization = FALSE) # not waiting for coordinates to be stable to plot the network
+```
+
+</br></br>
+
+### Autres fonctions
+
+D'autres fonctions spécifiques:
+
+- `visSave()`: pour exporter le réseau dans un fichier .html
+- `visCollapse()`: pour avoir une représentation groupe à groupe, plutôt que noeud à noeud (tout les noeuds sont regroupés en un seul)
+- `visNetworkEditor()`: pour customiser le réseau via une application shiny dédiée (clique-bouton)
+- `visSetOptions()`: pour tout customiser (précise que l'option est à utiliser à ses risques et périls)
+
+Plein d'autres petites fonctions utiles pour l'intégration des réseaux dans Shiny, telles `renderVisNetwork()` (partie *server*), `visNetworkOutput()` (partie *ui*) ou encore `visExport()` pour exporter le réseau en .png via un bouton dans l'application.
+
+Une fonction `visTree()` pour représenter des arbres (régression, classification) générés avec `rpart`.
+
+Enfin, des fonctions de type clustering, telle `visClusteringByGroup()` (ressemble fortement à `visCollapse()`, statut expérimental).
+
+</br></br></br>
+
+## En partant d'un object igraph
+
+On peut utiliser l'objet igraph directement dans une fonction "vis-". Par défaut, le graph restera figé dans la disposition (le *layout*) définie par `igraph`. Seul le noeud sélectionné pourra être déplacé, les autres ne bougeront pas.
+
+```{r}
+library(igraph)
+g <- graph_from_data_frame(d = got[,-1], vertices = cbind(id, family), directed = FALSE)
+V(g)$color <- "lightseagreen"
+visIgraph(g)
+```
+
+</br></br>
+
+On peut aussi convertir l'objet igraph en objet visNetwork.
+
+```{r}
+g.vis <- toVisNetworkData(g)
+visNetwork(nodes = g.vis$nodes, edges = g.vis$edges) %>%
+  visNodes(color = "#9e1549")
+```
+
+**Remarque**: L'option *color* de la fonction `visNodes()` n'est pas prise en compte car un argument *couleur* existe déjà dans le jeu de données. Dans ce cas, il faut modifier l'argument au sein même du data.frame.
+
+```{r}
+g.vis <- toVisNetworkData(g)
+g.vis$nodes$color <- "#9e1549"
+visNetwork(nodes = g.vis$nodes, edges = g.vis$edges)
+```
+
+# References
+
+* https://cran.r-project.org/web/packages/visNetwork/vignettes/Introduction-to-visNetwork.html (vignette de `visNetwork`)
+
+* http://datastorm-open.github.io/visNetwork/ (tutoriel d'utilisation de `visNetwork`)
+
+* https://visjs.github.io/vis-network/examples/ (illustrations des fonctionnalités de vis.js)
+
+* https://kateto.net/network-visualization (tutoriel complet et détaillé sur la visualisation de réseaux avec R)
+
+* https://github.com/YunranChen/STA650Lab (jeu de données sur Game of Thrones)
+
+</br></br></br>

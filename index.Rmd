@@ -14,21 +14,21 @@ library(tidyverse)
 
 ## Où ? Quand ?
 
-L'atelier Finist'R 2022 -- ou *bootcamp R* du groupe  [State Of The R](https://stateofther.github.io/)  se tiendra à la [station biologique de Paimpont](https://paimpont.univ-rennes1.fr/) du **22 au 26 août 2022**.
+L'atelier Finist'R 2022 -- ou *bootcamp R* du groupe  [State Of The R](https://stateofther.github.io/)  s'est déroulé à la [station biologique de Paimpont](https://paimpont.univ-rennes1.fr/) du **22 au 26 août 2022**.
 
 
 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d85436.48346682862!2d-2.3083283318138617!3d47.996510840576136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x480fb26a315ea6b5%3A0x1f048894aa81345b!2sBiology%20Station%20-%20University%20of%20Rennes%201!5e0!3m2!1sen!2sfr!4v1657203162856!5m2!1sen!2sfr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 
 
-Il s'agit de la sixième édition de l'atelier Finist'R. Cet atelier réunit annuellement un groupe de chercheurs, ingénieurs, doctorants, tous utilisateurs avancés de `R` et dévelopeurs de paquets pour explorer les dernières fonctionalités du logiciel et les nouvelles pratiques de développement. A l'issu de l'atelier le collectif produit une synthèse de cette veille logiciel de manière à progresser collectivement dans l'utilisation du logiciel mais surtout dans la production d'outils statistiques à destination de la communauté.
+Il s'agissait de la sixième édition de l'atelier Finist'R. Cet atelier réunit annuellement un groupe de chercheurs, ingénieurs, doctorants, tous utilisateurs avancés de `R` et dévelopeurs de paquets pour explorer les dernières fonctionalités du logiciel et les nouvelles pratiques de développement. A l'issue de l'atelier le collectif produit une synthèse de cette veille logiciel de manière à progresser collectivement dans l'utilisation du logiciel mais surtout dans la production d'outils statistiques à destination de la communauté.
 
-Le résultat de cette semaine sera posté au fur et à mesure  [sur cette page](https://stateofther.github.io/finistR2022/index.html)
+Le résultat de cette semaine est disponible  [sur cette page](https://stateofther.github.io/finistR2022/index.html)
 
 ## Participants
 Emré Anakok, Julie Aubert,  Pierre Barbillon, Anna Bonnet, Saint-Clair Chabert, Félix Cheysson, Julien Chiquet, Annaïg De Walsche,  Sophie Donnet, Marie-Pierre Etienne, Pierre Gloaguen, Marina Gomtsyana,  Tam Le Minh, Mahendra Mariadassou, Tristan Mary-Huard, Aurélie Mercadier, Cédric Midoux, Isabelle Sanchez, Mary Savino.
 
 
-## Idées à explorer
+## Idées explorées
 
 ### Machine Learning
 
@@ -59,21 +59,13 @@ https://www.rstudio.com/conference/2022/keynotes/past-future-shiny/
 
 ### Webscrapping et Analyse de texte
 
-https://smltar.com/
-
-
 ### Analyse de données spatialisées
-
-https://www.paulamoraga.com/book-geospatial/
 
 
 ### Reproductibilité, travail collaboratif
 
 - Utilisation pratique de docker
 - L'intégration continue en pratique
-- Ecosystème target
-https://docs.ropensci.org/targets/
-https://wlandau.github.io/targetopia/
 
 - quarto
 https://www.rstudio.com/blog/announcing-quarto-a-new-scientific-and-technical-publishing-system/
@@ -84,7 +76,7 @@ https://www.rstudio.com/conference/2022/keynotes/collaborate-with-quarto/
 - Visualisation de réseaux ou sorties des modèles sbm/lbm
 https://lrouviere.github.io/TUTO_GRAPHES/index.html 
  
-  - package visNetwork https://datastorm-open.github.io/visNetwork/
+- package visNetwork https://datastorm-open.github.io/visNetwork/
 
 ### Parallélisation, gestion mémoire ...
 

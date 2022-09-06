@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="FinistR" />
+
+<meta name="date" content="2022-08-26" />
+
+<title>Visualisation dynamique de réseaux</title>
+
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<link href="site_libs/vis-9.1.0/vis-network.min.css" rel="stylesheet" />
+<script src="site_libs/vis-9.1.0/vis-network.min.js"></script>
+<script src="site_libs/visNetwork-binding-2.1.0/visNetwork.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Finist'R 2022</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="https://github.com/StateOfTheR/finistR2022">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    Workflow
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="introDockeR.html">Docker</a>
+    </li>
+    <li>
+      <a href="rebase.html">Git avancé</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-brands fa-r-project"></span>
+     
+    Langage R et pipe
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="pipe.html">pipe</a>
+    </li>
+    <li>
+      <a href="webscraping.html">Webscrapping</a>
+    </li>
+    <li>
+      <a href="sig_with_sf.html">R et SIG</a>
+    </li>
+    <li class="dropdown-header">R et Bayésien</li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-light fa-chart-network"></span>
+     
+    Visualisation et interaction
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="extensionShiny.html">Shiny extension</a>
+    </li>
+    <li class="dropdown-header">Visualisation de réseaux</li>
+    <li>
+      <a href="addins.html">Addins</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="autodiff.html">Différention automatique</a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Visualisation dynamique de réseaux</h1>
+<h4 class="author">FinistR</h4>
+<h4 class="date">2022-08-26</h4>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Avant de commencer, voici un super tutoriel sur les réseaux et leur
+représentation graphique réalisé par Ognyanova, K. (2021) : <a
+href="www.kateto.net/network-visualization">Network visualization with
+R</a> (mini-introduction sur la construction de réseaux, réseaux
+statiques, réseaux dynamiques, inventaire de packages R à utiliser).</p>
+<p>La représentation de réseaux a également été abordée lors du <a
+href="https://stateofther.github.io/finistR2020/widget_graph_visualization.html">bootcamp
+Finist’R de 2020</a>.</p>
+<p>La représentation peut être statique, en utilisant le package R
+<code>igraph</code> ou encore en passant par le language <em>ggplot</em>
+avec <code>ggraph</code>. Elle peut également être dynamique. L’un des
+avantages d’une représentation dynamique est qu’il est possible
+d’intéragir avec le réseau, i.e. zoomer, se déplacer, déplacer les
+noeuds…etc (pratique pour un premier travail exploratoire par
+exemple).</p>
+<p>Pour illustrer les différentes fonctionnalités de
+<code>visNetwork</code>, nous allons utiliser un jeu de données sur les
+personnages du premier tome de Game of Thrones.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import the data set</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>got <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="st">&quot;https://raw.githubusercontent.com/YunranChen/STA650Lab/master/lab2_igraph2/gotstark_lannister.csv&quot;</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)[<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>),] <span class="co"># take only a reduced set for example</span></span></code></pre></div>
+<p></br></br></br></p>
+</div>
+<div id="visnetwork" class="section level1">
+<h1><code>visNetwork</code></h1>
+<p><code>visNetwork</code>, déployé sur le CRAN, est une librairie de
+visualisation de réseaux utilisant vis.js (librairie JavaScript). Une <a
+href="https://cran.r-project.org/web/packages/visNetwork/vignettes/Introduction-to-visNetwork.html">vignette</a>
+ainsi qu’un <a
+href="http://datastorm-open.github.io/visNetwork/">tutoriel</a> sont
+disponibles.</p>
+<p></br></p>
+<p><strong>Note:</strong> Il existe aussi un autre package pour réaliser
+des réseaux en 3D, <code>networkD3</code>, disponible sur le CRAN mais
+ce dernier semble ne plus être développé depuis un moment. Les sorties
+sont également moins informatives/pratiques à manipuler ou utiliser.</p>
+<p></br></p>
+<p>Quelques particularités:</p>
+<ul>
+<li><p>Des <strong>objets igraph</strong> peuvent être utilisés. La
+fonction <code>toVisNetworkData()</code> permet de convertir les données
+igraph en données adaptées aux fonctions de visNetwork. Les attributs
+des noeuds (<em>vertices</em>) et des arêtes (<em>edges</em>) sont
+conservés et utilisés comme dans igraph. Par exemple, la couleur des
+arêtes spécifiée par <code>E(graph)$color</code> sera réutilisée par
+visNetwork pour colorer le graph. (On peut directement représenter le
+réseau igraph en visNetwork via <code>visIgraph</code>.)</p></li>
+<li><p>Plein d’options de customisation graphique, qui fonctionnent bien
+avec <code>shiny</code></p></li>
+<li><p>La légende de <code>visNetwork</code> n’est pas très esthétique..
+mais modifiable (avec pas mal d’investissement!)</p></li>
+</ul>
+<blockquote>
+<p><strong>Attention</strong>: Lorsque le nombre de noeuds et/ou
+d’arêtes est important (e.g. plusieurs centaines d’arêtes), le graph
+peut mettre beaucoup de temps à s’afficher, voire crasher…</p>
+</blockquote>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the package</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(visNetwork)</span></code></pre></div>
+<div id="en-construisant-le-réseau-à-la-main" class="section level2">
+<h2>En construisant le réseau ‘à la main’</h2>
+<p>La fonction <code>visNetwork()</code> prend comme entrées principales
+deux data.frames (ou listes):</p>
+<ul>
+<li><strong>nodes</strong>, avec au minimum une colonne <code>id</code>
+indiquant l’identifiant unique de chaque noeud</li>
+<li><strong>edges</strong>, avec au minimum deux colonnes,
+<code>from</code> et <code>to</code>, indiquant les noeuds de départ et
+d’arrivée de chaque arête</li>
+</ul>
+<p>Le reste des variables pouvant être ajoutées aux data.frames
+correspondent à des options graphiques. Deux possibilités pour la
+représentation:</p>
+<ul>
+<li>soit les arguments du type <em>couleur</em>, <em>taille</em>,
+<em>étiquette</em> sont spécifiés dans les data.frames en entrée de
+<code>visNetwork()</code>,</li>
+<li>soit ces arguments sont spécifiés au fur et à mesure dans des
+fonctions complémentaires telles <code>visEdges()</code>,
+<code>visNodes()</code>, <code>visGroups()</code>… etc.</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract identifier and family name to create got.nodes data.frame</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>id <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">c</span>(got<span class="sc">$</span>Source, got<span class="sc">$</span>Target))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>family <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="at">x =</span> id, <span class="at">pattern =</span> <span class="st">&quot;-&quot;</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">sapply</span>(<span class="fu">strsplit</span>(id, <span class="st">&quot;-&quot;</span>), <span class="st">&quot;[&quot;</span>, <span class="dv">2</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;Unknown&quot;</span>) <span class="co"># too many, reduce a bit</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>family[<span class="sc">!</span>(family<span class="sc">%in%</span><span class="fu">c</span>(<span class="st">&quot;Stark&quot;</span>,<span class="st">&quot;Lannister&quot;</span>,<span class="st">&quot;Baratheon&quot;</span>))] <span class="ot">&lt;-</span> <span class="st">&quot;Unknown&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create data set of nodes</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>got.nodes <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id =</span> id, <span class="at">label =</span> id,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                        <span class="at">group =</span> family)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Create data set of edges</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>got.edges <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">from =</span> got<span class="sc">$</span>Source, <span class="at">to =</span> got<span class="sc">$</span>Target,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>                        <span class="at">weight =</span> got<span class="sc">$</span>weight)</span></code></pre></div>
+<p></br></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph basique&quot;</span>)</span></code></pre></div>
+<div id="htmlwidget-a691d7432e193013009d" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a691d7432e193013009d">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph basique","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)"},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+<div id="personnalisation-des-formes-couleurs-de-la-légende"
+class="section level3">
+<h3>Personnalisation des formes, couleurs, de la légende</h3>
+<p>On peut faire apparaître le sens des relations entre les noeuds.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph dirigé&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visEdges</span>(<span class="at">arrows =</span> <span class="st">&quot;to&quot;</span>) <span class="co"># indicate towards what arrows should point</span></span></code></pre></div>
+<div id="htmlwidget-8ebbb076949a0f47e001" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-8ebbb076949a0f47e001">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"edges":{"arrows":"to"}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph dirigé","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)"},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+<p>On peut attribuer une couleur par groupe (si groupe il y a).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph avec couleurs et formes customisées&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visGroups</span>(<span class="at">groupname =</span> <span class="st">&quot;Stark&quot;</span>, <span class="at">color =</span> <span class="st">&quot;lightseagreen&quot;</span>) <span class="sc">%&gt;%</span> <span class="co"># only one group can be specified in the function..</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visGroups</span>(<span class="at">groupname =</span> <span class="st">&quot;Lannister&quot;</span>, <span class="at">color =</span> <span class="st">&quot;#9e1549&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visGroups</span>(<span class="at">groupname =</span> <span class="st">&quot;Baratheon&quot;</span>, <span class="at">color =</span> <span class="st">&quot;#3a4991&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visGroups</span>(<span class="at">groupname =</span> <span class="st">&quot;Unknown&quot;</span>, <span class="at">color =</span> <span class="st">&quot;#a19d91&quot;</span>, <span class="at">shape =</span> <span class="st">&quot;square&quot;</span>)</span></code></pre></div>
+<div id="htmlwidget-ff42502bfee61011dd88" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ff42502bfee61011dd88">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"groups":{"Stark":{"color":"lightseagreen"},"Lannister":{"color":"#9e1549"},"Baratheon":{"color":"#3a4991"},"useDefaultGroups":true,"Unknown":{"color":"#a19d91","shape":"square"}}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph avec couleurs et formes customisées","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)"},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+<p>Pour faire apparaître la légende de nos groupes, on utilise la
+fonction <code>visLegend()</code> comme ci-dessous.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph avec légende&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>(<span class="at">position =</span> <span class="st">&quot;right&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Family&quot;</span>) <span class="co"># change the initial place of the legend and add a title</span></span></code></pre></div>
+<div id="htmlwidget-7aa9eb692e97f17c6021" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-7aa9eb692e97f17c6021">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph avec légende","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","legend":{"width":0.2,"useGroups":true,"position":"right","ncol":1,"stepX":100,"stepY":100,"zoom":true,"main":{"text":"Family","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:14px;text-align:center;"}}},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+</div>
+<div id="interations-avec-le-réseau" class="section level3">
+<h3>Interations avec le réseau</h3>
+<p>On affiche uniquement les noeuds dont le degré de connexion est égal
+à un avec noeud donné (celui sur lequel on clique).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph surlignant les noeuds et arêtes les plus proches d&#39;un noeud donné&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">highlightNearest =</span> <span class="fu">list</span>(<span class="at">enabled =</span> <span class="cn">TRUE</span>, <span class="co"># authorize nodes to be highlighted</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">degree =</span> <span class="dv">1</span>) <span class="co"># only the ones separated by 1 edge at most</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>             )</span></code></pre></div>
+<div id="htmlwidget-ae567dc676f6b37f6207" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ae567dc676f6b37f6207">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":{"text":"Graph surlignant les noeuds et arêtes les plus proches d'un noeud donné","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"}},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+<p>On peut sélectionner les noeuds à faire apparaître nettement sur le
+graphique (les autres seront en nuances de gris en arrière plan) en
+fonction d’une autre variable que le groupe.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>got.nodes<span class="sc">$</span>teams <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;TeamA&quot;</span>, <span class="st">&quot;TeamB&quot;</span>), <span class="fu">nrow</span>(got.nodes)<span class="sc">/</span><span class="dv">2</span>),<span class="st">&quot;TeamA&quot;</span>) <span class="co"># create new feature (a random one)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph avec sélection sur co-variable&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">selectedBy =</span> <span class="st">&quot;teams&quot;</span>)</span></code></pre></div>
+<div id="htmlwidget-6d7fedca627207ea5830" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6d7fedca627207ea5830">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"teams":["TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":true,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false,"variable":"teams","main":"Select by teams","values":["TeamA","TeamB"]},"main":{"text":"Graph avec sélection sur co-variable","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","highlight":{"enabled":false,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"}},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+<p>Pour faciliter la manipulation du réseau, on peut afficher des
+boutons de navigation…</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph avec boutons de navigation&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visInteraction</span>(<span class="at">navigationButtons =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div id="htmlwidget-4dcd2bbd9caa33747c32" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4dcd2bbd9caa33747c32">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"teams":["TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"interaction":{"navigationButtons":true,"zoomSpeed":1}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph avec boutons de navigation","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","tooltipStay":300,"tooltipStyle":"position: fixed;visibility:hidden;padding: 5px;white-space: nowrap;font-family: verdana;font-size:14px;font-color:#000000;background-color: #f5f4ed;-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;border: 1px solid #808074;box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);"},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+<p>… ou de quoi éditer le réseau soit même (ajouter ou supprimer des
+noeuds, renommer un noeud… etc).</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph avec bouton d&#39;édition&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">manipulation =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div id="htmlwidget-922ea7774578ec844d3a" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-922ea7774578ec844d3a">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"teams":["TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":true}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":{"text":"Graph avec bouton d'édition","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","opts_manipulation":{"datacss":"table.legend_table {\n  font-size: 11px;\n  border-width:1px;\n  border-color:#d3d3d3;\n  border-style:solid;\n}\ntable.legend_table td {\n  border-width:1px;\n  border-color:#d3d3d3;\n  border-style:solid;\n  padding: 2px;\n}\ndiv.table_content {\n  width:80px;\n  text-align:center;\n}\ndiv.table_description {\n  width:100px;\n}\n\n.operation {\n  font-size:20px;\n}\n\n.network-popUp {\n  display:none;\n  z-index:299;\n  width:250px;\n  /*height:150px;*/\n  background-color: #f9f9f9;\n  border-style:solid;\n  border-width:1px;\n  border-color: #0d0d0d;\n  padding:10px;\n  text-align: center;\n  position:fixed;\n  top:50%;  \n  left:50%;  \n  margin:-100px 0 0 -100px;  \n\n}","addNodeCols":["id","label"],"editNodeCols":["id","label"],"tab_add_node":"<span id=\"addnode-operation\" class = \"operation\">node<\/span> <br><table style=\"margin:auto;\"><tr><td>id<\/td><td><input id=\"addnode-id\"  type= \"text\" value=\"new value\"><\/td><\/tr><tr><td>label<\/td><td><input id=\"addnode-label\"  type= \"text\" value=\"new value\"><\/td><\/tr><\/table><input type=\"button\" value=\"save\" id=\"addnode-saveButton\"><\/button><input type=\"button\" value=\"cancel\" id=\"addnode-cancelButton\"><\/button>","tab_edit_node":"<span id=\"editnode-operation\" class = \"operation\">node<\/span> <br><table style=\"margin:auto;\"><tr><td>id<\/td><td><input id=\"editnode-id\"  type= \"text\" value=\"new value\"><\/td><\/tr><tr><td>label<\/td><td><input id=\"editnode-label\"  type= \"text\" value=\"new value\"><\/td><\/tr><\/table><input type=\"button\" value=\"save\" id=\"editnode-saveButton\"><\/button><input type=\"button\" value=\"cancel\" id=\"editnode-cancelButton\"><\/button>"},"highlight":{"enabled":false,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"}},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+<p>Il est possible de faire apparaître une bulle d’information en
+passant au-dessus d’un noeud. Le contenu de la bulle correspond
+normalement à l’option <code>title</code> (<em>ne fonctionne pas très
+bien dans l’exemple ici</em>).</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph avec bulle d&#39;information&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visNodes</span>(<span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">&quot;Named &quot;</span>,got.nodes<span class="sc">$</span>id)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># to custom the hover boxes, use CSS</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visInteraction</span>(<span class="at">tooltipStyle =</span> <span class="st">&#39;position: fixed;visibility: hidden;padding: 5px;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="st">                font-family: verdana;font-size: 14px;font-color: black;background-color: white;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="st">                -moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="st">                 border: 1px solid #808074;box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="st">                 max-width: 200px;word-break: break-all&#39;</span>)</span></code></pre></div>
+<div id="htmlwidget-ddd5587dfcf874febea1" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ddd5587dfcf874febea1">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"teams":["TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","title":["Named Arya-Stark","Named Benjen-Stark","Named Bran-Stark","Named Brandon-Stark","Named Catelyn-Stark","Named Cersei-Lannister","Named Desmond","Named Eddard-Stark","Named Ilyn-Payne","Named Jeyne-Poole","Named Joffrey-Baratheon","Named Jon-Snow","Named Jory-Cassel","Named Meryn-Trant","Named Mordane","Named Mycah","Named Myrcella-Baratheon","Named Petyr-Baelish","Named Rickon-Stark","Named Robb-Stark","Named Robert-Baratheon","Named Rodrik-Cassel","Named Sandor-Clegane","Named Sansa-Stark","Named Syrio-Forel","Named Tomard","Named Tommen-Baratheon","Named Vayon-Poole","Named Yoren","Named Jaremy-Rykker","Named Jeor-Mormont","Named Luwin","Named Mance-Rayder","Named Theon-Greyjoy","Named Tyrion-Lannister","Named Waymar-Royce","Named Hali","Named Hallis-Mollen","Named Hodor","Named Hullen","Named Jon-Arryn","Named Joseth","Named Nan","Named Osha","Named Renly-Baratheon","Named Rickard-Karstark","Named Rickard-Stark","Named Stiv","Named Lyanna-Stark","Named Colemon","Named Donnel-Waynwood","Named Edmure-Tully","Named Eon-Hunter","Named Hoster-Tully","Named Jaime-Lannister","Named Jon-Umber-(Greatjon)","Named Lysa-Arryn","Named Marillion","Named Masha-Heddle","Named Moreo-Tumitis","Named Mya-Stone","Named Mychel-Redfort","Named Nestor-Royce"]},"manipulation":{"enabled":false},"interaction":{"zoomSpeed":1}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph avec bulle d'information","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","tooltipStay":300,"tooltipStyle":"position: fixed;visibility: hidden;padding: 5px;\n                font-family: verdana;font-size: 14px;font-color: black;background-color: white;\n                -moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;\n                 border: 1px solid #808074;box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);\n                 max-width: 200px;word-break: break-all"},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+</div>
+<div id="layouts" class="section level3">
+<h3>Layouts</h3>
+<p>A chaque fois que l’on va représenter le graphique, la disposition
+des noeuds changera, à moins d’utiliser une graine pour fixer l’aléa.
+Cette représentation peut être optimisée via l’option concernant le
+<em>layout</em>. Le layout peut être pratique dans certains cas, surtout
+si l’algorithme de visNetwork ne trouve pas de disposition optimale pour
+les noeuds. Ces derniers ne vont pas arrêter de bouger, s’entrechoquer,
+sans arriver à se stabiliser.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph avec un layout spécifique (dynamique)&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLayout</span>(<span class="at">randomSeed =</span> <span class="dv">220826</span>, <span class="at">improvedLayout =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div id="htmlwidget-78928d54abf86e8fddde" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-78928d54abf86e8fddde">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"teams":["TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"layout":{"randomSeed":220826,"improvedLayout":true}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph avec un layout spécifique (dynamique)","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)"},"evals":[],"jsHooks":[]}</script>
+<p></br></p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph avec un layout spécifique (fixe)&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visIgraphLayout</span>(<span class="at">randomSeed =</span> <span class="dv">220826</span>) <span class="co"># layout-nicely from igraph chosen by default</span></span></code></pre></div>
+<div id="htmlwidget-bd8e96ecceed87f9923f" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-bd8e96ecceed87f9923f">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"teams":["TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA"],"x":[-0.173582161235834,-0.410023773497731,-0.396120523478663,-0.0817229659809583,0.406182210921186,-0.06664103773548,0.231427929578296,-0.0227335607782739,-0.397623478374164,-0.0181248624149883,0.040379699918184,-0.140689603204065,-0.368855785180638,-0.585122450361883,-0.342612311508024,-0.516618843921414,0.137123356545994,0.0331036301770988,0.0839870013543242,-0.102721045634056,-0.266677231952347,-0.508674400779782,-0.249365852591266,-0.589210250751246,-0.179158329008438,0.0727819489187549,-0.467410104659619,-0.0668489268285357,-0.453079280706989,-0.506955223162896,-0.639273583016195,-0.0775851952198858,-0.806562042762323,-0.530320315544615,-0.669149352767848,-0.664448302755722,-0.862223821973458,0.0724723862189891,-0.852163363630419,-0.854430742736525,0.13956932121758,-0.990940796785776,-0.907646237190452,-0.837067791334985,-0.946815146362777,0.089437652620582,-0.330048959839904,-1,-0.0245645586015055,0.686236407833767,0.961032597794927,0.864001638988843,0.667565630789208,0.895748118707555,0.973707640408081,0.53698444214564,0.746704004854878,0.7350692304347,0.820591171974766,0.75548189412278,1,0.819996114554385,0.888391011432795],"y":[-0.423061970518883,0.248113339376469,0.0452381904404848,0.489951811087561,0.0924159598458074,-0.0742392751910705,-0.743032202080311,0.0923199087461473,-0.949308254313492,-0.875586278555089,-0.218807970832806,-0.0562181508778044,-0.375558378607282,-0.749978785331736,-0.811302372218865,-0.864793802829738,-0.894257282310451,0.0298566556686986,-0.151980014966948,0.018614323143318,0.099597087219403,-0.424297412485976,-0.993645329309703,-0.335019891056674,-0.872746383030372,-0.750810334315174,-0.294353410549099,-1,-0.11665825049814,0.788417210706968,0.384637071831142,0.277766356230722,0.661733567028708,0.456711217870396,0.244359202451509,0.74310758510071,0.264030795273934,0.347171021413561,-0.250767840466334,0.402296274736117,0.143717154921771,0.217383065984996,0.105459493733303,-0.0439688283500783,-0.147676517098636,0.250173704092258,0.536012850989308,0.00173942611082856,1,0.574797620424332,-0.0674518809847982,0.37064346645641,0.416513864246763,0.166334036408349,0.285202100922963,0.566474015938033,-0.296663455098006,-0.14705314061292,0.00945394036232039,0.235710678775695,0.081057388289262,0.493254767891571,-0.198301348875312]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","physics":false},"manipulation":{"enabled":false},"edges":{"smooth":false},"physics":{"stabilization":false}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph avec un layout spécifique (fixe)","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","igraphlayout":{"type":"square"}},"evals":[],"jsHooks":[]}</script>
+<p></br></p>
+<p>On peut finalement figer le réseau, pour conserver la disposition des
+noeuds et des arêtes calculée par une fonction layout spécifique par
+exemple. L’utilisateur ne pourra bouger aucun des éléments du graph.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph figé&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLayout</span>(<span class="at">randomSeed =</span> <span class="dv">220826</span>, <span class="at">improvedLayout =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visInteraction</span>(<span class="at">dragNodes =</span> <span class="cn">FALSE</span>, <span class="at">dragView =</span> <span class="cn">FALSE</span>, <span class="at">zoomView =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div id="htmlwidget-0b34d29317bfb14617c8" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0b34d29317bfb14617c8">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"teams":["TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"layout":{"randomSeed":220826,"improvedLayout":true},"interaction":{"dragNodes":false,"dragView":false,"zoomView":false,"zoomSpeed":1}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph figé","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","tooltipStay":300,"tooltipStyle":"position: fixed;visibility:hidden;padding: 5px;white-space: nowrap;font-family: verdana;font-size:14px;font-color:#000000;background-color: #f5f4ed;-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;border: 1px solid #808074;box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);"},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+</div>
+<div id="performence" class="section level3">
+<h3>Performence</h3>
+<p>En plus d’utiliser un layout d’<code>igraph</code> spécifique pour
+diminuer le temps que peut mettre le réseau à être représenté (via
+<code>visIgraphLayout()</code> utilisé ci-dessus), on peut jouer
+sur:</p>
+<ul>
+<li>la forme des flèches, en les rendant droites</li>
+</ul>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph avec flèches rectilignes&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visEdges</span>(<span class="at">smooth =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div id="htmlwidget-9238f5f43f0c428b23f9" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9238f5f43f0c428b23f9">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"teams":["TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"edges":{"smooth":false}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph avec flèches rectilignes","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)"},"evals":[],"jsHooks":[]}</script>
+<ul>
+<li>la stabilisation du graph. En effet, <code>vis.js</code> calcule les
+coordonnées des noeuds de manière dynamique et attend que ce calcul soit
+stable avant d’afficher le réseau. On peut désactiver cela avec:</li>
+</ul>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> got.nodes, <span class="at">edges =</span> got.edges, <span class="at">main =</span> <span class="st">&quot;Graph en cours de stabilisation&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visPhysics</span>(<span class="at">stabilization =</span> <span class="cn">FALSE</span>) <span class="co"># not waiting for coordinates to be stable to plot the network</span></span></code></pre></div>
+<div id="htmlwidget-13c2d58ff7981cbb2ba0" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-13c2d58ff7981cbb2ba0">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"group":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"teams":["TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA","TeamB","TeamA"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"physics":{"stabilization":false}},"groups":["Stark","Lannister","Unknown","Baratheon"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":{"text":"Graph en cours de stabilisation","style":"font-family:Georgia, Times New Roman, Times, serif;font-weight:bold;font-size:20px;text-align:center;"},"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)"},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+</div>
+<div id="autres-fonctions" class="section level3">
+<h3>Autres fonctions</h3>
+<p>D’autres fonctions spécifiques:</p>
+<ul>
+<li><code>visSave()</code>: pour exporter le réseau dans un fichier
+.html</li>
+<li><code>visCollapse()</code>: pour avoir une représentation groupe à
+groupe, plutôt que noeud à noeud (tout les noeuds sont regroupés en un
+seul)</li>
+<li><code>visNetworkEditor()</code>: pour customiser le réseau via une
+application shiny dédiée (clique-bouton)</li>
+<li><code>visSetOptions()</code>: pour tout customiser (précise que
+l’option est à utiliser à ses risques et périls)</li>
+</ul>
+<p>Plein d’autres petites fonctions utiles pour l’intégration des
+réseaux dans Shiny, telles <code>renderVisNetwork()</code> (partie
+<em>server</em>), <code>visNetworkOutput()</code> (partie <em>ui</em>)
+ou encore <code>visExport()</code> pour exporter le réseau en .png via
+un bouton dans l’application.</p>
+<p>Une fonction <code>visTree()</code> pour représenter des arbres
+(régression, classification) générés avec <code>rpart</code>.</p>
+<p>Enfin, des fonctions de type clustering, telle
+<code>visClusteringByGroup()</code> (ressemble fortement à
+<code>visCollapse()</code>, statut expérimental).</p>
+<p></br></br></br></p>
+</div>
+</div>
+<div id="en-partant-dun-object-igraph" class="section level2">
+<h2>En partant d’un object igraph</h2>
+<p>On peut utiliser l’objet igraph directement dans une fonction “vis-”.
+Par défaut, le graph restera figé dans la disposition (le
+<em>layout</em>) définie par <code>igraph</code>. Seul le noeud
+sélectionné pourra être déplacé, les autres ne bougeront pas.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(igraph)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;igraph&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:future&#39;:
+## 
+##     %-&gt;%, %&lt;-%</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     as_data_frame, groups, union</code></pre>
+<pre><code>## The following objects are masked from &#39;package:purrr&#39;:
+## 
+##     compose, simplify</code></pre>
+<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     crossing</code></pre>
+<pre><code>## The following object is masked from &#39;package:tibble&#39;:
+## 
+##     as_data_frame</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     decompose, spectrum</code></pre>
+<pre><code>## The following object is masked from &#39;package:base&#39;:
+## 
+##     union</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">graph_from_data_frame</span>(<span class="at">d =</span> got[,<span class="sc">-</span><span class="dv">1</span>], <span class="at">vertices =</span> <span class="fu">cbind</span>(id, family), <span class="at">directed =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">V</span>(g)<span class="sc">$</span>color <span class="ot">&lt;-</span> <span class="st">&quot;lightseagreen&quot;</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">visIgraph</span>(g)</span></code></pre></div>
+<div id="htmlwidget-e4b2362aa7a3299dac0c" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e4b2362aa7a3299dac0c">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"family":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"color":["lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"x":[0.42301997999921,-0.117773386269608,-0.178463573674823,-0.403660014436096,0.313621257827492,0.215274753096115,0.776823975315709,0.0553794129114114,0.431690860146471,0.655138779428964,0.353784978147135,0.115174685054161,0.0780034783686685,1,0.90775765794647,0.992449193703358,0.843341484899898,0.0657738862228461,0.278875260347361,0.185579196070006,-0.0902239873734697,0.238812536919122,0.91148849552931,0.122848544174588,0.698980564272997,0.560571097211634,0.183630069111727,0.858040673914097,0.0261585936160023,-0.483302251914411,-0.419566640573775,-0.0701780785100902,-0.179291992895325,-0.32610338823217,-0.442885241971278,-0.339034719023485,-0.766862708637354,-0.0567026185748849,-0.66992297464132,-0.640387855803739,0.0484727613860123,-0.750141091124044,-0.739881255822682,-0.524396609356693,-0.655733717186936,-0.138109257590958,-0.594653426808927,-0.512089874657824,-1,0.750916241999092,0.466929762454603,0.724241244252358,-0.00146506386335166,0.434155095535481,0.19515990937916,0.592119086728524,0.607315391692648,0.249439083586083,0.836193710929045,0.676572172429796,0.0710560424918953,0.328366750339169,0.85713521105179],"y":[-0.352331677293997,-0.46665649227719,-0.0972290057258169,-0.107101180001052,0.438503476218956,-0.121341215435837,-0.751596071627601,0.00165129281334364,-0.879730761022381,-0.67063228654364,0.0332749851203256,-0.106033158698706,-0.554177031916059,-0.350816268745919,-0.220621358036145,-0.523472296762644,-0.573242718946964,0.0716629623993297,0.0864857135799226,-0.0563994221294297,-0.310552274336134,-0.307054442437558,-0.703519513222758,-0.364650144279243,-0.868482690069515,-0.840548359728998,-0.482747282983756,-0.406592746988775,-0.453929569276244,-0.896100836245411,-0.400219601662409,0.059364017235481,-1,-0.558397929720731,-0.517997832910349,-0.971195336254026,-0.0717189069259229,0.350492136868669,-0.395932645459545,0.0139550619678219,0.331158474136949,0.10493890391807,-0.24826028326788,0.340199406976557,0.222304824889944,0.401134395560065,-0.184588743592883,0.192927554174166,-0.183062606564653,0.842919788868405,1,0.514791547161,0.819243531109956,0.831885660413331,0.979279494318871,0.795225533427244,0.943993596101434,0.820909272028317,0.687137822204031,0.67536359259293,0.929013406026531,0.997025429441869,0.505669358403521]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"Type":["Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49],"book":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"source.family":["Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark"],"target.family":["Stark","Stark","Stark","Lannister",null,"Stark",null,null,null,null,null,null,null,null,null,null,"Stark","Stark",null,null,null,"Stark",null,null,null,null,null,"Stark","Lannister",null,null,null,null,null,"Stark",null,null,"Lannister",null,null,"Stark","Lannister","Stark",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Stark","Stark","Stark",null,null,"Stark",null,null,null,"Lannister",null,"Stark","Stark",null,"Stark",null,"Lannister",null,null,"Stark",null,null,null,null,"Lannister",null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Stark","Stark"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","physics":false},"manipulation":{"enabled":false},"edges":{"smooth":false},"physics":{"stabilization":false}},"groups":null,"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","igraphlayout":{"type":"square"}},"evals":[],"jsHooks":[]}</script>
+<p></br></br></p>
+<p>On peut aussi convertir l’objet igraph en objet visNetwork.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>g.vis <span class="ot">&lt;-</span> <span class="fu">toVisNetworkData</span>(g)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> g.vis<span class="sc">$</span>nodes, <span class="at">edges =</span> g.vis<span class="sc">$</span>edges) <span class="sc">%&gt;%</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visNodes</span>(<span class="at">color =</span> <span class="st">&quot;#9e1549&quot;</span>)</span></code></pre></div>
+<div id="htmlwidget-6b59ff553f087b20ecbd" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6b59ff553f087b20ecbd">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"family":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"color":["lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen","lightseagreen"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"Type":["Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49],"book":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"source.family":["Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark"],"target.family":["Stark","Stark","Stark","Lannister",null,"Stark",null,null,null,null,null,null,null,null,null,null,"Stark","Stark",null,null,null,"Stark",null,null,null,null,null,"Stark","Lannister",null,null,null,null,null,"Stark",null,null,"Lannister",null,null,"Stark","Lannister","Stark",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Stark","Stark","Stark",null,null,"Stark",null,null,null,"Lannister",null,"Stark","Stark",null,"Stark",null,"Lannister",null,null,"Stark",null,null,null,null,"Lannister",null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Stark","Stark"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","color":"#9e1549"},"manipulation":{"enabled":false}},"groups":null,"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)"},"evals":[],"jsHooks":[]}</script>
+<p><strong>Remarque</strong>: L’option <em>color</em> de la fonction
+<code>visNodes()</code> n’est pas prise en compte car un argument
+<em>couleur</em> existe déjà dans le jeu de données. Dans ce cas, il
+faut modifier l’argument au sein même du data.frame.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>g.vis <span class="ot">&lt;-</span> <span class="fu">toVisNetworkData</span>(g)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>g.vis<span class="sc">$</span>nodes<span class="sc">$</span>color <span class="ot">&lt;-</span> <span class="st">&quot;#9e1549&quot;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(<span class="at">nodes =</span> g.vis<span class="sc">$</span>nodes, <span class="at">edges =</span> g.vis<span class="sc">$</span>edges)</span></code></pre></div>
+<div id="htmlwidget-3d9d66754107a960994e" style="width:672px;height:480px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3d9d66754107a960994e">{"x":{"nodes":{"id":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"],"family":["Stark","Stark","Stark","Stark","Stark","Lannister","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Stark","Baratheon","Unknown","Unknown","Stark","Unknown","Unknown","Baratheon","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Baratheon","Unknown","Stark","Unknown","Stark","Unknown","Unknown","Unknown","Unknown","Unknown","Lannister","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Unknown"],"color":["#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549","#9e1549"],"label":["Arya-Stark","Benjen-Stark","Bran-Stark","Brandon-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Jaremy-Rykker","Jeor-Mormont","Luwin","Mance-Rayder","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Hali","Hallis-Mollen","Hodor","Hullen","Jon-Arryn","Joseth","Nan","Osha","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Stiv","Lyanna-Stark","Colemon","Donnel-Waynwood","Edmure-Tully","Eon-Hunter","Hoster-Tully","Jaime-Lannister","Jon-Umber-(Greatjon)","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce"]},"edges":{"from":["Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Arya-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Benjen-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Bran-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Brandon-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark","Catelyn-Stark"],"to":["Benjen-Stark","Bran-Stark","Catelyn-Stark","Cersei-Lannister","Desmond","Eddard-Stark","Ilyn-Payne","Jeyne-Poole","Joffrey-Baratheon","Jon-Snow","Jory-Cassel","Meryn-Trant","Mordane","Mycah","Myrcella-Baratheon","Petyr-Baelish","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sandor-Clegane","Sansa-Stark","Syrio-Forel","Tomard","Tommen-Baratheon","Vayon-Poole","Yoren","Bran-Stark","Cersei-Lannister","Jaremy-Rykker","Jeor-Mormont","Jon-Snow","Luwin","Mance-Rayder","Robb-Stark","Robert-Baratheon","Theon-Greyjoy","Tyrion-Lannister","Waymar-Royce","Yoren","Catelyn-Stark","Cersei-Lannister","Eddard-Stark","Hali","Hallis-Mollen","Hodor","Hullen","Jeor-Mormont","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jory-Cassel","Joseth","Luwin","Nan","Osha","Petyr-Baelish","Renly-Baratheon","Rickard-Karstark","Rickard-Stark","Rickon-Stark","Robb-Stark","Robert-Baratheon","Rodrik-Cassel","Sansa-Stark","Stiv","Theon-Greyjoy","Tommen-Baratheon","Tyrion-Lannister","Yoren","Eddard-Stark","Lyanna-Stark","Petyr-Baelish","Rickard-Stark","Robert-Baratheon","Cersei-Lannister","Colemon","Donnel-Waynwood","Eddard-Stark","Edmure-Tully","Eon-Hunter","Hallis-Mollen","Hoster-Tully","Jaime-Lannister","Joffrey-Baratheon","Jon-Arryn","Jon-Snow","Jon-Umber-(Greatjon)","Luwin","Lysa-Arryn","Marillion","Masha-Heddle","Moreo-Tumitis","Mya-Stone","Mychel-Redfort","Nestor-Royce","Petyr-Baelish","Rickard-Karstark","Rickon-Stark","Robb-Stark"],"Type":["Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected","Undirected"],"weight":[3,14,5,12,3,30,5,10,39,37,12,4,39,18,13,3,7,15,8,3,7,104,20,6,5,4,4,6,3,3,9,41,7,3,7,3,4,8,3,4,18,6,19,3,3,29,3,4,3,7,56,11,4,65,17,12,3,3,4,4,32,112,11,6,10,4,23,5,31,3,11,4,14,3,5,12,3,3,64,7,3,10,6,9,4,11,14,4,14,33,6,5,3,9,3,3,22,6,3,49],"book":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"source.family":["Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark","Stark"],"target.family":["Stark","Stark","Stark","Lannister",null,"Stark",null,null,null,null,null,null,null,null,null,null,"Stark","Stark",null,null,null,"Stark",null,null,null,null,null,"Stark","Lannister",null,null,null,null,null,"Stark",null,null,"Lannister",null,null,"Stark","Lannister","Stark",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Stark","Stark","Stark",null,null,"Stark",null,null,null,"Lannister",null,"Stark","Stark",null,"Stark",null,"Lannister",null,null,"Stark",null,null,null,null,"Lannister",null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Stark","Stark"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false}},"groups":null,"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ul>
+<li><p><a
+href="https://cran.r-project.org/web/packages/visNetwork/vignettes/Introduction-to-visNetwork.html"
+class="uri">https://cran.r-project.org/web/packages/visNetwork/vignettes/Introduction-to-visNetwork.html</a>
+(vignette de <code>visNetwork</code>)</p></li>
+<li><p><a href="http://datastorm-open.github.io/visNetwork/"
+class="uri">http://datastorm-open.github.io/visNetwork/</a> (tutoriel
+d’utilisation de <code>visNetwork</code>)</p></li>
+<li><p><a href="https://visjs.github.io/vis-network/examples/"
+class="uri">https://visjs.github.io/vis-network/examples/</a>
+(illustrations des fonctionnalités de vis.js)</p></li>
+<li><p><a href="https://kateto.net/network-visualization"
+class="uri">https://kateto.net/network-visualization</a> (tutoriel
+complet et détaillé sur la visualisation de réseaux avec R)</p></li>
+<li><p><a href="https://github.com/YunranChen/STA650Lab"
+class="uri">https://github.com/YunranChen/STA650Lab</a> (jeu de données
+sur Game of Thrones)</p></li>
+</ul>
+<p></br></br></br></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

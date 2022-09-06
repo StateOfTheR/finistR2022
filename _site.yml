@@ -33,7 +33,6 @@ navbar:
       # href: xxx.html 
     - text: "tidymodels"
       # href: tidymodels.html  
-      
   - text: "Visualisation et interaction"
     icon: fas fa-chart-network
     menu:

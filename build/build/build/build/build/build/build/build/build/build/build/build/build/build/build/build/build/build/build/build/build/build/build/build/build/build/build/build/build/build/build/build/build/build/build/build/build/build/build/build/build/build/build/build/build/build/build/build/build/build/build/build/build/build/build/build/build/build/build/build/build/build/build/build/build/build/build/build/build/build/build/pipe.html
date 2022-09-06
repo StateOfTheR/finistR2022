@@ -11,7 +11,7 @@
 
 <meta name="author" content="Pierre Gloaguen, Marina Gomtsyan, Mahendra Mariadassou, Mary Savino" />
 
-<meta name="date" content="2022-08-28" />
+<meta name="date" content="2022-09-06" />
 
 <title>Rstudio, pipe et git</title>
 
@@ -375,10 +375,26 @@ $(document).ready(function () {
       <a href="webscraping.html">Webscrapping</a>
     </li>
     <li>
+      <a href="sig_with_sf.html">R et SIG</a>
+    </li>
+    <li class="dropdown-header">R et Bayésien</li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-light fa-chart-network"></span>
+     
+    Visualisation et interaction
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
       <a href="extensionShiny.html">Shiny extension</a>
     </li>
+    <li class="dropdown-header">Visualisation de réseaux</li>
     <li>
-      <a href="sig_with_sf.html">R et SIG</a>
+      <a href="addins.html">Addins</a>
     </li>
   </ul>
 </li>
@@ -397,7 +413,7 @@ $(document).ready(function () {
 <h1 class="title toc-ignore">Rstudio, pipe et git</h1>
 <h4 class="author">Pierre Gloaguen, Marina Gomtsyan, Mahendra
 Mariadassou, Mary Savino</h4>
-<h4 class="date">2022-08-28</h4>
+<h4 class="date">2022-09-06</h4>
 
 </div>
 
@@ -452,7 +468,7 @@ illustré sur notre suite d’opérations simples:</p>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"3.6","3":"4.0","4":"5.603","5":"4.3","6":"4.90","7":"38.2","8":"100"},{"1":"magrittr","2":"7.0","3":"7.5","4":"10.034","5":"7.8","6":"8.55","7":"30.1","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"3.8","3":"3.95","4":"4.461","5":"4.0","6":"4.2","7":"28.7","8":"100"},{"1":"magrittr","2":"6.5","3":"6.70","4":"7.089","5":"6.8","6":"7.0","7":"23.4","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Cependant, en pratique, dans l’usage classique impliquant des
@@ -472,7 +488,7 @@ manipulations (notamment les copies des tableaux) effectuées.</p>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"21.8506","3":"24.8054","4":"26.43379","5":"26.3346","6":"27.66310","7":"38.9797","8":"100"},{"1":"magritr","2":"22.7749","3":"25.3029","4":"27.09072","5":"26.8360","6":"28.03215","7":"49.8391","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"native","2":"18.0646","3":"18.71815","4":"19.54599","5":"19.16735","6":"19.81960","7":"29.4121","8":"100"},{"1":"magritr","2":"18.1261","3":"18.86315","4":"19.73055","5":"19.27360","6":"19.87435","7":"37.2901","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Cette subtilité peut induire des comportements insidieux, notamment

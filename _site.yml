@@ -22,10 +22,19 @@ navbar:
       href: pipe.html
     - text: "Webscrapping"
       href: webscraping.html
-    - text: "Shiny extension"
-      href: extensionShiny.html
     - text: "R et SIG"
       href: sig_with_sf.html
+    - text: "R et Bayésien"
+      # href: xxx.html  
+  - text: "Visualisation et interaction"
+    icon: fa-light fa-chart-network
+    menu:
+    - text: "Shiny extension"
+      href: extensionShiny.html
+    - text: "Visualisation de réseaux"
+     # href: graphViz.html
+    - text: "Addins"
+      href: addins.html      
   - text: "Différention automatique"
     href: autodiff.html
     

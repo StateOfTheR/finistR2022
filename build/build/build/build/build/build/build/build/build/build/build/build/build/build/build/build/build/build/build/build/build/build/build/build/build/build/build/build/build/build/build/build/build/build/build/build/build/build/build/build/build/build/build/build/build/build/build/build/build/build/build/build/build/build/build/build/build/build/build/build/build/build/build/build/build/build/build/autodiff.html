@@ -11,7 +11,7 @@
 
 <meta name="author" content="Félix Cheysson, Julien Chiquet, Mahendra Mariadassou, Tristan Mary-Huard" />
 
-<meta name="date" content="2022-09-06" />
+<meta name="date" content="2022-09-12" />
 
 <title>autodiff</title>
 
@@ -437,7 +437,7 @@ $(document).ready(function () {
 <h1 class="title toc-ignore">autodiff</h1>
 <h4 class="author">Félix Cheysson, Julien Chiquet, Mahendra Mariadassou,
 Tristan Mary-Huard</h4>
-<h4 class="date">2022-09-06</h4>
+<h4 class="date">2022-09-12</h4>
 
 </div>
 
@@ -1316,21 +1316,21 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="#cb1
 <span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>  myPLN_classical <span class="ot">&lt;-</span> <span class="fu">PLN</span>(Abundance <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(Offset)), <span class="at">data =</span> oaks,</span>
 <span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">control =</span> <span class="fu">list</span>(<span class="at">trace =</span> <span class="dv">0</span>)))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.633   0.392   1.063</code></pre>
+##   1.465   0.388   0.946</code></pre>
 <div class="sourceCode" id="cb105"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
 <span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>  myPLN <span class="ot">&lt;-</span> PLN<span class="sc">$</span><span class="fu">new</span>(<span class="at">Y =</span> Y, <span class="at">O =</span> <span class="fu">log</span>(O), <span class="at">X =</span> X)</span>
 <span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a>  myPLN<span class="sc">$</span><span class="fu">fit</span>(<span class="dv">30</span>, <span class="fl">0.1</span>, <span class="at">tol =</span> <span class="fl">1e-5</span>)}</span>
 <span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.333   0.393   0.874</code></pre>
+##   1.061   0.300   0.686</code></pre>
 <p>On est proche en terme d’objectif</p>
 <div class="sourceCode" id="cb107"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>myPLN_classical<span class="sc">$</span>loglik</span></code></pre></div>
-<pre><code>## [1] -32283.43</code></pre>
+<pre><code>## [1] -32274.96</code></pre>
 <div class="sourceCode" id="cb109"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">last</span>(myPLN<span class="sc">$</span>ELBO_list)</span></code></pre></div>
-<pre><code>## [1] -32280</code></pre>
+<pre><code>## [1] -32279.25</code></pre>
 </div>
 </div>
 <div id="les-modules-torch" class="section level1">
@@ -1360,16 +1360,16 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="#cb1
 <span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">mylinearmod</span>(data)</span>
 <span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a>out</span></code></pre></div>
 <pre><code>## torch_tensor
-##  0.3137
-##  1.2410
-##  0.4386
-##  0.0995
-##  0.6583
-##  0.7328
-##  0.2632
-##  0.0256
-##  0.4636
-##  1.1135
+## -1.2199
+## -0.6734
+## -1.0741
+##  0.1319
+## -1.7084
+## -0.3537
+## -0.7027
+## -0.9527
+## -1.1366
+##  0.9860
 ## [ CPUFloatType{10,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 <div class="sourceCode" id="cb115"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>grad_fn</span></code></pre></div>
@@ -1391,7 +1391,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="#cb1
 <span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span><span class="fu">backward</span>(<span class="at">gradient =</span> d_avg_d_out)</span>
 <span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>mylinearmod<span class="sc">$</span>weight<span class="sc">$</span>grad</span></code></pre></div>
 <pre><code>## torch_tensor
-## -16.4998   3.6575   0.0160
+##  14.3865 -22.6442  16.2150
 ## [ CPUFloatType{1,3} ]</code></pre>
 <div class="sourceCode" id="cb123"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>mylinearmod<span class="sc">$</span>bias<span class="sc">$</span>grad</span></code></pre></div>
@@ -1421,16 +1421,16 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="#cb1
 <span id="cb127-3"><a href="#cb127-3" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">model</span>(data)</span>
 <span id="cb127-4"><a href="#cb127-4" aria-hidden="true" tabindex="-1"></a>output</span></code></pre></div>
 <pre><code>## torch_tensor
-##  0.2902
-## -0.0511
-## -0.1790
-##  0.0195
-##  0.2306
-## -0.3153
-## -0.1946
-##  0.0686
-## -0.1155
-##  0.1584
+## -0.9244
+## -0.1020
+## -0.0883
+## -0.2719
+## -0.1197
+## -0.4829
+## -0.3299
+## -0.0152
+## -0.3104
+## -0.2304
 ## [ CPUFloatType{10,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 </div>
 </div>

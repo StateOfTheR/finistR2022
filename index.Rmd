@@ -16,8 +16,7 @@ library(tidyverse)
 
 L'atelier Finist'R 2022 -- ou *bootcamp R* du groupe  [State Of The R](https://stateofther.github.io/)  s'est déroulé à la [station biologique de Paimpont](https://paimpont.univ-rennes1.fr/) du **22 au 26 août 2022**.
 
-StateoftheR est un réseau du <img src = "resources/logo/logotype-mathnum-couleur449x84.png" width="150"> <img src = "resources/logo/Logo-INRAE.jpg" width="100"> 
-
+StateoftheR est un réseau du [département MathNum INRAE](https://www.inrae.fr/departements/mathnum). 
 
 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d85436.48346682862!2d-2.3083283318138617!3d47.996510840576136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x480fb26a315ea6b5%3A0x1f048894aa81345b!2sBiology%20Station%20-%20University%20of%20Rennes%201!5e0!3m2!1sen!2sfr!4v1657203162856!5m2!1sen!2sfr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 
@@ -86,7 +85,9 @@ https://lrouviere.github.io/TUTO_GRAPHES/index.html
 https://www.futureverse.org/
 
 
+## Soutien
 
+<img src = "resources/logo/logotype-mathnum-couleur449x84.png" width="230">  <img src = "resources/logo/Logo-INRAE.jpg" width="150"> 
 
 
 

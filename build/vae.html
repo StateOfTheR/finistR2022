@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="finister2022" />
+
+<meta name="date" content="2022-09-29" />
+
+<title>VAE</title>
+
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Finist'R 2022</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="https://github.com/StateOfTheR/finistR2022">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    Workflow
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="introDockeR.html">Docker</a>
+    </li>
+    <li>
+      <a href="rebase.html">Git avancé</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Développement
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="pipe.html">pipe</a>
+    </li>
+    <li>
+      <a href="future.html">future</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fas fa-chart-bar"></span>
+     
+    Analyse de données et modélisation
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="webscraping.html">Webscrapping</a>
+    </li>
+    <li>
+      <a href="sig_with_sf.html">R et SIG</a>
+    </li>
+    <li class="dropdown-header">R et Bayésien</li>
+    <li class="dropdown-header">tidymodels</li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fas fa-chart-network"></span>
+     
+    Visualisation et interaction
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="extensionShiny.html">Shiny extension</a>
+    </li>
+    <li>
+      <a href="graphViz.html">Visualisation de réseaux</a>
+    </li>
+    <li>
+      <a href="addins.html">Addins</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown-header">Quarto</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Machine learning
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="autodiff.html">Différentiation automatique</a>
+    </li>
+    <li class="dropdown-header">Autoencodeurs variationnels</li>
+  </ul>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">VAE</h1>
+<h4 class="author">finister2022</h4>
+<h4 class="date">2022-09-29</h4>
+
+</div>
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
+<p>Ce document illustre un essai d’auto-encodeur variationnel utilisant
+la librairie <code>torch</code>.</p>
+<div id="example-simple-données-mutivariées-sans-structures"
+class="section level2">
+<h2>Example simple (données mutivariées, sans structures)</h2>
+<div id="simulation-de-données" class="section level3">
+<h3>Simulation de données</h3>
+<p>On commence par simuler des données suivant des gaussiennes
+pseudo-dégénérées, via une matrice <span
+class="math inline">\(R\)</span> de taille <span
+class="math inline">\(15 \times 2\)</span></p>
+<p><span class="math display">\[
+\begin{align*}
+Z &amp; \sim \mathcal{N}_2(0, I_2) \\
+Y = \mu + RZ + E &amp; \sim \mathcal{N}_{15}(0, RR^T + \sigma^2 I_{15})
+\end{align*}
+\]</span></p>
+<p>Pour créer une structure de groupe naturelle, on simule 2 groupes de
+données, chacun avec son propre <span class="math inline">\(\mu\)</span>
+et son propre <span class="math inline">\(R\)</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">15</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(p<span class="sc">*</span>k), <span class="at">nrow =</span> p, <span class="at">ncol =</span> k)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(p<span class="sc">*</span>k), <span class="at">nrow =</span> p, <span class="at">ncol =</span> k)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>Y_A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(n<span class="sc">*</span>k), <span class="at">nrow =</span> n, <span class="at">ncol =</span> k)  <span class="sc">%*%</span> <span class="fu">t</span>(A) <span class="sc">+</span> sigma <span class="sc">*</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(n<span class="sc">*</span>p), <span class="at">nrow =</span> n, <span class="at">ncol =</span> p)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>mean_A <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, n) <span class="sc">%o%</span> <span class="fu">rnorm</span>(p)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>Y_B <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(n<span class="sc">*</span>k), <span class="at">nrow =</span> n, <span class="at">ncol =</span> k)  <span class="sc">%*%</span> <span class="fu">t</span>(B) <span class="sc">+</span> sigma <span class="sc">*</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(n<span class="sc">*</span>p), <span class="at">nrow =</span> n, <span class="at">ncol =</span> p)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>mean_B <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>,n) <span class="sc">%o%</span> <span class="fu">rnorm</span>(p)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>input <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="fu">rbind</span>(Y_A <span class="sc">+</span> mean_A, Y_B <span class="sc">+</span> mean_B))</span></code></pre></div>
+<p>On va construire un auto-encoder avec un espace latent de dimension
+<code>latent_dim</code> égale à 2 pour pouvoir faire des dessins.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>latent_dim <span class="ot">&lt;-</span> <span class="dv">2</span></span></code></pre></div>
+</div>
+<div id="définition-dun-encodeur" class="section level3">
+<h3>Définition d’un encodeur</h3>
+<p>On définit ensuite un encodeur comme un réseau très simple avec deux
+couches linéaires de tailles 10 puis 5 et des fonctions d’activation
+relu (hormis pour la couche finale de répresentation).</p>
+<p>La construction passe par la définition d’un module (via
+<code>nn_module()</code>) auquel il faut (au moins) fournir 2
+méthodes:</p>
+<ul>
+<li><code>initialize()</code> qui indique comment initialiser une
+nouvelle instance du réseau (et définit l’architecture du réseau)</li>
+<li><code>forward()</code> qui indique comment réaliser les calculs</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>encoder <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">classname =</span> <span class="st">&quot;encoder&quot;</span>, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Définition des couches</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>(in_features, latent_dim) {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>linear1 <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(in_features, <span class="dv">10</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>linear2 <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">10</span>, <span class="dv">5</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>mean <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">5</span>, latent_dim)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>log_var  <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">5</span>, latent_dim)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  }, </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Définitions des calculs</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(input) {</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Combinaison linéaire des features dans la première couche</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    input <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">linear1</span>(input)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Activation relu</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    input <span class="ot">&lt;-</span> <span class="fu">nnf_relu</span>(input)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Combinaison linéaire des features dans la deuxième couche</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    input <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">linear2</span>(input)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Activation relu</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    input <span class="ot">&lt;-</span> <span class="fu">nnf_relu</span>(input)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Création des paramètres de moyenne et de variance</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    mean <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">mean</span>(input)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    log_var   <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">log_var</span>(input)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="do">## L&#39;encodeur renvoie mean et sd</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">mean    =</span> mean, </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>         <span class="at">log_var =</span> log_var)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>On peut aussi définir ce module de façon plus compacte en utilisant
+<code>nn_sequential()</code> pour chaîner des module et indiquer dans la
+définition les fonctions d’activation à utiliser.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Création d&#39;un module compressor</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>create_compressor <span class="ot">&lt;-</span> <span class="cf">function</span>(in_features) {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nn_sequential</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_linear</span>(in_features, <span class="dv">10</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_relu</span>(),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_linear</span>(<span class="dv">10</span>, <span class="dv">5</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_relu</span>()</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  )  </span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Création de l&#39;encodeur à l&#39;aide du compresseur</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>encoder <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">classname =</span> <span class="st">&quot;encoder&quot;</span>, </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Définition des couches</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>(in_features, latent_dim) {</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>compressor <span class="ot">&lt;-</span> <span class="fu">create_compressor</span>(in_features)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>mean <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">5</span>, latent_dim)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>log_var  <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">5</span>, latent_dim)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  }, </span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Définitions des calculs</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(input) {</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Calcul des répresentations compressées</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    compressed <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">compressor</span>(input)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Création des paramètres de moyenne et de variance</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    mean <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">mean</span>(compressed)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    log_var   <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">log_var</span>(compressed)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="do">## L&#39;encodeur renvoie mean et log_var</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">mean    =</span> mean, </span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>         <span class="at">log_var =</span> log_var)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>L’encodeur produit deux vecteurs de taille <code>latent_dim</code> à
+partir d’un vecteur de données (de taille 15).</p>
+<p>On peut le vérifier sur un exemple simple</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>enc <span class="ot">&lt;-</span> <span class="fu">encoder</span>(<span class="dv">15</span>, <span class="dv">2</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">enc</span>(input[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ])</span></code></pre></div>
+<pre><code>## $mean
+## torch_tensor
+## -0.1572  0.0824
+## -0.0707  0.0295
+## -0.0768  0.0414
+## -0.3949  0.0967
+## -0.2128  0.0620
+## [ CPUFloatType{5,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]
+## 
+## $log_var
+## torch_tensor
+##  0.2649  0.5185
+##  0.2179  0.4947
+##  0.2536  0.3358
+## -0.0245  0.1049
+##  0.2964  0.2962
+## [ CPUFloatType{5,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
+</div>
+<div id="définition-dun-décodeur" class="section level3">
+<h3>Définition d’un décodeur</h3>
+<p>On crée ensuite notre décodeur de la même façon. Ce dernier va partir
+d’un vecteur de taille <code>latent_dim</code> pour construire un
+vecteur de taille 15. Par souci de simplicité, on adopte une
+architecture symétrique à celle du décodeur à l’exception de la dernière
+couche (purement linéaire).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Création d&#39;un module decompressor</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>create_decompressor <span class="ot">&lt;-</span> <span class="cf">function</span>(latent_dim, out_features) {</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nn_sequential</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_linear</span>(latent_dim, <span class="dv">5</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_relu</span>(),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_linear</span>(<span class="dv">5</span>, <span class="dv">10</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_relu</span>(),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_linear</span>(<span class="dv">10</span>, out_features),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  )  </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Création du decodeur à l&#39;aide du decompresseur</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>decoder <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">classname =</span> <span class="st">&quot;decoder&quot;</span>, </span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Définition des couches</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>(latent_dim, out_features) {</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>decompressor <span class="ot">&lt;-</span> <span class="fu">create_decompressor</span>(latent_dim, out_features)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  }, </span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Définitions des calculs</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(input) {</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">decompressor</span>(input)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Le décodeur produit un vecteur de taille <code>out_features</code> à
+partir d’un vecteur de taille <code>latent_dim</code>. On peut le
+vérifier sur un exemple simple.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dec <span class="ot">&lt;-</span> <span class="fu">decoder</span>(<span class="dv">2</span>, <span class="dv">15</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>latent_vectors <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> <span class="dv">5</span>, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">torch_tensor</span>() </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dec</span>(latent_vectors)</span></code></pre></div>
+<pre><code>## torch_tensor
+## Columns 1 to 10-0.0380 -0.3120 -0.0495  0.1476 -0.1234  0.1699 -0.4166  0.1445 -0.3068 -0.2909
+## -0.0380 -0.3120 -0.0495  0.1476 -0.1234  0.1699 -0.4166  0.1445 -0.3068 -0.2909
+## -0.0380 -0.3120 -0.0495  0.1476 -0.1234  0.1699 -0.4166  0.1445 -0.3068 -0.2909
+## -0.0380 -0.3120 -0.0495  0.1476 -0.1234  0.1699 -0.4166  0.1445 -0.3068 -0.2909
+## -0.0380 -0.3120 -0.0495  0.1476 -0.1234  0.1699 -0.4166  0.1445 -0.3068 -0.2909
+## 
+## Columns 11 to 15-0.2103 -0.2707  0.2527  0.1849  0.0782
+## -0.2103 -0.2707  0.2527  0.1849  0.0782
+## -0.2103 -0.2707  0.2527  0.1849  0.0782
+## -0.2103 -0.2707  0.2527  0.1849  0.0782
+## -0.2103 -0.2707  0.2527  0.1849  0.0782
+## [ CPUFloatType{5,15} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
+</div>
+<div id="définition-du-vae" class="section level3">
+<h3>Définition du VAE</h3>
+<p>La dernière étape consiste à coupler l’encodeur et le décodeur via un
+échantillonneur:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>vae_module <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">classname =</span> <span class="st">&quot;sampler&quot;</span>, </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>(n_features, latent_dim) {</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>latent_dim <span class="ot">&lt;-</span> latent_dim</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>encoder <span class="ot">&lt;-</span> <span class="fu">encoder</span>(n_features, latent_dim)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>decoder <span class="ot">&lt;-</span> <span class="fu">decoder</span>(latent_dim, n_features)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(input) {</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="do">## compression des données</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    comp_input <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">encoder</span>(input)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    mean <span class="ot">&lt;-</span> comp_input<span class="sc">$</span>mean</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    log_var <span class="ot">&lt;-</span> comp_input<span class="sc">$</span>log_var</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="do">## échantillonnage dans l&#39;espace latent</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    z <span class="ot">&lt;-</span> mean <span class="sc">+</span> <span class="fu">torch_exp</span>(log_var<span class="sc">$</span><span class="fu">mul</span>(<span class="fl">0.5</span>))<span class="sc">*</span><span class="fu">torch_randn</span>(<span class="fu">c</span>(<span class="fu">dim</span>(input)[<span class="dv">1</span>], self<span class="sc">$</span>latent_dim))</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="do">## décompression de la représentation latente</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    decomp_input <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">decoder</span>(z)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">decomp_input =</span> decomp_input, </span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">z            =</span> z, </span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">mean         =</span> mean, </span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>         <span class="at">log_var      =</span> log_var)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Pour chaque vecteur de taille <code>n_features</code>, notre vae
+produit:</p>
+<ul>
+<li>3 vecteurs de taille <code>latent_dim</code> (dont un
+aléatoire)</li>
+<li>1 vecteurs de taille <code>n_features</code></li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>vae <span class="ot">&lt;-</span> <span class="fu">vae_module</span>(<span class="at">n_features =</span> <span class="dv">15</span>, <span class="at">latent_dim =</span> <span class="dv">2</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vae</span>(input[<span class="dv">1</span>, , <span class="at">drop =</span> <span class="cn">FALSE</span>])</span></code></pre></div>
+<pre><code>## $decomp_input
+## torch_tensor
+## Columns 1 to 10 0.2084  0.2411  0.0096  0.0935  0.0018 -0.3002  0.1377  0.2145 -0.1786  0.1736
+## 
+## Columns 11 to 15 0.0513  0.2987  0.1158  0.1503 -0.1019
+## [ CPUFloatType{1,15} ][ grad_fn = &lt;AddmmBackward0&gt; ]
+## 
+## $z
+## torch_tensor
+## -0.9964 -0.1840
+## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddBackward0&gt; ]
+## 
+## $mean
+## torch_tensor
+## -0.1590 -0.3610
+## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]
+## 
+## $log_var
+## torch_tensor
+## -0.0325  0.2078
+## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
+<p>On peut vérifier que le composant <code>z</code> est aléatoire en
+appelant <code>vae()</code> deux fois.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Premier appel</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vae</span>(input[<span class="dv">1</span>, , <span class="at">drop =</span> <span class="cn">FALSE</span>])<span class="sc">$</span>z</span></code></pre></div>
+<pre><code>## torch_tensor
+## -0.1341  1.4742
+## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddBackward0&gt; ]</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Deuxième appel</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vae</span>(input[<span class="dv">1</span>, , <span class="at">drop =</span> <span class="cn">FALSE</span>])<span class="sc">$</span>z</span></code></pre></div>
+<pre><code>## torch_tensor
+##  0.9347 -1.6226
+## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddBackward0&gt; ]</code></pre>
+</div>
+<div id="création-du-vae-et-de-loptimiseur" class="section level3">
+<h3>Création du VAE et de l’optimiseur</h3>
+<p>On (ré-)initialise notre VAE</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>vae <span class="ot">&lt;-</span> <span class="fu">vae_module</span>(<span class="at">n_features =</span> <span class="dv">15</span>, <span class="at">latent_dim =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p>Et on prépare un optimiseur</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>optimizer_vae <span class="ot">&lt;-</span> <span class="fu">optim_adam</span>(vae<span class="sc">$</span>parameters, <span class="at">lr =</span> <span class="fl">0.001</span>)</span></code></pre></div>
+</div>
+<div id="entraînement-du-vae" class="section level3">
+<h3>Entraînement du VAE</h3>
+<p>Dans cette partie, on se contente de charger l’ensemble des données,
+on ne travaille par batch (ce qui nécessiterait de définir un
+<code>dataloader()</code>).</p>
+<p>On commence par définir une fonction de perte comme la somme de
+l’entropie croisée et de la divergence de Kullback-Leibler</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="ot">&lt;-</span> <span class="cf">function</span>(prediction, target, mean, log_var) {</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Perte L2 pour la reconstruction </span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  cross_entropy <span class="ot">&lt;-</span> <span class="fu">nn_mse_loss</span>(<span class="at">reduction =</span> <span class="st">&quot;sum&quot;</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="do">## KL part of the loss</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  kl <span class="ot">&lt;-</span> <span class="cf">function</span>(mean, log_var) {</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    kl_div <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> log_var <span class="sc">-</span> mean<span class="sc">$</span><span class="fu">square</span>() <span class="sc">-</span> log_var<span class="sc">$</span><span class="fu">exp</span>()</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    kl_div<span class="sc">$</span><span class="fu">multiply</span>(<span class="sc">-</span><span class="fl">0.5</span>)<span class="sc">$</span><span class="fu">sum</span>()</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Addition des deux </span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cross_entropy</span>(prediction, target) <span class="sc">+</span> <span class="fu">kl</span>(mean, log_var)  </span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>eval_loss <span class="ot">&lt;-</span> <span class="cf">function</span>(input) {</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  target <span class="ot">&lt;-</span> input</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Extraction des composant prediction, mean, log_var depuis le VAE</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> <span class="fu">vae</span>(input)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  mean <span class="ot">&lt;-</span> results<span class="sc">$</span>mean</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>  log_var <span class="ot">&lt;-</span> results<span class="sc">$</span>log_var</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  prediction <span class="ot">&lt;-</span> results<span class="sc">$</span>decomp_input</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">loss_fn</span>(prediction, target, mean, log_var)</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>On vérifie sur un exemple simple que la fonction de perte est bien
+définie et vaut ce qu’on pense sur des exemples simples.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">loss_fn</span>(<span class="at">prediction =</span> input[<span class="dv">1</span>, , <span class="at">drop =</span> <span class="cn">FALSE</span>], </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">target =</span> input[<span class="dv">1</span>, , <span class="at">drop =</span> <span class="cn">FALSE</span>], </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">mean =</span> <span class="fu">torch_zeros</span>(<span class="dv">2</span>),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">log_var =</span> <span class="fu">torch_zeros</span>(<span class="dv">2</span>))</span></code></pre></div>
+<pre><code>## torch_tensor
+## 0
+## [ CPUFloatType{} ]</code></pre>
+<p>Puis on entraîne notre modèle (comme vu dans l’atelier sur
+<code>torch</code>) pendant 1000 itérations.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>num_iterations <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>loss_vector <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;numeric&quot;</span>, num_iterations)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>num_iterations) {</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  optimizer_vae<span class="sc">$</span><span class="fu">zero_grad</span>()</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  loss <span class="ot">&lt;-</span> <span class="fu">eval_loss</span>(input)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  loss<span class="sc">$</span><span class="fu">backward</span>()</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  loss_vector[i] <span class="ot">&lt;-</span> loss <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>()</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  optimizer_vae<span class="sc">$</span><span class="fu">step</span>()</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>On peut regarder l’évolution de la perte au fil du temps.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span>num_iterations, loss_vector)</span></code></pre></div>
+<p><img src="vae_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+</div>
+<div id="exploration-des-résultats" class="section level3">
+<h3>Exploration des résultats</h3>
+<p>On peut visualiser la représentation des données dans notre espace
+latent. On peut se contenter de faire tourner l’encodeur pour ça.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>latents <span class="ot">&lt;-</span> vae<span class="sc">$</span><span class="fu">encoder</span>(input)<span class="sc">$</span>mean</span></code></pre></div>
+<p>Et les afficher</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>latents <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>() <span class="sc">|&gt;</span> <span class="st">`</span><span class="at">colnames&lt;-</span><span class="st">`</span>(<span class="fu">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)) <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>), <span class="at">each =</span> n)) <span class="sc">|&gt;</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">aes</span>(x, y, <span class="at">color =</span> group) <span class="sc">+</span> </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_equal</span>() <span class="sc">+</span> </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">16</span>))</span></code></pre></div>
+<p><img src="vae_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p>On peut aussi vérifier comment se positionne les reconstructions par
+rapport aux données originales (après avoir fait une ACP sur le tableau
+complet).</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>reconstructions <span class="ot">&lt;-</span> <span class="fu">vae</span>(input)<span class="sc">$</span>decomp_input <span class="sc">|&gt;</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>() <span class="sc">%&gt;%</span> <span class="st">`</span><span class="at">colnames&lt;-</span><span class="st">`</span>(<span class="fu">paste0</span>(<span class="st">&quot;D&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(.)))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>pca <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(<span class="fu">rbind</span>(input <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>(), reconstructions), <span class="at">scale. =</span> <span class="cn">TRUE</span>, <span class="at">center =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>point_data <span class="ot">&lt;-</span> pca<span class="sc">$</span>x <span class="sc">%&gt;%</span> </span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">origin =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;true&quot;</span>, <span class="st">&quot;fake&quot;</span>), <span class="at">each =</span> <span class="fu">nrow</span>(input)), </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">group =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>), <span class="at">each =</span> n))</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>line_data <span class="ot">&lt;-</span> point_data <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">ID =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(input), <span class="dv">2</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> <span class="fu">c</span>(ID, group), <span class="at">names_from =</span> origin, <span class="at">values_from =</span> <span class="fu">starts_with</span>(<span class="st">&quot;PC&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> point_data, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> PC1, <span class="at">y =</span> PC2, <span class="at">color =</span> origin, <span class="at">shape =</span> group)) <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_segment(data = line_data, mapping = aes(x = PC1_true, xend = PC1_fake, y = PC2_true, yend = PC2_fake), color = &quot;grey80&quot;) +</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_equal</span>() <span class="sc">+</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> group) <span class="sc">+</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">16</span>))</span></code></pre></div>
+<p><img src="vae_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> point_data <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">ID =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(input), <span class="dv">2</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;PC&quot;</span>), <span class="at">names_to =</span> <span class="st">&quot;PC&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> <span class="fu">c</span>(ID, group, PC), <span class="at">names_from =</span> <span class="st">&quot;origin&quot;</span>, <span class="at">values_from =</span> <span class="st">&quot;value&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PC <span class="sc">%in%</span> <span class="fu">paste0</span>(<span class="st">&quot;PC&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> true, <span class="at">y =</span> fake, <span class="at">color =</span> group)) <span class="sc">+</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">&quot;grey80&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Original value&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Reconstructed value&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(group <span class="sc">~</span> PC) <span class="sc">+</span> </span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="vae_files/figure-html/unnamed-chunk-19-1.png" width="864" /></p>
+</div>
+</div>
+<div id="exemple-mnist" class="section level2">
+<h2>Exemple MNIST</h2>
+<p>On applique maintenant cette même approche VAE à un jeu de données
+réel — et très original : MNIST, qui regroupe 70,000 exemples de
+caractères numériques manuscrits (ie des exemples de digits de 0 à 9).
+Chaque observation est une image, i.e. une matrice de taille <span
+class="math inline">\(28\times 28\)</span> où chaque entrée correspond à
+un niveau de gris quantifié de 0 à 255. On va ici analyser ces données -
+sans prendre en compte l’aspect “image”: chaque image converti en un
+vecteur de taille <span class="math inline">\(784\)</span>, - sans
+prendre en compte l’information du label (du digit).</p>
+<p>On charge les données à partir du package <code>torchvision</code> et
+on les reformate</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Chargement des donnees mnist</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Les donnnes vont etre chargees depuis le web  </span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="do">## et stockees dans le repertoire &quot;dir&quot;.</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torchvision)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>dir <span class="ot">=</span> <span class="st">&#39;./&#39;</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>x_train <span class="ot">&lt;-</span> torchvision<span class="sc">::</span><span class="fu">mnist_dataset</span>(</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  dir, </span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">download =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## Processing...
+## Done!</code></pre>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="do">## On passe l&#39;echelle de gris en [0,1]</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>xtrain <span class="ot">=</span> x_train<span class="sc">$</span>data<span class="sc">/</span><span class="dv">255</span></span></code></pre></div>
+<p>On peut afficher chaque image:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>plot_image <span class="ot">&lt;-</span> <span class="cf">function</span>(input) {</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">image</span>(input[<span class="dv">28</span><span class="sc">:</span><span class="dv">1</span>,] <span class="sc">|&gt;</span> <span class="fu">t</span>(), </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="fu">gray.colors</span>(<span class="dv">256</span>, <span class="at">start =</span> <span class="dv">0</span>, <span class="at">end =</span> <span class="dv">1</span>, <span class="at">rev =</span> <span class="cn">FALSE</span>), </span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">axes =</span> <span class="cn">FALSE</span>)  </span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_image</span>(xtrain[<span class="dv">3</span>,,])</span></code></pre></div>
+<p><img src="vae_files/figure-html/unnamed-chunk-21-1.png" width="288" /></p>
+<p>Et on continue le traitement des données:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="do">## On passe les images en vecteur</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>input_dim <span class="ot">=</span> <span class="fu">dim</span>(xtrain)[<span class="dv">2</span>]<span class="sc">*</span><span class="fu">dim</span>(xtrain)[<span class="dv">3</span>]</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>xtrain <span class="ot">&lt;-</span> <span class="fu">torch_reshape</span>(xtrain, <span class="fu">c</span>(<span class="fu">nrow</span>(xtrain), input_dim))</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(xtrain)</span></code></pre></div>
+<pre><code>## [1] 60000   784</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="do">## On recupere les labels</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>ytrain <span class="ot">&lt;-</span> x_train<span class="sc">$</span>targets</span></code></pre></div>
+<p>On choisit la taille de l’espace latent (ici deux pour faciliter les
+représentations graphiques des données)</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>latent_dim <span class="ot">=</span> <span class="dv">2</span></span></code></pre></div>
+<div id="création-de-lencodeur" class="section level3">
+<h3>Création de l’encodeur</h3>
+<p>Il sera constitué de 2 couches denses avec fonction d’activation
+RELU:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Création d&#39;un module compressor, qui genere un objet nn_module</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>create_compressor <span class="ot">&lt;-</span> <span class="cf">function</span>(input_dim) {</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nn_sequential</span>(</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_linear</span>(input_dim, <span class="dv">100</span>),</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_relu</span>(),</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_linear</span>(<span class="dv">100</span>, <span class="dv">20</span>),</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_relu</span>(),</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  )  </span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Verification</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="fu">create_compressor</span>(input_dim)</span></code></pre></div>
+<pre><code>## An `nn_module` containing 80,520 parameters.
+## 
+## ── Modules ─────────────────────────────────────────────────────────────────────
+## • 0: &lt;nn_linear&gt; #78,500 parameters
+## • 1: &lt;nn_relu&gt; #0 parameters
+## • 2: &lt;nn_linear&gt; #2,020 parameters
+## • 3: &lt;nn_relu&gt; #0 parameters</code></pre>
+<p>Le résultat issu du compresseur est ensuite utilisé pour générer la
+moyenne et la variance de la variable latente :</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Création de l&#39;encodeur à l&#39;aide du compresseur</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>encoder <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">classname =</span> <span class="st">&quot;encoder&quot;</span>, </span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Définition des couches</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>(input_dim, latent_dim) {</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  self<span class="sc">$</span>compressor <span class="ot">&lt;-</span> <span class="fu">create_compressor</span>(input_dim)</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  self<span class="sc">$</span>mean <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">20</span>, latent_dim)</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>  self<span class="sc">$</span>log_var  <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">20</span>, latent_dim)</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  }, </span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Définitions des calculs</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(input) {</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Calcul des répresentations compressées</span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    compressed <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">compressor</span>(input)</span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Création des paramètres de moyenne et de variance</span></span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>    mean <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">mean</span>(compressed)</span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>    log_var <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">log_var</span>(compressed)</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>    <span class="do">## L&#39;encodeur renvoie mean et log_var</span></span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">mean =</span> mean, <span class="at">log_var =</span> log_var)</span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a><span class="do">## Vérification</span></span>
+<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>enc <span class="ot">&lt;-</span> <span class="fu">encoder</span>(input_dim, latent_dim)</span>
+<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a><span class="fu">enc</span>(xtrain[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, ])</span></code></pre></div>
+<pre><code>## $mean
+## torch_tensor
+##  0.0386  0.1768
+##  0.0540  0.1830
+## [ CPUFloatType{2,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]
+## 
+## $log_var
+## torch_tensor
+## -0.1836 -0.1517
+## -0.1880 -0.1661
+## [ CPUFloatType{2,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
+</div>
+<div id="création-du-décodeur" class="section level3">
+<h3>Création du décodeur</h3>
+<p>Le décompresseur est ici le symétrique du compresseur : deux couches
+denses avec fonction d’activation RELU :</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Création d&#39;un module decompressor</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>create_decompressor <span class="ot">&lt;-</span> <span class="cf">function</span>(latent_dim, input_dim) {</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nn_sequential</span>(</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_linear</span>(latent_dim, <span class="dv">20</span>),</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_relu</span>(),</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_linear</span>(<span class="dv">20</span>, <span class="dv">100</span>),</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_relu</span>(),</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nn_linear</span>(<span class="dv">100</span>, input_dim),</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  )  </span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Verif</span></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a><span class="fu">create_decompressor</span>(latent_dim,input_dim)</span></code></pre></div>
+<pre><code>## An `nn_module` containing 81,344 parameters.
+## 
+## ── Modules ─────────────────────────────────────────────────────────────────────
+## • 0: &lt;nn_linear&gt; #60 parameters
+## • 1: &lt;nn_relu&gt; #0 parameters
+## • 2: &lt;nn_linear&gt; #2,100 parameters
+## • 3: &lt;nn_relu&gt; #0 parameters
+## • 4: &lt;nn_linear&gt; #79,184 parameters</code></pre>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Création du decodeur à l&#39;aide du decompresseur</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>decoder <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">classname =</span> <span class="st">&quot;decoder&quot;</span>, </span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Définition des couches</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>(latent_dim, input_dim) {</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>decompressor <span class="ot">&lt;-</span> <span class="fu">create_decompressor</span>(latent_dim, input_dim)</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>  }, </span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Définitions des calculs</span></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(input) {</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">decompressor</span>(input)</span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Verif</span></span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>dec <span class="ot">&lt;-</span> <span class="fu">decoder</span>(latent_dim, input_dim)</span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>latent_vectors <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> <span class="dv">5</span>, <span class="at">ncol =</span> latent_dim) <span class="sc">%&gt;%</span> <span class="fu">torch_tensor</span>() </span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a><span class="fu">dec</span>(latent_vectors)</span></code></pre></div>
+<pre><code>## torch_tensor
+## Columns 1 to 10 0.0609 -0.2206  0.1885 -0.0087 -0.0350  0.0101 -0.1401 -0.0987  0.0227 -0.0283
+##  0.0609 -0.2206  0.1885 -0.0087 -0.0350  0.0101 -0.1401 -0.0987  0.0227 -0.0283
+##  0.0609 -0.2206  0.1885 -0.0087 -0.0350  0.0101 -0.1401 -0.0987  0.0227 -0.0283
+##  0.0609 -0.2206  0.1885 -0.0087 -0.0350  0.0101 -0.1401 -0.0987  0.0227 -0.0283
+##  0.0609 -0.2206  0.1885 -0.0087 -0.0350  0.0101 -0.1401 -0.0987  0.0227 -0.0283
+## 
+## Columns 11 to 20-0.0553 -0.0743 -0.1238  0.1295 -0.1166 -0.0552 -0.0771  0.0680  0.0914 -0.1272
+## -0.0553 -0.0743 -0.1238  0.1295 -0.1166 -0.0552 -0.0771  0.0680  0.0914 -0.1272
+## -0.0553 -0.0743 -0.1238  0.1295 -0.1166 -0.0552 -0.0771  0.0680  0.0914 -0.1272
+## -0.0553 -0.0743 -0.1238  0.1295 -0.1166 -0.0552 -0.0771  0.0680  0.0914 -0.1272
+## -0.0553 -0.0743 -0.1238  0.1295 -0.1166 -0.0552 -0.0771  0.0680  0.0914 -0.1272
+## 
+## Columns 21 to 30 0.0286  0.0943 -0.0050 -0.0512 -0.0207  0.0034 -0.1120  0.0463 -0.1568 -0.0318
+##  0.0286  0.0943 -0.0050 -0.0512 -0.0207  0.0034 -0.1120  0.0463 -0.1568 -0.0318
+##  0.0286  0.0943 -0.0050 -0.0512 -0.0207  0.0034 -0.1120  0.0463 -0.1568 -0.0318
+##  0.0286  0.0943 -0.0050 -0.0512 -0.0207  0.0034 -0.1120  0.0463 -0.1568 -0.0318
+##  0.0286  0.0943 -0.0050 -0.0512 -0.0207  0.0034 -0.1120  0.0463 -0.1568 -0.0318
+## 
+## Columns 31 to 40-0.0604 -0.0330  0.0288 -0.0495 -0.0463  0.0126 -0.0625 -0.0038  0.1761 -0.0300
+## -0.0604 -0.0330  0.0288 -0.0495 -0.0463  0.0126 -0.0625 -0.0038  0.1761 -0.0300
+## -0.0604 -0.0330  0.0288 -0.0495 -0.0463  0.0126 -0.0625 -0.0038  0.1761 -0.0300
+## -0.0604 -0.0330  0.0288 -0.0495 -0.0463  0.0126 -0.0625 -0.0038  0.1761 -0.0300
+## -0.0604 -0.0330  0.0288 -0.0495 -0.0463  0.0126 -0.0625 -0.0038  0.1761 -0.0300
+## 
+## Columns 41 to 50-0.0544 -0.1346  0.1286  0.1351 -0.0168  0.0447  0.0710 -0.1421 -0.0290  0.0468
+## -0.0544 -0.1346  0.1286  0.1351 -0.0168  0.0447  0.0710 -0.1421 -0.0290  0.0468
+## -0.0544 -0.1346  0.1286  0.1351 -0.0168  0.0447  0.0710 -0.1421 -0.0290  0.0468
+## -0.0544 -0.1346  0.1286  0.1351 -0.0168  0.0447  0.0710 -0.1421 -0.0290  0.0468
+## -0.0544 -0.1346  0.1286  0.1351 -0.0168  0.0447  0.0710 -0.1421 -0.0290  0.0468
+## 
+## ... [the output was truncated (use n=-1 to disable)]
+## [ CPUFloatType{5,784} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
+</div>
+<div id="création-de-léchantillonneur" class="section level3">
+<h3>Création de l’échantillonneur</h3>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>vae_sampler <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">classname =</span> <span class="st">&quot;sampler&quot;</span>, </span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>(input_dim, latent_dim) {</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>latent_dim <span class="ot">&lt;-</span> latent_dim</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>encoder <span class="ot">&lt;-</span> <span class="fu">encoder</span>(input_dim, latent_dim)</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>decoder <span class="ot">&lt;-</span> <span class="fu">decoder</span>(latent_dim, input_dim)</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(input) {</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>    <span class="do">## compression des données</span></span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>    comp_input <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">encoder</span>(input)</span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>    mean <span class="ot">&lt;-</span> comp_input<span class="sc">$</span>mean</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>    log_var <span class="ot">&lt;-</span> comp_input<span class="sc">$</span>log_var</span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>    <span class="do">## échantillonnage dans l&#39;espace latent</span></span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>    z <span class="ot">&lt;-</span> mean <span class="sc">+</span> <span class="fu">torch_exp</span>(log_var<span class="sc">$</span><span class="fu">mul</span>(<span class="fl">0.5</span>))<span class="sc">*</span><span class="fu">torch_randn</span>(<span class="fu">nrow</span>(input), self<span class="sc">$</span>latent_dim)</span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>    <span class="do">## décompression de la représentation latente</span></span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a>    decomp_input <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">decoder</span>(z)</span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">decomp_input =</span> decomp_input, </span>
+<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">z            =</span> z, </span>
+<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">mean         =</span> mean, </span>
+<span id="cb47-21"><a href="#cb47-21" aria-hidden="true" tabindex="-1"></a>         <span class="at">log_var      =</span> log_var)</span>
+<span id="cb47-22"><a href="#cb47-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb47-23"><a href="#cb47-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb47-24"><a href="#cb47-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Verification</span></span>
+<span id="cb47-25"><a href="#cb47-25" aria-hidden="true" tabindex="-1"></a>vae <span class="ot">&lt;-</span> <span class="fu">vae_sampler</span>(input_dim, latent_dim)</span>
+<span id="cb47-26"><a href="#cb47-26" aria-hidden="true" tabindex="-1"></a><span class="fu">vae</span>(xtrain[<span class="dv">1</span>, , <span class="at">drop =</span> <span class="cn">FALSE</span>])</span></code></pre></div>
+<pre><code>## $decomp_input
+## torch_tensor
+## Columns 1 to 10 0.0034  0.1375  0.0159 -0.0061 -0.1600  0.0422  0.0718 -0.0101  0.1856  0.0707
+## 
+## Columns 11 to 20-0.0672  0.0698  0.0770  0.0558  0.0386  0.0497 -0.1127  0.0012  0.0628 -0.1010
+## 
+## Columns 21 to 30-0.0345 -0.1321 -0.0335 -0.0481  0.0374 -0.1769  0.1518  0.0049 -0.1322  0.2353
+## 
+## Columns 31 to 40 0.0046  0.1762 -0.1462 -0.0428  0.0892 -0.1222 -0.0044  0.0447  0.2038  0.0324
+## 
+## Columns 41 to 50 0.0016 -0.0230  0.0401 -0.0512 -0.2054  0.0957  0.0130 -0.0143 -0.0118  0.0080
+## 
+## Columns 51 to 60 0.1066  0.2451 -0.0719  0.0555 -0.2125 -0.0779 -0.0060  0.0646 -0.0935  0.1584
+## 
+## Columns 61 to 70-0.0205  0.1454  0.0808  0.0514  0.0909 -0.0512  0.0122 -0.1499  0.0012 -0.1011
+## 
+## Columns 71 to 80-0.0003 -0.1393  0.1293 -0.0823  0.0625  0.0485 -0.0805  0.1166  0.0024  0.1765
+## 
+## Columns 81 to 90 0.0476  0.0188  0.0429 -0.1266  0.0875 -0.2088 -0.0347 -0.0764  0.0250 -0.0321
+## 
+## Columns 91 to 100-0.0540 -0.0263  0.1295  0.2247 -0.1196 -0.2409  0.1144  0.1183 -0.0599  0.0554
+## 
+## Columns 101 to 110-0.2921  0.0552  0.0836  0.2414  0.0276 -0.2322  0.0303 -0.0364 -0.0582  0.1207
+## 
+## Columns 111 to 120-0.0479 -0.0835 -0.0574  0.0802 -0.2689 -0.0053  0.0040 -0.1182 -0.0469  0.0819
+## 
+## Columns 121 to 130-0.0557  0.1362  0.2039  0.0520 -0.0094 -0.0315 -0.1990 -0.0880  0.0041  0.0592
+## 
+## Columns 131 to 140 0.0664 -0.1924  0.0156  0.1055  0.0222  0.0280 -0.0211  0.0755 -0.0339  0.1151
+## 
+## Columns 141 to 150-0.0750 -0.0283 -0.1057  0.1952 -0.3680  0.1998  0.1562  0.1889 -0.0910  0.0746
+## 
+## ... [the output was truncated (use n=-1 to disable)]
+## [ CPUFloatType{1,784} ][ grad_fn = &lt;AddmmBackward0&gt; ]
+## 
+## $z
+## torch_tensor
+##  1.8647  0.0085
+## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddBackward0&gt; ]
+## 
+## $mean
+## torch_tensor
+##  0.1454  0.2049
+## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]
+## 
+## $log_var
+## torch_tensor
+##  0.1444  0.0499
+## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
+</div>
+<div id="optimisation" class="section level3">
+<h3>Optimisation</h3>
+<p>La méthode d’optimisation choisie est ADAM :</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Definition de l&#39;optimiseur</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>optimizer_vae <span class="ot">&lt;-</span> <span class="fu">optim_adam</span>(vae<span class="sc">$</span>parameters, <span class="at">lr =</span> <span class="fl">0.001</span>)</span></code></pre></div>
+<p>et la fonction de perte combine ici MSE (pour le terme d’ajustement)
+et la pénalité Kullback Leibler :</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Entraînement du VAE</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="ot">&lt;-</span> <span class="cf">function</span>(prediction, target, mean, log_var) {</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Perte L2 pour la reconstruction </span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  cross_entropy <span class="ot">&lt;-</span> <span class="fu">nn_mse_loss</span>(<span class="at">reduction =</span> <span class="st">&quot;sum&quot;</span>)</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">#cross_entropy &lt;- nn_cross_entropy_loss(reduction = &quot;sum&quot;)</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  <span class="do">## KL part of the loss</span></span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  kl <span class="ot">&lt;-</span> <span class="cf">function</span>(mean, log_var) {</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    kl_div <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> log_var <span class="sc">-</span> mean<span class="sc">$</span><span class="fu">square</span>() <span class="sc">-</span> log_var<span class="sc">$</span><span class="fu">exp</span>()</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>    kl_div<span class="sc">$</span><span class="fu">multiply</span>(<span class="sc">-</span><span class="fl">0.5</span>)<span class="sc">$</span><span class="fu">sum</span>()</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Addition des deux </span></span>
+<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cross_entropy</span>(prediction, target) <span class="sc">+</span> <span class="fu">kl</span>(mean, log_var)  </span>
+<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>eval_loss <span class="ot">&lt;-</span> <span class="cf">function</span>(input) {</span>
+<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>  target <span class="ot">&lt;-</span> input</span>
+<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Extraction des composant prediction, mean, log_var depuis le VAE</span></span>
+<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> <span class="fu">vae</span>(input)</span>
+<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a>  mean <span class="ot">&lt;-</span> results<span class="sc">$</span>mean</span>
+<span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a>  log_var <span class="ot">&lt;-</span> results<span class="sc">$</span>log_var</span>
+<span id="cb50-23"><a href="#cb50-23" aria-hidden="true" tabindex="-1"></a>  prediction <span class="ot">&lt;-</span> results<span class="sc">$</span>decomp_input</span>
+<span id="cb50-24"><a href="#cb50-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb50-25"><a href="#cb50-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">loss_fn</span>(prediction, target, mean, log_var)</span>
+<span id="cb50-26"><a href="#cb50-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>On lance l’optimisation (sur 10,000 observations seulement) :</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>num_iterations <span class="ot">&lt;-</span> <span class="dv">250</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>loss_vector <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;numeric&quot;</span>, num_iterations)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>num_iterations) {</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>  optimizer_vae<span class="sc">$</span><span class="fu">zero_grad</span>()</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>  loss <span class="ot">&lt;-</span> <span class="fu">eval_loss</span>(xtrain[<span class="dv">1</span><span class="sc">:</span><span class="dv">10000</span>,])</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>  loss<span class="sc">$</span><span class="fu">backward</span>()</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  loss_vector[i] <span class="ot">&lt;-</span> loss <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>  optimizer_vae<span class="sc">$</span><span class="fu">step</span>()</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>On observe l’évolution de la fonction de perte :</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(loss_vector)</span></code></pre></div>
+<p><img src="vae_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<p>On peut récupérer directement la matrice des moyennes inférées</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>Res1 <span class="ot">&lt;-</span> vae<span class="sc">$</span><span class="fu">encoder</span>(xtrain[<span class="dv">1</span><span class="sc">:</span><span class="dv">10000</span>,])<span class="sc">$</span>mean</span></code></pre></div>
+<p>afin de représenter les données dans l’espace latent</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>Res1 <span class="sc">%&gt;%</span> </span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  as.matrix <span class="sc">%&gt;%</span> </span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Label =</span> <span class="fu">as.factor</span>(ytrain[<span class="dv">1</span><span class="sc">:</span><span class="dv">10000</span>] <span class="sc">-</span> 1L)) <span class="sc">%&gt;%</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>V1,<span class="at">y=</span>V2,<span class="at">col=</span>Label)) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Paired&quot;</span>)</span></code></pre></div>
+<p><img src="vae_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+<p>Alternativement, on peut générer la représentation graphique
+correspondant à un point donné dans l’espace latent :</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>vae<span class="sc">$</span><span class="fu">decoder</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="dv">3</span>) <span class="sc">%&gt;%</span> torch_tensor) <span class="sc">%&gt;%</span> <span class="fu">torch_reshape</span>(<span class="fu">c</span>(<span class="dv">28</span>,<span class="dv">28</span>)) <span class="sc">%&gt;%</span> <span class="fu">as.matrix</span>() <span class="sc">%&gt;%</span> <span class="fu">plot_image</span>()</span></code></pre></div>
+<p><img src="vae_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+</div>
+</div>
+<div id="pour-aller-plus-loin-convolution-et-mini-batch"
+class="section level2">
+<h2>Pour aller plus loin: convolution et mini-batch</h2>
+<p>On reprend ici l’exemple MNIST en apportant deux nouveautés dans
+l’analyse : - l’utilisation de réseaux convolutionnels prenant en compte
+la nature des données. On gardera donc intacte la structure matricielle
+des données initiales dans ce qui suit; - l’utilisation de batchs lors
+de l’optimisation. Plutôt que d’utiliser systématiquement l’ensemble des
+données d’entrainement, on échantillonnera un sous-ensemble de ces
+données à chaque étape d’optimisation, i.e. on réalisera une descente de
+gradient stochastique.</p>
+<p>L’utilisation d’une procédure d’optimisation stochastique requiert un
+formattage particulier des données, sous la forme d’un objet de classe
+<code>dataloader</code>, afin que l’algorithme d’optimisation soit en
+mesure de réaliser l’échantillonnage à chaque étape.</p>
+<div id="le-format-dataloader" class="section level3">
+<h3>Le format <code>dataloader</code></h3>
+<p>On repart du jeu de données formatté <em>xtrain</em> que l’on avait
+créé dans la section précédente. Le formattage des données en dataloader
+se fait en deux étapes. La première consiste à mettre les données sous
+format “dataset” :</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Creation du dataset</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>mnist.dataset.constructor <span class="ot">&lt;-</span> <span class="fu">dataset</span>(</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;mnist_dataset&quot;</span>,</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>(input) {</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>data <span class="ot">&lt;-</span> <span class="fu">torch_reshape</span>(input, <span class="fu">c</span>(<span class="fu">dim</span>(input)[<span class="dv">1</span>], <span class="dv">1</span>, <span class="dv">28</span>, <span class="dv">28</span>))</span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">.getitem =</span> <span class="cf">function</span>(index) {</span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>data[index, ]</span>
+<span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb56-13"><a href="#cb56-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb56-14"><a href="#cb56-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">.length =</span> <span class="cf">function</span>() {</span>
+<span id="cb56-15"><a href="#cb56-15" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>data<span class="sc">$</span><span class="fu">size</span>()[[<span class="dv">1</span>]]</span>
+<span id="cb56-16"><a href="#cb56-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb56-17"><a href="#cb56-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb56-18"><a href="#cb56-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb56-19"><a href="#cb56-19" aria-hidden="true" tabindex="-1"></a>mnist.ds <span class="ot">&lt;-</span> <span class="fu">mnist.dataset.constructor</span>(xtrain[<span class="dv">1</span><span class="sc">:</span><span class="dv">10000</span>,])</span>
+<span id="cb56-20"><a href="#cb56-20" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(mnist.ds)</span></code></pre></div>
+<pre><code>## [1] &quot;mnist_dataset&quot; &quot;dataset&quot;       &quot;R6&quot;</code></pre>
+<p>L’objet dataset ainsi créé possède en interne une fonction
+<code>.getitem</code> qui explicite la manière d’extraire une (ou
+plusieurs) observation(s) dans le jeu de données. Il s’agit de la
+méthode qui sera appelée par <code>NOM_DU_DATASET[index]</code>. De
+même, la méthode <code>.length</code> explicite la taille du jeu de
+données. Ces deux méthodes doivent être définies car elles seront
+ensuite appelées par le dataloader lors de l’étape de création des
+batchs. De manière générale, la définition du dataset permet aussi
+d’inclure une étape de preprocessing des données (ici directement dans
+la méthode <code>initialize</code>).</p>
+<p>En pratique, les données sont stockées dans le membre
+<code>$data</code> du dataset. On remarque par ailleurs que l’on a au
+passage reformaté les données : chaque observation est maintenant un
+array de dimension <span
+class="math inline">\(1\times28\times28\)</span>, i.e une image de
+taille <span class="math inline">\(28\times28\)</span> décrite par 1
+canal. En analyse d’images, le nombre de canaux représente la quantité
+d’information contenue dans chaque pixel. Par exemple, pour une image en
+couleurs, il faut 3 canaux : pour le rouge, le bleu et le vert (format
+RGB), ou pour la luminance et les deux degrés de chrominance (format
+YCbCr). Ici, pour une image en niveaux de gris, il n’y a qu’un seul
+canal.</p>
+<p>Dans la deuxième étape, on va préciser comment l’on souhaite
+échantillonner des batchs (i.e. des sous-échantillons) qui seront
+utilisés lors de l’optimisation. Ici on souhaite que les batchs soient
+de taille 250 (option <code>batch_size</code>), que la constitution des
+batchs change à chaque epoch (option <code>shuffle</code>), et que le
+dernier batch - qui en général est de taille plus petite que les autres
+lorsque la division du nombre d’observations par la taille d’un batch ne
+tombe pas rond - soit tout de même utilisé (option
+<code>drop_last</code>) :</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Definition du dataloader</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>mnist.dl <span class="ot">&lt;-</span> <span class="fu">dataloader</span>(mnist.ds, <span class="at">batch_size =</span> <span class="dv">256</span>, <span class="at">shuffle =</span> <span class="cn">TRUE</span>, <span class="at">drop_last=</span><span class="cn">FALSE</span>)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>mnist.dl<span class="sc">$</span>dataset<span class="sc">$</span>data <span class="sc">%&gt;%</span> dim</span></code></pre></div>
+<pre><code>## [1] 10000     1    28    28</code></pre>
+<p>A chaque itération (epoch) on génère un découpage des données
+(méthode <code>$.iter()</code>), et pour un découpage donné on peut
+aller chercher le prochain batch (méthode <code>$.next()</code>). Ce
+batch est un tenseur dont la taille est celle que l’on attend (ie nb
+d’obs <span class="math inline">\(\times\)</span> dimension de chaque
+obs) :</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>mnist.it <span class="ot">=</span> mnist.dl<span class="sc">$</span><span class="fu">.iter</span>()</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>batch <span class="ot">=</span> mnist.it<span class="sc">$</span><span class="fu">.next</span>()</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(batch)</span></code></pre></div>
+<pre><code>## [1] &quot;torch_tensor&quot; &quot;R7&quot;</code></pre>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(batch)</span></code></pre></div>
+<pre><code>## [1] 256   1  28  28</code></pre>
+<p>Il est aussi possible d’obtenir le nombre de batchs constituant une
+epoch :</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>mnist.it<span class="sc">$</span><span class="fu">.length</span>()</span></code></pre></div>
+<pre><code>## [1] 40</code></pre>
+<p>Maintenant que les données sont sous le format attendu, on définit le
+réseau de neurones VAE que l’on souhaite appliquer en suivant les mêmes
+étapes que dans la section précédente :</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Choix de la dimension latente </span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>latent_dim <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Definition de l&#39;encodeur </span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>encoder.constructor <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">&quot;encoder&quot;</span>,</span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Définition des couches</span></span>
+<span id="cb66-10"><a href="#cb66-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">initialize =</span> <span class="cf">function</span>(latent_dim) {</span>
+<span id="cb66-11"><a href="#cb66-11" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>conv1 <span class="ot">=</span> <span class="fu">nn_conv2d</span>(<span class="dv">1</span>, <span class="dv">4</span>, <span class="at">kernel_size =</span> <span class="dv">3</span>, <span class="at">stride =</span> <span class="dv">1</span>, <span class="at">padding =</span> <span class="dv">0</span>)</span>
+<span id="cb66-12"><a href="#cb66-12" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>conv2 <span class="ot">=</span> <span class="fu">nn_conv2d</span>(<span class="dv">4</span>, <span class="dv">8</span>, <span class="at">kernel_size =</span> <span class="dv">3</span>, <span class="at">stride =</span> <span class="dv">1</span>, <span class="at">padding =</span> <span class="dv">0</span>)</span>
+<span id="cb66-13"><a href="#cb66-13" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>linear <span class="ot">=</span> <span class="fu">nn_linear</span>(<span class="dv">1152</span>, <span class="dv">256</span>)</span>
+<span id="cb66-14"><a href="#cb66-14" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>dropout1 <span class="ot">=</span> <span class="fu">nn_dropout</span>(.<span class="dv">25</span>)</span>
+<span id="cb66-15"><a href="#cb66-15" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>dropout2 <span class="ot">=</span> <span class="fu">nn_dropout</span>(.<span class="dv">25</span>)</span>
+<span id="cb66-16"><a href="#cb66-16" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>mean <span class="ot">=</span> <span class="fu">nn_linear</span>(<span class="dv">256</span>, latent_dim)</span>
+<span id="cb66-17"><a href="#cb66-17" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>log_var <span class="ot">=</span> <span class="fu">nn_linear</span>(<span class="dv">256</span>, latent_dim)</span>
+<span id="cb66-18"><a href="#cb66-18" aria-hidden="true" tabindex="-1"></a>    }, </span>
+<span id="cb66-19"><a href="#cb66-19" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Définitions des calculs</span></span>
+<span id="cb66-20"><a href="#cb66-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">forward =</span> <span class="cf">function</span>(input) {</span>
+<span id="cb66-21"><a href="#cb66-21" aria-hidden="true" tabindex="-1"></a>        input <span class="ot">=</span> input <span class="sc">%&gt;%</span>                                   <span class="co"># N x 1 x 28 x 28</span></span>
+<span id="cb66-22"><a href="#cb66-22" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">conv1</span>() <span class="sc">%&gt;%</span>                                <span class="co"># N x 4 x 26 x 26</span></span>
+<span id="cb66-23"><a href="#cb66-23" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nnf_relu</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb66-24"><a href="#cb66-24" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">conv2</span>() <span class="sc">%&gt;%</span>                                <span class="co"># N x 8 x 24 x 24</span></span>
+<span id="cb66-25"><a href="#cb66-25" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nnf_relu</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb66-26"><a href="#cb66-26" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nnf_max_pool2d</span>(<span class="dv">2</span>) <span class="sc">%&gt;%</span>                           <span class="co"># N x 8 x 12 x 12</span></span>
+<span id="cb66-27"><a href="#cb66-27" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">dropout1</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb66-28"><a href="#cb66-28" aria-hidden="true" tabindex="-1"></a>            <span class="fu">torch_flatten</span>(<span class="at">start_dim =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span>                <span class="co"># N x 1152</span></span>
+<span id="cb66-29"><a href="#cb66-29" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">linear</span>() <span class="sc">%&gt;%</span>                               <span class="co"># N x 256</span></span>
+<span id="cb66-30"><a href="#cb66-30" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nnf_relu</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb66-31"><a href="#cb66-31" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">dropout2</span>()</span>
+<span id="cb66-32"><a href="#cb66-32" aria-hidden="true" tabindex="-1"></a>        <span class="do">## Création des paramètres de moyenne et de variance</span></span>
+<span id="cb66-33"><a href="#cb66-33" aria-hidden="true" tabindex="-1"></a>        mean <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">mean</span>(input)                            <span class="co"># N x latent_dim</span></span>
+<span id="cb66-34"><a href="#cb66-34" aria-hidden="true" tabindex="-1"></a>        log_var <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">log_var</span>(input)                      <span class="co"># N x latent_dim</span></span>
+<span id="cb66-35"><a href="#cb66-35" aria-hidden="true" tabindex="-1"></a>        <span class="do">## L&#39;encodeur renvoie mean et sd</span></span>
+<span id="cb66-36"><a href="#cb66-36" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list</span>(<span class="at">mean    =</span> mean, </span>
+<span id="cb66-37"><a href="#cb66-37" aria-hidden="true" tabindex="-1"></a>             <span class="at">log_var =</span> log_var)</span>
+<span id="cb66-38"><a href="#cb66-38" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb66-39"><a href="#cb66-39" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-40"><a href="#cb66-40" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>On peut vérifier que tout fonction en utilisant un batch de données
+:</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>encoder <span class="ot">&lt;-</span> <span class="fu">encoder.constructor</span>(latent_dim)</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>encoder</span></code></pre></div>
+<pre><code>## An `nn_module` containing 296,532 parameters.
+## 
+## ── Modules ─────────────────────────────────────────────────────────────────────
+## • conv1: &lt;nn_conv2d&gt; #40 parameters
+## • conv2: &lt;nn_conv2d&gt; #296 parameters
+## • linear: &lt;nn_linear&gt; #295,168 parameters
+## • dropout1: &lt;nn_dropout&gt; #0 parameters
+## • dropout2: &lt;nn_dropout&gt; #0 parameters
+## • mean: &lt;nn_linear&gt; #514 parameters
+## • log_var: &lt;nn_linear&gt; #514 parameters</code></pre>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>verif.e <span class="ot">&lt;-</span> <span class="fu">encoder</span>(batch)</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(verif.e)</span></code></pre></div>
+<pre><code>## [1] &quot;mean&quot;    &quot;log_var&quot;</code></pre>
+<p>Même chose pour le décodeur</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>decoder.constructor <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">&quot;decoder&quot;</span>,</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Définition des couches</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">initialize =</span> <span class="cf">function</span>(latent_dim) {</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>linear1 <span class="ot">=</span> <span class="fu">nn_linear</span>(latent_dim, <span class="dv">256</span>)</span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>linear2 <span class="ot">=</span> <span class="fu">nn_linear</span>(<span class="dv">256</span>, <span class="dv">1152</span>)</span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>unflatten <span class="ot">=</span> <span class="fu">nn_unflatten</span>(<span class="dv">2</span>, <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">12</span>, <span class="dv">12</span>))</span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>convt1 <span class="ot">=</span> <span class="fu">nn_conv_transpose2d</span>(<span class="dv">8</span>, <span class="dv">4</span>, <span class="at">kernel_size =</span> <span class="dv">3</span>, <span class="at">stride =</span> <span class="dv">2</span>, <span class="at">padding =</span> <span class="dv">1</span>, <span class="at">output_padding =</span> <span class="dv">1</span>)</span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>convt2 <span class="ot">=</span> <span class="fu">nn_conv_transpose2d</span>(<span class="dv">4</span>, <span class="dv">2</span>, <span class="at">kernel_size =</span> <span class="dv">3</span>, <span class="at">stride =</span> <span class="dv">1</span>, <span class="at">output_padding =</span> <span class="dv">0</span>)</span>
+<span id="cb71-12"><a href="#cb71-12" aria-hidden="true" tabindex="-1"></a>        self<span class="sc">$</span>convt3 <span class="ot">=</span> <span class="fu">nn_conv_transpose2d</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="at">kernel_size =</span> <span class="dv">3</span>, <span class="at">stride =</span> <span class="dv">1</span>, <span class="at">output_padding =</span> <span class="dv">0</span>)</span>
+<span id="cb71-13"><a href="#cb71-13" aria-hidden="true" tabindex="-1"></a>    }, </span>
+<span id="cb71-14"><a href="#cb71-14" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Définitions des calculs</span></span>
+<span id="cb71-15"><a href="#cb71-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">forward =</span> <span class="cf">function</span>(input) {</span>
+<span id="cb71-16"><a href="#cb71-16" aria-hidden="true" tabindex="-1"></a>        input <span class="ot">=</span> input <span class="sc">%&gt;%</span>                           <span class="co"># N x latent_dim</span></span>
+<span id="cb71-17"><a href="#cb71-17" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">linear1</span>() <span class="sc">%&gt;%</span>                      <span class="co"># N x 256</span></span>
+<span id="cb71-18"><a href="#cb71-18" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nnf_relu</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb71-19"><a href="#cb71-19" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">linear2</span>() <span class="sc">%&gt;%</span>                      <span class="co"># N x 1152</span></span>
+<span id="cb71-20"><a href="#cb71-20" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nnf_relu</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb71-21"><a href="#cb71-21" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">unflatten</span>() <span class="sc">%&gt;%</span>                    <span class="co"># N x 8 x 12 x 12</span></span>
+<span id="cb71-22"><a href="#cb71-22" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">convt1</span>() <span class="sc">%&gt;%</span>                       <span class="co"># N x 4 x 24 x 24</span></span>
+<span id="cb71-23"><a href="#cb71-23" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nnf_relu</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb71-24"><a href="#cb71-24" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">convt2</span>() <span class="sc">%&gt;%</span>                       <span class="co"># N x 2 x 26 x 26</span></span>
+<span id="cb71-25"><a href="#cb71-25" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nnf_relu</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb71-26"><a href="#cb71-26" aria-hidden="true" tabindex="-1"></a>            self<span class="sc">$</span><span class="fu">convt3</span>() <span class="sc">%&gt;%</span>                       <span class="co"># N x 1 x 28 x 28</span></span>
+<span id="cb71-27"><a href="#cb71-27" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nnf_sigmoid</span>()        </span>
+<span id="cb71-28"><a href="#cb71-28" aria-hidden="true" tabindex="-1"></a>        input</span>
+<span id="cb71-29"><a href="#cb71-29" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb71-30"><a href="#cb71-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb71-31"><a href="#cb71-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb71-32"><a href="#cb71-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-33"><a href="#cb71-33" aria-hidden="true" tabindex="-1"></a>decoder <span class="ot">&lt;-</span> <span class="fu">decoder.constructor</span>(latent_dim)</span>
+<span id="cb71-34"><a href="#cb71-34" aria-hidden="true" tabindex="-1"></a>verif.d <span class="ot">&lt;-</span> <span class="fu">decoder</span>(verif.e<span class="sc">$</span>mean)</span>
+<span id="cb71-35"><a href="#cb71-35" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(verif.d)</span></code></pre></div>
+<pre><code>## [1] 256   1  28  28</code></pre>
+<p>Enfin on définit l’échantillonneur VAE :</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Definition du module VAE</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>vae_constructor <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>(<span class="at">latent_dim=</span><span class="dv">10</span>) {</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>latent_dim <span class="ot">=</span> latent_dim</span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>encoder <span class="ot">&lt;-</span> <span class="fu">encoder.constructor</span>(latent_dim)</span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>decoder <span class="ot">&lt;-</span> <span class="fu">decoder.constructor</span>(latent_dim)</span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb73-12"><a href="#cb73-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb73-13"><a href="#cb73-13" aria-hidden="true" tabindex="-1"></a>    f <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">encoder</span>(x)</span>
+<span id="cb73-14"><a href="#cb73-14" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">&lt;-</span> f<span class="sc">$</span>mean</span>
+<span id="cb73-15"><a href="#cb73-15" aria-hidden="true" tabindex="-1"></a>    log_var <span class="ot">&lt;-</span> f<span class="sc">$</span>log_var</span>
+<span id="cb73-16"><a href="#cb73-16" aria-hidden="true" tabindex="-1"></a>    z <span class="ot">&lt;-</span> mu <span class="sc">+</span> <span class="fu">torch_exp</span>(log_var<span class="sc">$</span><span class="fu">mul</span>(<span class="fl">0.5</span>))<span class="sc">*</span><span class="fu">torch_randn</span>(<span class="fu">c</span>(<span class="fu">dim</span>(x)[<span class="dv">1</span>], self<span class="sc">$</span>latent_dim))</span>
+<span id="cb73-17"><a href="#cb73-17" aria-hidden="true" tabindex="-1"></a>    reconst_x <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">decoder</span>(z)</span>
+<span id="cb73-18"><a href="#cb73-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb73-19"><a href="#cb73-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">pred=</span>reconst_x, <span class="at">mean=</span>mu, <span class="at">log_var=</span>log_var)</span>
+<span id="cb73-20"><a href="#cb73-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb73-21"><a href="#cb73-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb73-22"><a href="#cb73-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb73-23"><a href="#cb73-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-24"><a href="#cb73-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Initialization du VAE </span></span>
+<span id="cb73-25"><a href="#cb73-25" aria-hidden="true" tabindex="-1"></a>vae <span class="ot">&lt;-</span> <span class="fu">vae_constructor</span>(<span class="at">latent_dim=</span>latent_dim)</span>
+<span id="cb73-26"><a href="#cb73-26" aria-hidden="true" tabindex="-1"></a><span class="fu">vae</span>(batch) <span class="sc">%&gt;%</span> dim</span></code></pre></div>
+<pre><code>## NULL</code></pre>
+<p>On peut maintenant préciser les modalités de l’optimisation</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Defiition de l&#39;optimiseur</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>optimizer <span class="ot">&lt;-</span> <span class="fu">optim_adam</span>(vae<span class="sc">$</span>parameters, <span class="at">lr =</span> <span class="fl">0.001</span>)</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Choix du nombre d&#39;epochs</span></span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>epochs <span class="ot">=</span> <span class="dv">10</span></span></code></pre></div>
+<p>et lancer l’optimisation. Celle-ci consiste maintenant en une double
+boucle: dans la première boucle on réalise à chaque étape un découpage
+du jeu de données en batchs, et dans la deuxième on réalise à chaque
+étape un pas de descente de gradient calculé avec les données du batch
+courant. La deuxième boucle nécessite l’instruction <em>loop</em> du
+package <strong>coro</strong> qui réalise automatiquement l’itération
+sur les batchs:</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Boucle for classique sur les epochs</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>loss.epoch <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,epochs)</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(epoch <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>epochs) {</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Epoch #&quot;</span>, epoch, <span class="st">&quot;: &quot;</span>, <span class="at">sep =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Boucle for &quot;coro&quot; pour itérer sur les batchs</span></span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>  coro<span class="sc">::</span><span class="fu">loop</span>(<span class="cf">for</span> (minibatch <span class="cf">in</span> mnist.dl) {  </span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a>    forward <span class="ot">=</span> <span class="fu">vae</span>(minibatch)</span>
+<span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb76-11"><a href="#cb76-11" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Calcul de la vraisemblance</span></span>
+<span id="cb76-12"><a href="#cb76-12" aria-hidden="true" tabindex="-1"></a>    loss <span class="ot">=</span> <span class="fu">nn_bce_loss</span>(<span class="at">reduction =</span> <span class="st">&quot;sum&quot;</span>)</span>
+<span id="cb76-13"><a href="#cb76-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb76-14"><a href="#cb76-14" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Calcul de la pénalité KL</span></span>
+<span id="cb76-15"><a href="#cb76-15" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">=</span> forward<span class="sc">$</span>mean</span>
+<span id="cb76-16"><a href="#cb76-16" aria-hidden="true" tabindex="-1"></a>    log_var <span class="ot">=</span> forward<span class="sc">$</span>log_var</span>
+<span id="cb76-17"><a href="#cb76-17" aria-hidden="true" tabindex="-1"></a>    kl_div <span class="ot">=</span>  <span class="dv">1</span> <span class="sc">+</span> log_var <span class="sc">-</span> mu<span class="sc">$</span><span class="fu">pow</span>(<span class="dv">2</span>) <span class="sc">-</span> log_var<span class="sc">$</span><span class="fu">exp</span>()</span>
+<span id="cb76-18"><a href="#cb76-18" aria-hidden="true" tabindex="-1"></a>    kl_div_sum <span class="ot">=</span> <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span>kl_div<span class="sc">$</span><span class="fu">sum</span>()</span>
+<span id="cb76-19"><a href="#cb76-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb76-20"><a href="#cb76-20" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Perte à cette étape</span></span>
+<span id="cb76-21"><a href="#cb76-21" aria-hidden="true" tabindex="-1"></a>    output <span class="ot">&lt;-</span> <span class="fu">loss</span>(forward<span class="sc">$</span>pred, minibatch) <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> kl_div_sum</span>
+<span id="cb76-22"><a href="#cb76-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb76-23"><a href="#cb76-23" aria-hidden="true" tabindex="-1"></a>    <span class="do">## On cumule les pertes des batchs pour obtenir in fine celle de l&#39;epoch  </span></span>
+<span id="cb76-24"><a href="#cb76-24" aria-hidden="true" tabindex="-1"></a>    loss.epoch[epoch] <span class="ot">=</span> loss.epoch[epoch] <span class="sc">+</span> <span class="fu">as.numeric</span>(output)</span>
+<span id="cb76-25"><a href="#cb76-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span></span>
+<span id="cb76-26"><a href="#cb76-26" aria-hidden="true" tabindex="-1"></a>    optimizer<span class="sc">$</span><span class="fu">zero_grad</span>()</span>
+<span id="cb76-27"><a href="#cb76-27" aria-hidden="true" tabindex="-1"></a>    output<span class="sc">$</span><span class="fu">backward</span>()</span>
+<span id="cb76-28"><a href="#cb76-28" aria-hidden="true" tabindex="-1"></a>    optimizer<span class="sc">$</span><span class="fu">step</span>()</span>
+<span id="cb76-29"><a href="#cb76-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb76-30"><a href="#cb76-30" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb76-31"><a href="#cb76-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb76-32"><a href="#cb76-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Loss = %1f</span><span class="sc">\n</span><span class="st">&quot;</span>, loss.epoch[epoch]))</span>
+<span id="cb76-33"><a href="#cb76-33" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<pre><code>## Epoch #1: Loss = 4644931.435547
+## Epoch #2: Loss = 2917646.524902
+## Epoch #3: Loss = 2552300.146484
+## Epoch #4: Loss = 2294545.893311
+## Epoch #5: Loss = 2130050.121094
+## Epoch #6: Loss = 2065777.991943
+## Epoch #7: Loss = 2027485.160156
+## Epoch #8: Loss = 2000513.406982
+## Epoch #9: Loss = 1983880.782959
+## Epoch #10: Loss = 1966003.969727</code></pre>
+<p>A noter qu’il est également possible d’effectuer de l’optimisation
+par batchs <em>manuellement</em>, sans passer par un dataloader. Il faut
+en ce cas définir dans la boucle comment s’effectue le choix des
+batchs.</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (epoch <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>num_epochs) {</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">&quot;Epoch #&quot;</span>, epoch, <span class="st">&quot;: &quot;</span>, <span class="at">sep =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>    rand_sample <span class="ot">=</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(xtrain)) <span class="co"># Génère une permutation de [1:n]</span></span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (iter <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">240</span>) {               <span class="co"># batch size of 250 for n = 60000</span></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (iter <span class="sc">%%</span> <span class="dv">10</span> <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">cat</span>(iter, <span class="st">&quot;, &quot;</span>, <span class="at">sep =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>        istart <span class="ot">=</span> (iter<span class="dv">-1</span>)<span class="sc">*</span><span class="dv">250</span> <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>        iend <span class="ot">=</span> iter<span class="sc">*</span><span class="dv">250</span></span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>        batch_sample <span class="ot">=</span> rand_sample[istart<span class="sc">:</span>iend]</span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>        output <span class="ot">&lt;-</span> <span class="fu">loss</span>(forward<span class="sc">$</span>pred, xtrain[batch_sample, ]) <span class="sc">+</span> kl_div_sum</span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>        [...]</span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">&quot;.</span><span class="sc">\n</span><span class="st">Loss = &quot;</span>, loss_vector[epoch], <span class="st">&quot;.</span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="at">sep =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>Res1 <span class="ot">&lt;-</span> vae<span class="sc">$</span><span class="fu">encoder</span>(mnist.dl<span class="sc">$</span>dataset<span class="sc">$</span>data)<span class="sc">$</span>mean</span></code></pre></div>
+<p>afin de représenter les données dans l’espace latent</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>Res1 <span class="sc">%&gt;%</span> </span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>  as.matrix <span class="sc">%&gt;%</span> </span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Label =</span> <span class="fu">as.factor</span>(ytrain[<span class="dv">1</span><span class="sc">:</span><span class="dv">10000</span>] <span class="sc">-</span> 1L)) <span class="sc">%&gt;%</span></span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>V1,<span class="at">y=</span>V2,<span class="at">col=</span>Label)) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Paired&quot;</span>)</span></code></pre></div>
+<p><img src="vae_files/figure-html/unnamed-chunk-44-1.png" width="672" /></p>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

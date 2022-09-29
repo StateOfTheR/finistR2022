@@ -15,7 +15,7 @@
 
 <title>autodiff</title>
 
-<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
@@ -126,13 +126,20 @@ code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -227,11 +234,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -466,10 +477,10 @@ et de l’optimisation dans des modèles plus simples. On va l’illustrer
 ici pour de la régression logistique.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
 <pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
-## ✔ tibble  3.1.8     ✔ dplyr   1.0.9
-## ✔ tidyr   1.2.0     ✔ stringr 1.4.0
-## ✔ readr   2.1.2     ✔ forcats 0.5.1
+## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
+## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+## ✔ tidyr   1.2.0      ✔ stringr 1.4.1 
+## ✔ readr   2.1.2      ✔ forcats 0.5.2 
 ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
@@ -1182,7 +1193,7 @@ class="math inline">\(\Sigma\)</span> dans l’étape M et on fait une
 descente de gradient sur les autres paramtères <span
 class="math inline">\((\mathbf{M}, \mathbf{S}, \mathbf{B})\)</span>.</p>
 <div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(PLNmodels)</span></code></pre></div>
-<pre><code>## This is packages &#39;PLNmodels&#39; version 0.11.6</code></pre>
+<pre><code>## This is packages &#39;PLNmodels&#39; version 0.11.7</code></pre>
 <pre><code>## Use future::plan(multicore/multisession) to speed up PLNPCA/PLNmixture/stability_selection.</code></pre>
 <div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(oaks)</span>
 <span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>myPLN_classical <span class="ot">&lt;-</span> <span class="fu">PLN</span>(Abundance <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(Offset)), <span class="at">data =</span> oaks)</span></code></pre></div>
@@ -1316,21 +1327,21 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="#cb1
 <span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>  myPLN_classical <span class="ot">&lt;-</span> <span class="fu">PLN</span>(Abundance <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(Offset)), <span class="at">data =</span> oaks,</span>
 <span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">control =</span> <span class="fu">list</span>(<span class="at">trace =</span> <span class="dv">0</span>)))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.542   0.464   1.022</code></pre>
+##   1.887   0.523   1.255</code></pre>
 <div class="sourceCode" id="cb105"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
 <span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>  myPLN <span class="ot">&lt;-</span> PLN<span class="sc">$</span><span class="fu">new</span>(<span class="at">Y =</span> Y, <span class="at">O =</span> <span class="fu">log</span>(O), <span class="at">X =</span> X)</span>
 <span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a>  myPLN<span class="sc">$</span><span class="fu">fit</span>(<span class="dv">30</span>, <span class="fl">0.1</span>, <span class="at">tol =</span> <span class="fl">1e-5</span>)}</span>
 <span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.228   0.327   0.790</code></pre>
+##   1.626   0.436   1.041</code></pre>
 <p>On est proche en terme d’objectif</p>
 <div class="sourceCode" id="cb107"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>myPLN_classical<span class="sc">$</span>loglik</span></code></pre></div>
-<pre><code>## [1] -32274.96</code></pre>
+<pre><code>## [1] -32283.43</code></pre>
 <div class="sourceCode" id="cb109"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">last</span>(myPLN<span class="sc">$</span>ELBO_list)</span></code></pre></div>
-<pre><code>## [1] -32279.25</code></pre>
+<pre><code>## [1] -32280</code></pre>
 </div>
 </div>
 <div id="les-modules-torch" class="section level1">
@@ -1360,16 +1371,17 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="#cb1
 <span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">mylinearmod</span>(data)</span>
 <span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a>out</span></code></pre></div>
 <pre><code>## torch_tensor
-##  0.9550
-##  0.0142
-##  0.6763
-## -0.0986
-## -0.7973
-## -0.8851
-## -0.3173
-##  0.0250
-##  0.4068
-##  0.5191
+## 0.01 *
+## -9.1784
+##  -27.7968
+##   0.2623
+##  -10.5349
+##  -28.6351
+##  -33.8401
+##  -42.6667
+##  -44.0140
+##  -38.7820
+##  -28.4628
 ## [ CPUFloatType{10,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 <div class="sourceCode" id="cb115"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>grad_fn</span></code></pre></div>
@@ -1391,7 +1403,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="#cb1
 <span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span><span class="fu">backward</span>(<span class="at">gradient =</span> d_avg_d_out)</span>
 <span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>mylinearmod<span class="sc">$</span>weight<span class="sc">$</span>grad</span></code></pre></div>
 <pre><code>## torch_tensor
-##  28.0291   8.9503 -23.0803
+## -21.6972 -17.2803   4.2410
 ## [ CPUFloatType{1,3} ]</code></pre>
 <div class="sourceCode" id="cb123"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>mylinearmod<span class="sc">$</span>bias<span class="sc">$</span>grad</span></code></pre></div>
@@ -1421,16 +1433,16 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="#cb1
 <span id="cb127-3"><a href="#cb127-3" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">model</span>(data)</span>
 <span id="cb127-4"><a href="#cb127-4" aria-hidden="true" tabindex="-1"></a>output</span></code></pre></div>
 <pre><code>## torch_tensor
-##  0.4015
-##  0.1271
-##  0.2376
-##  0.4698
-##  0.2603
-##  0.1737
-##  0.1805
-##  0.1928
-##  0.1565
-##  0.2761
+##  0.0268
+## -0.1885
+## -0.0014
+## -0.0950
+## -0.1019
+## -0.0164
+##  0.2026
+##  0.0566
+##  0.0997
+## -0.0821
 ## [ CPUFloatType{10,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 </div>
 </div>

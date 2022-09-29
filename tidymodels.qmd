@@ -1,0 +1,107 @@
+---
+title: "Automatisation d'un plan d'expérience numérique avec tidymodels"
+format: 
+  html:
+    theme: journal
+    toc: true
+    df-print: paged
+editor: visual
+---
+
+# Problématique
+
+On cherche à établir un bon modèle pour predire les variétés de maïs à partir de certaines de leurs caractéristiques.
+
+```{r}
+#| label: donnees_mais
+donnees_mais <- read.table("donnees_mais.txt", 
+                           sep = ";", 
+                           header = TRUE,
+                           colClasses = c(Variete = "factor"),
+                           encoding = "UTF-8")
+donnees_mais
+```
+
+L'objectif est d'établir un bon modèle de prédiction avec un pipeline reproductible pour un éventuel futur modèle concurrent.
+
+On utilisera le metapackage `tidymodels`.
+
+```{r}
+#| label: liste_packages
+#| warning: false
+#| message: false
+
+library(tidyverse) # Pour la manipulation de données
+library(tidymodels) # Pour la mise en place d'un pipeline de ML
+```
+
+# Préparation des données
+
+La première chose à faire est de déterminer un *pipe-line* de prétraitement des données.
+Les différentes actions possibles sont précédées du préfixe `step_`.
+Ici, on se contente d'une "normalisation" des données quantitatives (*i.e.*, on centre et on divise par l'écart type).
+
+```{r}
+#| label: data_preparation_procedure
+data_preparation_procedure <- recipe(formula = Variete ~ ., 
+                                     data = donnees_mais) %>% 
+  # step_normalize indique qu'il faut normaliser
+  step_normalize(all_numeric_predictors()) # all_numeric_predictors() 
+# indique quelles variables sont à normaliser
+```
+
+Cette procédure de préparation est en fait une suite d'instruction. Elle est associée à un jeu de données 
+précis car:
+
+- Celui-ci indique les types des variables impliquées;
+- Celui-
+
+```{r}
+#| label: classification_method
+classification_method <- parsnip::rand_forest(engine = "randomForest",
+                                              mode = "classification")
+```
+
+```{r}
+#| label: classification_workflow
+
+classification_workflow <- workflow(preprocessor = data_preparation_procedure,
+                                    spec = classification_method) 
+```
+
+```{r}
+#| label: classification_fit
+
+classification_fit <- fit(object = classification_workflow,
+                          data = donnees_mais) 
+```
+
+
+
+```{r}
+classification_method <- parsnip::rand_forest(engine = "randomForest",
+                                              mode = "classification",
+                                              mtry = tune(),
+                                              trees = tune(),
+                                              min_n = tune())
+classification_folds <- vfold_cv(donnees_mais, v = 3, repeats = 1) 
+hyperparams_grid <- expand.grid(mtry = 2:5,
+                                trees = c(500, 2000),
+                                min_n = c(2, 10, 20)) %>% 
+  as_tibble()
+classification_workflow <- workflow(preprocessor = data_preparation_procedure,
+                                    spec = classification_method) %>% 
+  tune_grid(resamples = classification_folds,
+            grid = hyperparams_grid)
+
+classification_fit <- fit(object = classification_workflow,
+                          data = donnees_mais) 
+```
+
+
+```{r}
+extract_fit_parsnip(classification_fit)
+```
+
+
+

@@ -1339,14 +1339,14 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="#cb1
 <span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>  myPLN_classical <span class="ot">&lt;-</span> <span class="fu">PLN</span>(Abundance <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(Offset)), <span class="at">data =</span> oaks,</span>
 <span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">control =</span> <span class="fu">list</span>(<span class="at">trace =</span> <span class="dv">0</span>)))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   2.924   1.040   2.024</code></pre>
+##   3.355   0.825   2.106</code></pre>
 <div class="sourceCode" id="cb105"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
 <span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>  myPLN <span class="ot">&lt;-</span> PLN<span class="sc">$</span><span class="fu">new</span>(<span class="at">Y =</span> Y, <span class="at">O =</span> <span class="fu">log</span>(O), <span class="at">X =</span> X)</span>
 <span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a>  myPLN<span class="sc">$</span><span class="fu">fit</span>(<span class="dv">30</span>, <span class="fl">0.1</span>, <span class="at">tol =</span> <span class="fl">1e-5</span>)}</span>
 <span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.135   0.379   0.763</code></pre>
+##   1.128   0.304   0.721</code></pre>
 <p>On est proche en terme d’objectif</p>
 <div class="sourceCode" id="cb107"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>myPLN_classical<span class="sc">$</span>loglik</span></code></pre></div>
@@ -1383,16 +1383,16 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="#cb1
 <span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">mylinearmod</span>(data)</span>
 <span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a>out</span></code></pre></div>
 <pre><code>## torch_tensor
-##  0.0838
-## -0.4449
-## -0.0613
-## -1.0894
-## -0.3202
-## -0.1991
-## -0.5231
-##  0.5817
-##  1.3358
-##  0.0860
+##  0.8833
+##  0.1028
+## -0.1857
+##  1.2264
+##  1.0556
+## -0.6526
+##  0.1083
+## -0.2492
+##  1.0852
+##  0.0635
 ## [ CPUFloatType{10,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 <div class="sourceCode" id="cb115"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>grad_fn</span></code></pre></div>
@@ -1414,7 +1414,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="#cb1
 <span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span><span class="fu">backward</span>(<span class="at">gradient =</span> d_avg_d_out)</span>
 <span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>mylinearmod<span class="sc">$</span>weight<span class="sc">$</span>grad</span></code></pre></div>
 <pre><code>## torch_tensor
-##  9.6367 -23.6779 -24.8813
+##  -0.7201  -2.0733  34.1054
 ## [ CPUFloatType{1,3} ]</code></pre>
 <div class="sourceCode" id="cb123"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>mylinearmod<span class="sc">$</span>bias<span class="sc">$</span>grad</span></code></pre></div>
@@ -1444,16 +1444,16 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="#cb1
 <span id="cb127-3"><a href="#cb127-3" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">model</span>(data)</span>
 <span id="cb127-4"><a href="#cb127-4" aria-hidden="true" tabindex="-1"></a>output</span></code></pre></div>
 <pre><code>## torch_tensor
-## -0.0279
-## -0.0247
-## -0.0527
-## -0.1328
-## -0.1317
-##  0.0425
-##  0.1158
-## -0.4845
-## -0.2994
-## -0.2051
+##  0.3782
+##  0.2234
+##  0.1586
+##  0.3429
+##  0.2957
+##  0.1505
+##  0.3820
+##  0.1402
+##  0.2267
+##  0.0524
 ## [ CPUFloatType{10,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 </div>
 </div>

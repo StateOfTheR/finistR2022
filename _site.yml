@@ -29,9 +29,9 @@ navbar:
     - text: "R et SIG"
       href: sig_with_sf.html
     - text: "R et Bayésien"
-      # href: xxx.html 
+      href: bayes3.html 
     - text: "tidymodels"
-      # href: tidymodels.html  
+      href: tidymodels.html  
   - text: "Visualisation et interaction"
     icon: fas fa-chart-network
     menu:

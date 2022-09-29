@@ -49,7 +49,7 @@ navbar:
     - text: "Différentiation automatique"
       href: autodiff.html
     - text: "Autoencodeurs variationnels"
-      # href: VAE.html
+      href: vae.html
       
 output:
   html_document:

@@ -11,4 +11,21 @@ RUN R -e "BiocManager::install('BiocPkgTools')"
 RUN R -e "install.packages('httr')" # GET function
 ENV R_CRAN_WEB="https://cran.rstudio.com/" 
 RUN R -e "install.packages('cowplot')" # GET function
+RUN R -e "install.packages('torch')"
+RUN R -e "torch::install_torch(type = 'cpu')"
+RUN R -e "install.packages('PLNmodels')"
+RUN R -e "install.packages('torchvision')"
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+  jags \
+  mercurial gdal-bin libgdal-dev gsl-bin libgsl-dev \ 
+  libc6-i386
+  
+RUN R -e "install.packages('rjags')"
+RUN R -e "install.packages('nimble')"
+RUN R -e "install.packages('ggmcmc')"
+RUN R -e "install.packages('rstan')"
+RUN R -e "install.packages('coda')"
+
 

@@ -266,8 +266,7 @@ indicateur_communes <- routes_communes %>%
   group_by(NOM_COM) %>% 
   summarise(longueur_totale_route = sum(longueur) * 10^(-3)) %>% # Mise en km 
   st_drop_geometry() %>%  # Ici, on veut faire une jointure, donc on se débarasse de la geometry
-  merge(communes) %>% 
-  st_as_sf() %>% # Le merge perd le statut sf? A explorer...
+  inner_join(x = communes) %>% # On met le sf en 1er argument pour que la sortie soit un sf
   mutate(surface = st_area(.) * 10^(-6),# Création des nouvelles
          longueur_par_habitant = longueur_totale_route / POPULATION, 
          longueur_par_km2 = longueur_totale_route / surface) %>% 

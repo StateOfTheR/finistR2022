@@ -520,14 +520,18 @@ RUN R -e &quot;install.packages(&#39;torch&#39;)&quot;
 RUN R -e &quot;torch::install_torch(type = &#39;cpu&#39;)&quot;
 RUN R -e &quot;install.packages(&#39;PLNmodels&#39;)&quot;
 RUN R -e &quot;install.packages(&#39;torchvision&#39;)&quot;
-RUN R -e &quot;install.packages(&#39;torchvision&#39;)&quot;
 
-RUN apt-get update &amp;&amp; . /etc/environment \
-  &amp;&amp; wget sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Source/JAGS-4.3.0.tar.gz  -O jags.tar.gz \
-  &amp;&amp; tar -xf jags.tar.gz \
-  &amp;&amp; cd JAGS* &amp;&amp; ./configure &amp;&amp; make -j4 &amp;&amp; make install
+RUN apt-get update \
+ &amp;&amp; apt-get install -y --no-install-recommends \
+  jags \
+  mercurial gdal-bin libgdal-dev gsl-bin libgsl-dev \ 
+  libc6-i386
   
-RUN R -e &quot;install.packages(&#39;rjags&#39;)&quot;</code></pre>
+RUN R -e &quot;install.packages(&#39;rjags&#39;)&quot;
+RUN R -e &quot;install.packages(&#39;nimble&#39;)&quot;
+RUN R -e &quot;install.packages(&#39;ggmcmc&#39;)&quot;
+RUN R -e &quot;install.packages(&#39;rstan&#39;)&quot;
+RUN R -e &quot;install.packages(&#39;coda&#39;)&quot;</code></pre>
 <p>puis demander la construction de l’image à l’aide de la commande</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> docker build <span class="sc">-</span>t nom_depot_dockerhub<span class="sc">/</span>nom_du_repo<span class="sc">:</span>version  . <span class="do">## avec un nom</span></span></code></pre></div>
 <p>et enfin pousser sur Dockerhub</p>
@@ -548,7 +552,7 @@ jobs:
   build:
     name: Build website with rmarkdown
     runs-on: ubuntu-latest
-    container: stateofther/r-finistr2022:0.9
+    container: stateofther/r-finistr2022:0.11
 
     steps:
       - name: Checkout repository

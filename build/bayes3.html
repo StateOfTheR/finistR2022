@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="FinistR 2022" />
+
+
+<title>Jags, Stan ou Nimble</title>
+
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Finist'R 2022</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="https://github.com/StateOfTheR/finistR2022">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    Workflow
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="introDockeR.html">Docker</a>
+    </li>
+    <li>
+      <a href="rebase.html">Git avancé</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Développement
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="pipe.html">pipe</a>
+    </li>
+    <li>
+      <a href="future.html">future</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fas fa-chart-bar"></span>
+     
+    Analyse de données et modélisation
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="webscraping.html">Webscrapping</a>
+    </li>
+    <li>
+      <a href="sig_with_sf.html">R et SIG</a>
+    </li>
+    <li class="dropdown-header">R et Bayésien</li>
+    <li class="dropdown-header">tidymodels</li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fas fa-chart-network"></span>
+     
+    Visualisation et interaction
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="extensionShiny.html">Shiny extension</a>
+    </li>
+    <li>
+      <a href="graphViz.html">Visualisation de réseaux</a>
+    </li>
+    <li>
+      <a href="addins.html">Addins</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="QuartoTest.html">
+    <span class="fa fa-microphone"></span>
+     
+    Quarto
+  </a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Machine learning
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="autodiff.html">Différentiation automatique</a>
+    </li>
+    <li class="dropdown-header">Autoencodeurs variationnels</li>
+  </ul>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Jags, Stan ou Nimble</h1>
+<h4 class="author">FinistR 2022</h4>
+<h4 class="date">24/08/2022</h4>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction"><span
+class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#exemple-jouet-de-croissance-dorangers"
+id="toc-exemple-jouet-de-croissance-dorangers"><span
+class="toc-section-number">2</span> Exemple jouet de croissance
+d’orangers</a>
+<ul>
+<li><a href="#les-données" id="toc-les-données"><span
+class="toc-section-number">2.1</span> Les données</a></li>
+<li><a href="#le-modèle-à-effets-fixes"
+id="toc-le-modèle-à-effets-fixes"><span
+class="toc-section-number">2.2</span> Le modèle à effets fixes</a></li>
+</ul></li>
+<li><a href="#ecriture-des-modèles-dans-les-différents-languages."
+id="toc-ecriture-des-modèles-dans-les-différents-languages."><span
+class="toc-section-number">3</span> Ecriture des modèles dans les
+différents languages.</a>
+<ul>
+<li><a href="#modèle-sous-jags" id="toc-modèle-sous-jags"><span
+class="toc-section-number">3.1</span> Modèle sous JAGS</a></li>
+<li><a href="#modèle-sous-nimble" id="toc-modèle-sous-nimble"><span
+class="toc-section-number">3.2</span> Modèle sous Nimble</a></li>
+<li><a href="#modèle-sous-stan" id="toc-modèle-sous-stan"><span
+class="toc-section-number">3.3</span> Modèle sous Stan</a></li>
+</ul></li>
+<li><a href="#echantillonnage-de-la-posterior"
+id="toc-echantillonnage-de-la-posterior"><span
+class="toc-section-number">4</span> Echantillonnage de la posterior</a>
+<ul>
+<li><a href="#stan" id="toc-stan"><span
+class="toc-section-number">4.1</span> Stan</a></li>
+<li><a href="#jags" id="toc-jags"><span
+class="toc-section-number">4.2</span> Jags</a></li>
+<li><a href="#nimble" id="toc-nimble"><span
+class="toc-section-number">4.3</span> Nimble</a></li>
+</ul></li>
+<li><a href="#analyse-des-posterior."
+id="toc-analyse-des-posterior."><span
+class="toc-section-number">5</span> Analyse des posterior.</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>Plusieurs outils existent pour réaliser l’inférence bayésienne d’un
+modèle en générant un échantillon des paramètres sous la loi a
+posteriori par une chaîne MCMC.</p>
+<p>Depuis le premier logiciel Winbugs (codé en Pascal, utilisable
+seulement sous Windows par presse bouton), plusieurs outils ont été
+développés, tous appelables depuis R. Les 3 plus utilisés sont les
+suivants:</p>
+<ul>
+<li><p><strong>WinBUGS</strong> : BUGS écrit en Pascal (sur Windows
+seulement), interface clique-bouton</p></li>
+<li><p><strong>JAGS</strong> : Just Another Gibbs Sampler (Martyn
+Plummer), package R <code>rjags</code></p></li>
+<li><p><strong>Stan</strong> : Stanislas Ulaw, co-inventeur des méthodes
+de Monte Carlo, package R <code>rstan</code></p></li>
+<li><p><strong>Nimble</strong>: Package R écrit par Perry De
+Valpine.</p></li>
+</ul>
+<p>Nous avons regardé les différences entre JAGS, Stan et Nimble. Les
+trois peuvent être installés au travers de R.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;rjags&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;rstan&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;nimble&quot;</span>)</span></code></pre></div>
+<p><code>rjags</code> et <code>rstan</code> installent <code>jags</code>
+et <code>nimble</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rjags)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstan)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nimble)</span></code></pre></div>
+<ul>
+<li><p><strong>JAGS</strong> est le plus ancien et implémente un
+<strong>Metropolis Hastings within Gibbs</strong>.</p></li>
+<li><p><strong>Stan</strong> implémente un <strong>hamiltonian Monte
+Carlo</strong> (marche aléatoire guidée par le gradient de la
+posterior). La chaîne explore la loi a posteriori de façon plus efficace
+(donc moins d’itérations nécéssaires) mais chaque itération est plus
+couteuse. Par ailleurs, stan ne peut être utilisé si certains paramètres
+(ou même variables latentes) sont discrètes (par de différenciation
+possible). Voir Saint-Clair pour une discussion plus
+argumentée.</p></li>
+<li><p><strong>Nimble</strong> permet de choisir son algorithme
+d’échantillonage de façon plus souple. Il implémente de plus les filtres
+particulaires.</p></li>
+</ul>
+<p>Tous fonctionnent de la même façon. Il faut d’abord écrire un
+<strong>modèle dans un fichier txt</strong>.<br />
+Le modèle est écrit de façon hiérarchique (exactement comme le modèle
+d’origine). <span class="math display">\[Y | X  \sim F(y,X,\theta)
+\quad  X\sim G(x,\theta)  \quad \theta \sim \pi(\theta)\]</span></p>
+<p>Puis ce code est interprété pour générer les chaînes MCMC de loi
+stationnaire <span class="math display">\[p(\theta  | Y) \propto \ell(Y
+| \theta)\pi(\theta).\]</span> Cette souplesse de modèle est à l’origine
+du succès de l’inférence bayésienne. Cependant, aucun algorithme
+n’échappe aux problèmes inhérents à l’inférence bayésienne
+(initialisation, etc…).</p>
+</div>
+<div id="exemple-jouet-de-croissance-dorangers" class="section level1"
+number="2">
+<h1><span class="header-section-number">2</span> Exemple jouet de
+croissance d’orangers</h1>
+<div id="les-données" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Les données</h2>
+<p>On considère les données dans le fichier <code>myOrange.Rdata</code>
+qui sont des données (simulées) de croissance d’orangers.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;myOrange.Rdata&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(Orange,<span class="fu">aes</span>(<span class="at">x=</span>age,<span class="at">y =</span> circumference,<span class="at">colour =</span> Tree)) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;none&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>g</span></code></pre></div>
+<p><img src="bayes3_files/figure-html/data%20myOrange-1.png" width="672" /></p>
+</div>
+<div id="le-modèle-à-effets-fixes" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Le modèle à effets
+fixes</h2>
+<p>On considère le modèle de croissance suivant: <span
+class="math display">\[ Y_{ij} = \frac{A}{1+e^{-\left(\frac{ t_{ij} -
+B}{C}\right)}} + \varepsilon_{ij},\quad   \varepsilon_{ij}
+\sim  \mathcal{N}(0,\sigma^2)\]</span></p>
+<p>Les paramètres peuvent être estimés en fréquentiste de la façon
+suivante:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">nls</span>(circumference <span class="sc">~</span> <span class="fu">SSlogis</span>(age, Asym, xmid, scal),<span class="at">data =</span> Orange)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fm1<span class="sc">$</span>m<span class="sc">$</span><span class="fu">getPars</span>()</span></code></pre></div>
+<pre><code>##     Asym     xmid     scal 
+## 298.6126 802.2702 133.2991</code></pre>
+<p>Tous les logiciels demandent de stocker les données dans une
+liste.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>orange_data <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> Orange<span class="sc">$</span>circumference,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">age =</span>  Orange<span class="sc">$</span>age,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> <span class="fu">nrow</span>(Orange)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Nimble met à part les constantes</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>orange_data_nimble <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> Orange<span class="sc">$</span>circumference,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">age =</span>  Orange<span class="sc">$</span>age)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>orange_constants <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">n =</span> <span class="fu">nrow</span>(Orange))</span></code></pre></div>
+</div>
+</div>
+<div id="ecriture-des-modèles-dans-les-différents-languages."
+class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Ecriture des modèles
+dans les différents languages.</h1>
+<p>Il est possible d’écrire les modèles directement dans un script R ou
+bien dans un fichier text qui sera sauvé sous le format
+<code>.txt</code> pour JAGS et <code>.stan</code> pour Stan. Il est
+aussi possible de définir le modèle comme un objet R (chaîne de
+caractère).</p>
+<p>C’est là que réside la différence pour l’utilisateur entre les
+outils. La structure est globalement la même, mais il y a des petites
+différences dans les noms de fonctions. De plus, Stan demande de
+déclarer les types d’objets.</p>
+<div id="modèle-sous-jags" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Modèle sous JAGS</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>model_jags<span class="ot">=</span><span class="st">&quot;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="st">model{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="st"># observations</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="st">for (i in 1:n){</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="st">  y[i] ~ dnorm(mu[i],tau)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="st">  mu[i] &lt;- (A)/(1+exp(-(age[i]- B)/(C)))</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="st"># priors</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="st">tau ~ dgamma(10,2000)</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="st">A  ~ dnorm(100,1/100000)</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="st">B  ~ dnorm(100,1/100000)</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="st">C  ~ dnorm(100,1/100000)</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="st"># quantities of interest</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="st">sigma2 &lt;- 1/tau</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span></span></code></pre></div>
+<p>Le modèle est construit par <code>jags.models</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>chains <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>growth_inits <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">tau =</span> <span class="fu">rgamma</span>(<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">2000</span>),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">A =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">200</span>,<span class="dv">30</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">B =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">700</span>,<span class="dv">200</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">C =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">300</span>,<span class="dv">100</span>))</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>myJAGSmodel <span class="ot">&lt;-</span> <span class="fu">jags.model</span>(<span class="fu">textConnection</span>(model_jags), <span class="at">data =</span> orange_data,<span class="at">inits =</span> growth_inits , <span class="at">n.chains =</span> chains,<span class="at">n.adapt =</span> <span class="dv">1000</span>)</span></code></pre></div>
+<pre><code>## Compiling model graph
+##    Resolving undeclared variables
+##    Allocating nodes
+## Graph information:
+##    Observed stochastic nodes: 140
+##    Unobserved stochastic nodes: 4
+##    Total graph size: 334
+## 
+## Initializing model</code></pre>
+</div>
+<div id="modèle-sous-nimble" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Modèle sous
+Nimble</h2>
+<p>C’est la même écriture que sous Jags qu’on commence par une accolade
+<code>{</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>growth_code_dcat <span class="ot">&lt;-</span> <span class="fu">nimbleCode</span>({</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># observations</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n){</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    y[i] <span class="sc">~</span> <span class="fu">dnorm</span>(mu[i],tau)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    mu[i] <span class="ot">&lt;-</span> (A)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="fu">exp</span>(<span class="sc">-</span>(age[i]<span class="sc">-</span> B)<span class="sc">/</span>(C)))</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># priors</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  tau <span class="sc">~</span> <span class="fu">dgamma</span>(<span class="dv">10</span>,<span class="dv">2000</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  A  <span class="sc">~</span> <span class="fu">dnorm</span>(<span class="dv">100</span>,<span class="dv">1</span><span class="sc">/</span><span class="dv">100000</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  B  <span class="sc">~</span> <span class="fu">dnorm</span>(<span class="dv">100</span>,<span class="dv">1</span><span class="sc">/</span><span class="dv">100000</span>)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  C  <span class="sc">~</span> <span class="fu">dnorm</span>(<span class="dv">100</span>,<span class="dv">1</span><span class="sc">/</span><span class="dv">100000</span>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># quantities of interest</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  sigma2 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>tau</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>La fonction <code>nimbleModel</code>premet de compiler le models.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create model</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>orange_model_nimble <span class="ot">&lt;-</span> <span class="fu">nimbleModel</span>(<span class="at">code =</span> growth_code_dcat,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">constants =</span> orange_constants,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">data =</span> orange_data_nimble,     <span class="co"># data can be set later</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">inits =</span> growth_inits  <span class="co"># inits can be set later.</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                            )</span></code></pre></div>
+<pre><code>## Defining model</code></pre>
+<pre><code>## Building model</code></pre>
+<pre><code>## Setting data and initial values</code></pre>
+<pre><code>## Running calculate on model
+##   [Note] Any error reports that follow may simply reflect missing values in model variables.</code></pre>
+<pre><code>## Checking model sizes and dimensions</code></pre>
+</div>
+<div id="modèle-sous-stan" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> Modèle sous Stan</h2>
+<p>Ecrit dans un fichier <code>.stan</code> A noter que Rstudio offre
+des templates de modèles/fichiers <code>stan</code>.</p>
+<pre><code>// to be inputted b the user
+data {
+  int&lt;lower=0&gt; n;
+  vector[n] y;
+  vector[n] age;
+}
+
+
+// parameters to be sampled
+parameters {
+  real A;
+  real B;
+  real C;
+  real&lt;lower=0&gt; sigma;
+}
+
+
+transformed parameters{
+   vector[n] mu;
+ for (i in 1:n)
+  mu[i] = (A)/(1+exp(-(age[i]- B)/(C)));
+}
+
+// model for the likelihood and the priors
+model {
+  for (i in 1:n)
+     y[i] ~ normal(mu[i], sigma);
+  A ~ normal(0,100);
+  B ~ normal(0,100);
+  C ~ normal(0,100);
+}</code></pre>
+<p>Notez que les 3 outils permettent de compiler et vérifier le modèle.
+Des fonctions combinants toutes les étapes sont disponibles.</p>
+</div>
+</div>
+<div id="echantillonnage-de-la-posterior" class="section level1"
+number="4">
+<h1><span class="header-section-number">4</span> Echantillonnage de la
+posterior</h1>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>iterations <span class="ot">&lt;-</span> <span class="dv">50000</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>burnin <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>chains <span class="ot">&lt;-</span> <span class="dv">3</span></span></code></pre></div>
+<div id="stan" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Stan</h2>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>samples_stan <span class="ot">&lt;-</span> <span class="fu">stan</span>(<span class="at">file =</span> <span class="st">&quot;modnonlin.stan&quot;</span>,<span class="at">data=</span>orange_data, <span class="at">pars =</span> <span class="fu">c</span>(<span class="st">&quot;sigma&quot;</span>, <span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>), <span class="at">include =</span> <span class="cn">TRUE</span>, <span class="at">verbose=</span><span class="cn">FALSE</span>,<span class="at">chains =</span> chains,<span class="at">iter=</span>iterations,  <span class="at">thin =</span> <span class="dv">10</span>,<span class="at">warmup =</span> burnin)</span></code></pre></div>
+</div>
+<div id="jags" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Jags</h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">update</span>(myJAGSmodel,burnin)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>samples_jags <span class="ot">&lt;-</span> <span class="fu">coda.samples</span>(myJAGSmodel, <span class="at">variable.names =</span> <span class="fu">c</span>(<span class="st">&quot;sigma2&quot;</span>, <span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>), <span class="at">n.iter=</span> iterations ,<span class="at">thin =</span> <span class="dv">10</span>)</span></code></pre></div>
+</div>
+<div id="nimble" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Nimble</h2>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>growth_MCMCconf <span class="ot">&lt;-</span> <span class="fu">configureMCMC</span>(orange_model_nimble, <span class="at">monitors =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>,</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                                                            <span class="st">&quot;B&quot;</span>,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                                                            <span class="st">&quot;C&quot;</span>,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                                                            <span class="st">&quot;tau&quot;</span>)) </span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>growth_MCMC <span class="ot">&lt;-</span> <span class="fu">buildMCMC</span>(growth_MCMCconf)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile model</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>C_growth_model <span class="ot">&lt;-</span> <span class="fu">compileNimble</span>(orange_model_nimble,<span class="at">showCompilerOutput =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>C_growth_MCMC <span class="ot">&lt;-</span> <span class="fu">compileNimble</span>(growth_MCMC, <span class="at">project =</span> orange_model_nimble)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC sampler</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>samples_nimble <span class="ot">&lt;-</span> <span class="fu">runMCMC</span>(C_growth_MCMC, <span class="at">niter =</span> <span class="dv">10000</span>,</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                   <span class="at">nburnin =</span> <span class="dv">2000</span>, <span class="at">samplesAsCodaMCMC =</span> <span class="cn">TRUE</span>, <span class="at">nchains =</span> chains)</span></code></pre></div>
+</div>
+</div>
+<div id="analyse-des-posterior." class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Analyse des
+posterior.</h1>
+<p>A la fin, il est possible de mettre toutes les sorties au même format
+et d’analyser la qualité des inférences avec les mêmes packages
+(<code>ggmcmc</code> pour les graphes en <code>ggplot</code> et
+<code>coda</code> pour le calcul des indicateurs de convergence des
+chaînes).</p>
+<p>Les packages utiles sont:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggmcmc)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(coda)</span></code></pre></div>
+<p>Pour tracer des trajectoires et des autocorrelations, on utilise la
+package ggmcmc. L’outil ggs permet de convertir les sorties des
+différents outils dans le bon format.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>samples.gg <span class="ot">&lt;-</span> <span class="fu">ggs</span>(samples_stan)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co">#samples.gg &lt;- ggs(samples_nimble)</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co">#samples.gg &lt;- ggs(samples_jags)</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggs_traceplot</span>(samples.gg) <span class="do">## ----ploT autocorrelation, </span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggs_autocorrelation</span>(samples.gg)</span></code></pre></div>
+<p>Le package ‘coda’ permet de calculer des indicateurs de convergence.
+L’échantillon sous ‘stan’ doit être transformé en list.mcmc avec la
+fonction <code>As.mcmc.list</code></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ----ESS, </span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>samples_mcmc_list <span class="ot">&lt;-</span> samples_jags</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>samples_mcmc_list <span class="ot">&lt;-</span> samples_nimble</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>samples_mcmc_list <span class="ot">&lt;-</span><span class="fu">As.mcmc.list</span>(samples_stan)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(samples_mcmc_list,effectiveSize)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="do">## ----Gelman----------------------------</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">gelman.diag</span>(samples_mcmc_list)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="do">## ----Geweke----------------------------------------------------------------------------------------------</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="fu">geweke.diag</span>(samples_mcmc_list)</span></code></pre></div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

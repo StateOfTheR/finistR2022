@@ -15,11 +15,17 @@ RUN R -e "install.packages('torch')"
 RUN R -e "torch::install_torch(type = 'cpu')"
 RUN R -e "install.packages('PLNmodels')"
 RUN R -e "install.packages('torchvision')"
-RUN R -e "install.packages('torchvision')"
 
-RUN apt-get update && . /etc/environment \
-  && wget sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Source/JAGS-4.3.0.tar.gz  -O jags.tar.gz \
-  && tar -xf jags.tar.gz \
-  && cd JAGS* && ./configure && make -j4 && make install
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+  jags \
+  mercurial gdal-bin libgdal-dev gsl-bin libgsl-dev \ 
+  libc6-i386
   
 RUN R -e "install.packages('rjags')"
+RUN R -e "install.packages('nimble')"
+RUN R -e "install.packages('ggmcmc')"
+RUN R -e "install.packages('rstan')"
+RUN R -e "install.packages('coda')"
+
+

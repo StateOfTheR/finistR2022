@@ -27,5 +27,7 @@ RUN R -e "install.packages('nimble')"
 RUN R -e "install.packages('ggmcmc')"
 RUN R -e "install.packages('rstan')"
 RUN R -e "install.packages('coda')"
+RUN R -e "install.packages('reticulate')"
+
 
 

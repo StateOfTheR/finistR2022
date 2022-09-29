@@ -537,7 +537,8 @@ RUN R -e &quot;install.packages(&#39;rjags&#39;)&quot;
 RUN R -e &quot;install.packages(&#39;nimble&#39;)&quot;
 RUN R -e &quot;install.packages(&#39;ggmcmc&#39;)&quot;
 RUN R -e &quot;install.packages(&#39;rstan&#39;)&quot;
-RUN R -e &quot;install.packages(&#39;coda&#39;)&quot;</code></pre>
+RUN R -e &quot;install.packages(&#39;coda&#39;)&quot;
+RUN R -e &quot;install.packages(&#39;reticulate&#39;)&quot;</code></pre>
 <p>puis demander la construction de l’image à l’aide de la commande</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> docker build <span class="sc">-</span>t nom_depot_dockerhub<span class="sc">/</span>nom_du_repo<span class="sc">:</span>version  . <span class="do">## avec un nom</span></span></code></pre></div>
 <p>et enfin pousser sur Dockerhub</p>

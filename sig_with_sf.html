@@ -824,12 +824,11 @@ communes.</li>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(NOM_COM) <span class="sc">%&gt;%</span> </span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">longueur_totale_route =</span> <span class="fu">sum</span>(longueur) <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span>(<span class="sc">-</span><span class="dv">3</span>)) <span class="sc">%&gt;%</span> <span class="co"># Mise en km </span></span>
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span>  <span class="co"># Ici, on veut faire une jointure, donc on se débarasse de la geometry</span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">merge</span>(communes) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>() <span class="sc">%&gt;%</span> <span class="co"># Le merge perd le statut sf? A explorer...</span></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">surface =</span> <span class="fu">st_area</span>(.) <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span>(<span class="sc">-</span><span class="dv">6</span>),<span class="co"># Création des nouvelles</span></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">longueur_par_habitant =</span> longueur_totale_route <span class="sc">/</span> POPULATION, </span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">longueur_par_km2 =</span> longueur_totale_route <span class="sc">/</span> surface) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(NOM_COM, longueur_totale_route, longueur_par_habitant, longueur_par_km2)</span></code></pre></div>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(<span class="at">x =</span> communes) <span class="sc">%&gt;%</span> <span class="co"># On met le sf en 1er argument pour que la sortie soit un sf</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">surface =</span> <span class="fu">st_area</span>(.) <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span>(<span class="sc">-</span><span class="dv">6</span>),<span class="co"># Création des nouvelles</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">longueur_par_habitant =</span> longueur_totale_route <span class="sc">/</span> POPULATION, </span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">longueur_par_km2 =</span> longueur_totale_route <span class="sc">/</span> surface) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(NOM_COM, longueur_totale_route, longueur_par_habitant, longueur_par_km2)</span></code></pre></div>
 <ol start="4" style="list-style-type: decimal">
 <li>Représenter les deux indicateurs</li>
 </ol>

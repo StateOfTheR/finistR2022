@@ -40,10 +40,6 @@ install.packages("nimble")
 
 ```{r packages library, eval = TRUE, message = FALSE}
 library(rjags)
-```
-
-
-```{r packages2 library, eval = FALSE, message = FALSE}
 library(rstan)
 library(nimble)
 ```

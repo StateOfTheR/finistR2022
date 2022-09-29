@@ -515,6 +515,12 @@ RUN R -e &quot;torch::install_torch(type = &#39;cpu&#39;)&quot;
 RUN R -e &quot;install.packages(&#39;PLNmodels&#39;)&quot;
 RUN R -e &quot;install.packages(&#39;torchvision&#39;)&quot;
 RUN R -e &quot;install.packages(&#39;torchvision&#39;)&quot;
+
+RUN apt-get update &amp;&amp; . /etc/environment \
+  &amp;&amp; wget sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Source/JAGS-4.3.0.tar.gz  -O jags.tar.gz \
+  &amp;&amp; tar -xf jags.tar.gz \
+  &amp;&amp; cd JAGS* &amp;&amp; ./configure &amp;&amp; make -j4 &amp;&amp; make install
+  
 RUN R -e &quot;install.packages(&#39;rjags&#39;)&quot;</code></pre>
 <p>puis demander la construction de l’image à l’aide de la commande</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> docker build <span class="sc">-</span>t nom_depot_dockerhub<span class="sc">/</span>nom_du_repo<span class="sc">:</span>version  . <span class="do">## avec un nom</span></span></code></pre></div>

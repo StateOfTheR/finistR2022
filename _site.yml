@@ -43,7 +43,7 @@ navbar:
       href: addins.html  
   - text: "Quarto"
     icon: fa-microphone
-    # href: QuartoTest.html
+    href: QuartoTest.html
   - text: "Machine learning"
     menu:
     - text: "Différentiation automatique"

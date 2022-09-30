@@ -11,7 +11,7 @@
 
 <meta name="author" content="finister2022" />
 
-<meta name="date" content="2022-09-29" />
+<meta name="date" content="2022-09-30" />
 
 <title>VAE</title>
 
@@ -535,7 +535,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">VAE</h1>
 <h4 class="author">finister2022</h4>
-<h4 class="date">2022-09-29</h4>
+<h4 class="date">2022-09-30</h4>
 
 </div>
 
@@ -658,20 +658,21 @@ partir d’un vecteur de données (de taille 15).</p>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">enc</span>(input[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ])</span></code></pre></div>
 <pre><code>## $mean
 ## torch_tensor
-## -0.2472  0.2322
-## -0.3366  0.3080
-## -0.2661  0.2230
-## -0.1367  0.0687
-## -0.0850  0.0262
+## 0.01 *
+## -0.9715 -26.9939
+##  -3.3558 -24.2478
+##  -7.5067 -18.2811
+##   3.1976 -25.5271
+##  -0.0748 -26.9301
 ## [ CPUFloatType{5,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]
 ## 
 ## $log_var
 ## torch_tensor
-##  0.2101  0.4656
-##  0.1270  0.4376
-##  0.1289  0.4643
-##  0.1630  0.4451
-##  0.2816  0.4797
+##  0.3697  0.3882
+##  0.3674  0.3817
+##  0.3509  0.4102
+##  0.3070  0.6107
+##  0.3589  0.4276
 ## [ CPUFloatType{5,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 </div>
 <div id="définition-dun-décodeur" class="section level3">
@@ -710,17 +711,17 @@ vérifier sur un exemple simple.</p>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>latent_vectors <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> <span class="dv">5</span>, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">torch_tensor</span>() </span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dec</span>(latent_vectors)</span></code></pre></div>
 <pre><code>## torch_tensor
-## Columns 1 to 10 0.0343 -0.0702  0.0061 -0.0835  0.3266  0.1776 -0.2644  0.2438 -0.1765 -0.1089
-##  0.0343 -0.0702  0.0061 -0.0835  0.3266  0.1776 -0.2644  0.2438 -0.1765 -0.1089
-##  0.0343 -0.0702  0.0061 -0.0835  0.3266  0.1776 -0.2644  0.2438 -0.1765 -0.1089
-##  0.0343 -0.0702  0.0061 -0.0835  0.3266  0.1776 -0.2644  0.2438 -0.1765 -0.1089
-##  0.0343 -0.0702  0.0061 -0.0835  0.3266  0.1776 -0.2644  0.2438 -0.1765 -0.1089
+## Columns 1 to 10 0.4219 -0.3598  0.0388 -0.2841  0.2780 -0.0876  0.0519  0.2097  0.1900  0.1701
+##  0.4219 -0.3598  0.0388 -0.2841  0.2780 -0.0876  0.0519  0.2097  0.1900  0.1701
+##  0.4219 -0.3598  0.0388 -0.2841  0.2780 -0.0876  0.0519  0.2097  0.1900  0.1701
+##  0.4219 -0.3598  0.0388 -0.2841  0.2780 -0.0876  0.0519  0.2097  0.1900  0.1701
+##  0.4219 -0.3598  0.0388 -0.2841  0.2780 -0.0876  0.0519  0.2097  0.1900  0.1701
 ## 
-## Columns 11 to 15-0.2132  0.2407  0.0324  0.2803 -0.1049
-## -0.2132  0.2407  0.0324  0.2803 -0.1049
-## -0.2132  0.2407  0.0324  0.2803 -0.1049
-## -0.2132  0.2407  0.0324  0.2803 -0.1049
-## -0.2132  0.2407  0.0324  0.2803 -0.1049
+## Columns 11 to 15 0.2885 -0.0224 -0.0065  0.1340 -0.1165
+##  0.2885 -0.0224 -0.0065  0.1340 -0.1165
+##  0.2885 -0.0224 -0.0065  0.1340 -0.1165
+##  0.2885 -0.0224 -0.0065  0.1340 -0.1165
+##  0.2885 -0.0224 -0.0065  0.1340 -0.1165
 ## [ CPUFloatType{5,15} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 </div>
 <div id="définition-du-vae" class="section level3">
@@ -761,36 +762,37 @@ aléatoire)</li>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vae</span>(input[<span class="dv">1</span>, , <span class="at">drop =</span> <span class="cn">FALSE</span>])</span></code></pre></div>
 <pre><code>## $decomp_input
 ## torch_tensor
-## Columns 1 to 10-0.0777  0.0093  0.2991  0.1150 -0.2047 -0.0323  0.0435  0.0751 -0.1327  0.2459
+## Columns 1 to 10 0.0755  0.0058 -0.0355  0.0319 -0.0362  0.0772  0.0997  0.1617 -0.0364  0.1309
 ## 
-## Columns 11 to 15 0.0796 -0.2476  0.0065  0.3743 -0.1231
+## Columns 11 to 15 0.1947  0.1065  0.3727 -0.0406  0.4348
 ## [ CPUFloatType{1,15} ][ grad_fn = &lt;AddmmBackward0&gt; ]
 ## 
 ## $z
 ## torch_tensor
-## -1.6111  0.3659
+##  0.6876  0.1226
 ## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddBackward0&gt; ]
 ## 
 ## $mean
 ## torch_tensor
-## -0.3776  0.2860
+##  0.0188  0.3651
 ## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]
 ## 
 ## $log_var
 ## torch_tensor
-## -0.3769 -0.0479
+##  0.3922 -0.0837
 ## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 <p>On peut vérifier que le composant <code>z</code> est aléatoire en
 appelant <code>vae()</code> deux fois.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Premier appel</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vae</span>(input[<span class="dv">1</span>, , <span class="at">drop =</span> <span class="cn">FALSE</span>])<span class="sc">$</span>z</span></code></pre></div>
 <pre><code>## torch_tensor
-## -0.5533 -0.5288
+## 0.01 *
+## -6.9877 -19.6687
 ## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddBackward0&gt; ]</code></pre>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Deuxième appel</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vae</span>(input[<span class="dv">1</span>, , <span class="at">drop =</span> <span class="cn">FALSE</span>])<span class="sc">$</span>z</span></code></pre></div>
 <pre><code>## torch_tensor
-##  0.1702 -0.4625
+##  1.5427 -1.3149
 ## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddBackward0&gt; ]</code></pre>
 </div>
 <div id="création-du-vae-et-de-loptimiseur" class="section level3">
@@ -999,14 +1001,14 @@ moyenne et la variance de la variable latente :</p>
 <span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a><span class="fu">enc</span>(xtrain[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, ])</span></code></pre></div>
 <pre><code>## $mean
 ## torch_tensor
-##  0.1977  0.0070
-##  0.2015  0.0478
+##  0.1066  0.0810
+##  0.0952  0.0911
 ## [ CPUFloatType{2,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]
 ## 
 ## $log_var
 ## torch_tensor
-## -0.0814  0.3228
-## -0.1000  0.2868
+## -0.1286  0.0440
+## -0.1282  0.0595
 ## [ CPUFloatType{2,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 </div>
 <div id="création-du-décodeur" class="section level3">
@@ -1052,35 +1054,35 @@ denses avec fonction d’activation RELU :</p>
 <span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>latent_vectors <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> <span class="dv">5</span>, <span class="at">ncol =</span> latent_dim) <span class="sc">%&gt;%</span> <span class="fu">torch_tensor</span>() </span>
 <span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a><span class="fu">dec</span>(latent_vectors)</span></code></pre></div>
 <pre><code>## torch_tensor
-## Columns 1 to 6-3.1380e-02  6.4964e-02 -1.2112e-01 -3.1771e-02 -5.5282e-02  1.1438e-01
-## -3.1380e-02  6.4964e-02 -1.2112e-01 -3.1771e-02 -5.5282e-02  1.1438e-01
-## -3.1380e-02  6.4964e-02 -1.2112e-01 -3.1771e-02 -5.5282e-02  1.1438e-01
-## -3.1380e-02  6.4964e-02 -1.2112e-01 -3.1771e-02 -5.5282e-02  1.1438e-01
-## -3.1380e-02  6.4964e-02 -1.2112e-01 -3.1771e-02 -5.5282e-02  1.1438e-01
+## Columns 1 to 10-0.2724 -0.0653 -0.0963  0.0735  0.0373 -0.0975 -0.0285 -0.2359 -0.0188  0.0457
+## -0.2724 -0.0653 -0.0963  0.0735  0.0373 -0.0975 -0.0285 -0.2359 -0.0188  0.0457
+## -0.2724 -0.0653 -0.0963  0.0735  0.0373 -0.0975 -0.0285 -0.2359 -0.0188  0.0457
+## -0.2724 -0.0653 -0.0963  0.0735  0.0373 -0.0975 -0.0285 -0.2359 -0.0188  0.0457
+## -0.2724 -0.0653 -0.0963  0.0735  0.0373 -0.0975 -0.0285 -0.2359 -0.0188  0.0457
 ## 
-## Columns 7 to 12 1.8588e-01 -1.2305e-01  1.4886e-01 -7.1523e-02 -3.9742e-02  1.2736e-01
-##  1.8588e-01 -1.2305e-01  1.4886e-01 -7.1523e-02 -3.9742e-02  1.2736e-01
-##  1.8588e-01 -1.2305e-01  1.4886e-01 -7.1523e-02 -3.9742e-02  1.2736e-01
-##  1.8588e-01 -1.2305e-01  1.4886e-01 -7.1523e-02 -3.9742e-02  1.2736e-01
-##  1.8588e-01 -1.2305e-01  1.4886e-01 -7.1523e-02 -3.9742e-02  1.2736e-01
+## Columns 11 to 20 0.0428  0.1092 -0.1675  0.0479  0.1081 -0.0830 -0.0789 -0.0807  0.0555 -0.1057
+##  0.0428  0.1092 -0.1675  0.0479  0.1081 -0.0830 -0.0789 -0.0807  0.0555 -0.1057
+##  0.0428  0.1092 -0.1675  0.0479  0.1081 -0.0830 -0.0789 -0.0807  0.0555 -0.1057
+##  0.0428  0.1092 -0.1675  0.0479  0.1081 -0.0830 -0.0789 -0.0807  0.0555 -0.1057
+##  0.0428  0.1092 -0.1675  0.0479  0.1081 -0.0830 -0.0789 -0.0807  0.0555 -0.1057
 ## 
-## Columns 13 to 18 2.6340e-01  1.8549e-01  1.3239e-02 -6.1391e-02  7.8792e-02  2.0414e-01
-##  2.6340e-01  1.8549e-01  1.3239e-02 -6.1391e-02  7.8792e-02  2.0414e-01
-##  2.6340e-01  1.8549e-01  1.3239e-02 -6.1391e-02  7.8792e-02  2.0414e-01
-##  2.6340e-01  1.8549e-01  1.3239e-02 -6.1391e-02  7.8792e-02  2.0414e-01
-##  2.6340e-01  1.8549e-01  1.3239e-02 -6.1391e-02  7.8792e-02  2.0414e-01
+## Columns 21 to 30 0.0165  0.0540 -0.2627  0.0493  0.0787  0.0530 -0.0299 -0.1206 -0.1560 -0.0663
+##  0.0165  0.0540 -0.2627  0.0493  0.0787  0.0530 -0.0299 -0.1206 -0.1560 -0.0663
+##  0.0165  0.0540 -0.2627  0.0493  0.0787  0.0530 -0.0299 -0.1206 -0.1560 -0.0663
+##  0.0165  0.0540 -0.2627  0.0493  0.0787  0.0530 -0.0299 -0.1206 -0.1560 -0.0663
+##  0.0165  0.0540 -0.2627  0.0493  0.0787  0.0530 -0.0299 -0.1206 -0.1560 -0.0663
 ## 
-## Columns 19 to 24-8.0652e-02  4.6471e-02 -3.1249e-02 -1.6014e-01 -9.6551e-02  1.8722e-01
-## -8.0652e-02  4.6471e-02 -3.1249e-02 -1.6014e-01 -9.6551e-02  1.8722e-01
-## -8.0652e-02  4.6471e-02 -3.1249e-02 -1.6014e-01 -9.6551e-02  1.8722e-01
-## -8.0652e-02  4.6471e-02 -3.1249e-02 -1.6014e-01 -9.6551e-02  1.8722e-01
-## -8.0652e-02  4.6471e-02 -3.1249e-02 -1.6014e-01 -9.6551e-02  1.8722e-01
+## Columns 31 to 40-0.1335  0.0649 -0.1463  0.0221 -0.0153  0.0030  0.0947 -0.0683 -0.0027  0.2108
+## -0.1335  0.0649 -0.1463  0.0221 -0.0153  0.0030  0.0947 -0.0683 -0.0027  0.2108
+## -0.1335  0.0649 -0.1463  0.0221 -0.0153  0.0030  0.0947 -0.0683 -0.0027  0.2108
+## -0.1335  0.0649 -0.1463  0.0221 -0.0153  0.0030  0.0947 -0.0683 -0.0027  0.2108
+## -0.1335  0.0649 -0.1463  0.0221 -0.0153  0.0030  0.0947 -0.0683 -0.0027  0.2108
 ## 
-## Columns 25 to 30-2.1600e-01 -5.5944e-02  1.5324e-01  4.1887e-02 -5.3602e-02  6.8779e-02
-## -2.1600e-01 -5.5944e-02  1.5324e-01  4.1887e-02 -5.3602e-02  6.8779e-02
-## -2.1600e-01 -5.5944e-02  1.5324e-01  4.1887e-02 -5.3602e-02  6.8779e-02
-## -2.1600e-01 -5.5944e-02  1.5324e-01  4.1887e-02 -5.3602e-02  6.8779e-02
-## -2.1600e-01 -5.5944e-02  1.5324e-01  4.1887e-02 -5.3602e-02  6.8779e-02
+## Columns 41 to 50-0.1737 -0.1380 -0.1962  0.0129 -0.0061  0.2063 -0.0546 -0.1406 -0.0070 -0.0462
+## -0.1737 -0.1380 -0.1962  0.0129 -0.0061  0.2063 -0.0546 -0.1406 -0.0070 -0.0462
+## -0.1737 -0.1380 -0.1962  0.0129 -0.0061  0.2063 -0.0546 -0.1406 -0.0070 -0.0462
+## -0.1737 -0.1380 -0.1962  0.0129 -0.0061  0.2063 -0.0546 -0.1406 -0.0070 -0.0462
+## -0.1737 -0.1380 -0.1962  0.0129 -0.0061  0.2063 -0.0546 -0.1406 -0.0070 -0.0462
 ## 
 ## ... [the output was truncated (use n=-1 to disable)]
 ## [ CPUFloatType{5,784} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
@@ -1115,52 +1117,54 @@ denses avec fonction d’activation RELU :</p>
 <span id="cb47-26"><a href="#cb47-26" aria-hidden="true" tabindex="-1"></a><span class="fu">vae</span>(xtrain[<span class="dv">1</span>, , <span class="at">drop =</span> <span class="cn">FALSE</span>])</span></code></pre></div>
 <pre><code>## $decomp_input
 ## torch_tensor
-## Columns 1 to 10 0.0291 -0.0931 -0.0195 -0.0806  0.1966 -0.0715  0.0728  0.0011  0.0684 -0.0191
+## Columns 1 to 10-0.1011  0.1776  0.0364 -0.0644  0.1030 -0.1356  0.0541 -0.3265  0.1492  0.1568
 ## 
-## Columns 11 to 20 0.1330  0.2851  0.1282 -0.0665 -0.1698  0.0165 -0.0644  0.0851 -0.1301  0.0170
+## Columns 11 to 20 0.0445  0.0574 -0.1786  0.1504 -0.0574  0.0260 -0.1151  0.0584  0.0384 -0.0879
 ## 
-## Columns 21 to 30 0.0709  0.0248 -0.1376  0.0344 -0.1474  0.0228 -0.0256  0.0080 -0.0526  0.2433
+## Columns 21 to 30 0.1016  0.0486 -0.2228  0.1764  0.0275  0.0338  0.0722 -0.0511 -0.1783 -0.0548
 ## 
-## Columns 31 to 40-0.0534  0.1346 -0.0978  0.1133  0.0567 -0.1500  0.1690 -0.0398  0.0298  0.0955
+## Columns 31 to 40-0.1185  0.0134  0.1922 -0.0012 -0.0226  0.1658 -0.1152  0.0045  0.1409 -0.0322
 ## 
-## Columns 41 to 50 0.0374  0.1384 -0.1391  0.0739  0.2976 -0.0186  0.0322  0.1772  0.0842 -0.1216
+## Columns 41 to 50 0.1698 -0.0283  0.1429  0.0195 -0.1468 -0.0091 -0.0759 -0.0604 -0.0275  0.1832
 ## 
-## Columns 51 to 60-0.0615  0.1161 -0.0537  0.1824 -0.2632  0.2356 -0.1785 -0.0320 -0.1387  0.1846
+## Columns 51 to 60 0.0944  0.0047 -0.1218 -0.0034  0.1103 -0.0533  0.1876 -0.2450  0.0233  0.0208
 ## 
-## Columns 61 to 70 0.0878 -0.0352  0.2312 -0.0123  0.1036  0.0615  0.0327 -0.0159  0.2489  0.2669
+## Columns 61 to 70 0.1612 -0.0705 -0.0914  0.1699 -0.0607 -0.0151 -0.0429  0.0232  0.1031 -0.0408
 ## 
-## Columns 71 to 80 0.0225 -0.0632  0.1548 -0.0360 -0.1320 -0.0959  0.0610  0.2127 -0.2927 -0.1502
+## Columns 71 to 80 0.0244  0.1063 -0.0690  0.1366 -0.0931  0.2564 -0.0813 -0.0365  0.0884  0.2236
 ## 
-## Columns 81 to 90-0.1236  0.1085 -0.1228  0.0614  0.0226  0.1641 -0.0966  0.1283  0.0392 -0.0561
+## Columns 81 to 90-0.0426  0.1036 -0.0962  0.0040  0.2234 -0.0479  0.1215  0.1048 -0.1115 -0.0088
 ## 
-## Columns 91 to 100 0.2304 -0.0447  0.1099  0.0050  0.1414 -0.1453 -0.2485 -0.2034 -0.0557  0.0726
+## Columns 91 to 100 0.2003 -0.0433 -0.1141 -0.2975  0.0618 -0.0053 -0.0651  0.2130 -0.0617 -0.1194
 ## 
-## Columns 101 to 110-0.1887 -0.0072 -0.0871 -0.0571  0.1632 -0.1403 -0.1324 -0.1755 -0.0633 -0.1166
+## Columns 101 to 110 0.1943 -0.0247  0.1469 -0.0374  0.1554  0.0543 -0.1265 -0.2403 -0.1835  0.1193
 ## 
-## Columns 111 to 120-0.0337 -0.0507 -0.0011 -0.2110  0.0726  0.1333 -0.1300 -0.0543  0.1543 -0.0982
+## Columns 111 to 120 0.0165  0.0285  0.1261  0.0317  0.0196 -0.1123  0.1138 -0.0986  0.1313 -0.0146
 ## 
-## Columns 121 to 130-0.1238  0.1019  0.1271 -0.1352 -0.1717  0.2205 -0.0347  0.1100 -0.2513 -0.0057
+## Columns 121 to 130-0.0755 -0.0450 -0.1769  0.1571  0.0902 -0.0639  0.0234  0.0046  0.0673 -0.0615
 ## 
-## Columns 131 to 140-0.1314  0.0583 -0.0126 -0.1347  0.0101 -0.1313 -0.0001  0.0510 -0.0151 -0.0208
+## Columns 131 to 140-0.0917  0.0479 -0.0630 -0.2000 -0.2140 -0.1064 -0.0579 -0.0355  0.1583  0.1051
 ## 
-## Columns 141 to 150 0.0614 -0.2598  0.1824 -0.0466 -0.0118  0.0851  0.0591  0.0548 -0.2114  0.0917
+## Columns 141 to 150-0.0683 -0.1166  0.1743  0.2651 -0.0373 -0.1068 -0.0505  0.0081 -0.0065 -0.0743
 ## 
 ## ... [the output was truncated (use n=-1 to disable)]
 ## [ CPUFloatType{1,784} ][ grad_fn = &lt;AddmmBackward0&gt; ]
 ## 
 ## $z
 ## torch_tensor
-##  0.3462  0.6494
+##  0.3649 -0.4386
 ## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddBackward0&gt; ]
 ## 
 ## $mean
 ## torch_tensor
-##  0.1068 -0.0751
+## 0.001 *
+##  7.8683 -138.1187
 ## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]
 ## 
 ## $log_var
 ## torch_tensor
-##  0.1578 -0.1631
+## 0.01 *
+##  3.1937 -17.0018
 ## [ CPUFloatType{1,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 </div>
 <div id="optimisation" class="section level3">
@@ -1489,16 +1493,16 @@ sur les batchs:</p>
 <span id="cb76-31"><a href="#cb76-31" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb76-32"><a href="#cb76-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Loss = %1f</span><span class="sc">\n</span><span class="st">&quot;</span>, loss.epoch[epoch]))</span>
 <span id="cb76-33"><a href="#cb76-33" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<pre><code>## Epoch #1: Loss = 5296327.708008
-## Epoch #2: Loss = 5178420.841797
-## Epoch #3: Loss = 5072458.833984
-## Epoch #4: Loss = 4965327.149414
-## Epoch #5: Loss = 4113296.719238
-## Epoch #6: Loss = 2636056.705078
-## Epoch #7: Loss = 2184890.767334
-## Epoch #8: Loss = 2070041.032959
-## Epoch #9: Loss = 2029664.622803
-## Epoch #10: Loss = 1999914.272461</code></pre>
+<pre><code>## Epoch #1: Loss = 4042269.257812
+## Epoch #2: Loss = 2770283.497070
+## Epoch #3: Loss = 2396455.454102
+## Epoch #4: Loss = 2194324.216797
+## Epoch #5: Loss = 2094070.459717
+## Epoch #6: Loss = 2040449.588867
+## Epoch #7: Loss = 2000751.319092
+## Epoch #8: Loss = 1938514.084473
+## Epoch #9: Loss = 1903213.738037
+## Epoch #10: Loss = 1878196.746826</code></pre>
 <p>A noter qu’il est également possible d’effectuer de l’optimisation
 par batchs <em>manuellement</em>, sans passer par un dataloader. Il faut
 en ce cas définir dans la boucle comment s’effectue le choix des

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Julie Aubert, Julien Chiquet, Marie-Pierre Étienne" />
 
-<meta name="date" content="2022-09-29" />
+<meta name="date" content="2022-09-30" />
 
 <title>Instructions pour le dépot sur le site web</title>
 
@@ -461,7 +461,7 @@ $(document).ready(function () {
 web</h1>
 <h4 class="author">Julie Aubert, Julien Chiquet, Marie-Pierre
 Étienne</h4>
-<h4 class="date">2022-09-29</h4>
+<h4 class="date">2022-09-30</h4>
 
 </div>
 
@@ -566,6 +566,10 @@ jobs:
         uses: actions/checkout@v2
       - name: Generate slides
         run: Rscript -e &quot;rmarkdown::render_site(encoding = &#39;UTF-8&#39;)&quot;
+      - name: Generate quarto page
+        run: |
+          quarto render QuartoTest.qmd --to html
+          cp QuartoTest.html build/.
       - name: GitHub Pages action
         uses: peaceiris/actions-gh-pages@v3
         with:

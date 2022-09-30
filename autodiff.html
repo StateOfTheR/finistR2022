@@ -11,7 +11,7 @@
 
 <meta name="author" content="Félix Cheysson, Julien Chiquet, Mahendra Mariadassou, Tristan Mary-Huard" />
 
-<meta name="date" content="2022-09-29" />
+<meta name="date" content="2022-09-30" />
 
 <title>autodiff</title>
 
@@ -460,7 +460,7 @@ $(document).ready(function () {
 <h1 class="title toc-ignore">autodiff</h1>
 <h4 class="author">Félix Cheysson, Julien Chiquet, Mahendra Mariadassou,
 Tristan Mary-Huard</h4>
-<h4 class="date">2022-09-29</h4>
+<h4 class="date">2022-09-30</h4>
 
 </div>
 
@@ -922,11 +922,11 @@ jour suivante :</p>
 ##  279.3360
 ##  116.2697
 ##    8.5126
-##  241.4523
-##  102.8678
-##  159.1056
+##  241.4522
+##  102.8677
+##  159.1057
 ## -123.2218
-##  323.6690
+##  323.6691
 ##  238.3180
 ## -3839.7065
 ## [ CPUFloatType{12,1} ]</code></pre>
@@ -960,11 +960,11 @@ courante du gradient et du paramètre, on peut directement faire la mise
 ##  279.3360
 ##  116.2697
 ##    8.5126
-##  241.4523
-##  102.8678
-##  159.1056
+##  241.4522
+##  102.8677
+##  159.1057
 ## -123.2218
-##  323.6690
+##  323.6691
 ##  238.3180
 ## -3839.7065
 ## [ CPUFloatType{12,1} ]</code></pre>
@@ -985,18 +985,18 @@ minimisé la fonction de perte)</p>
 <span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>Theta<span class="sc">$</span>grad</span></code></pre></div>
 <pre><code>## torch_tensor
 ## 0.0001 *
-## -0.5746
-##  -0.0858
-##   1.5259
-##  -1.2350
-##   0.7248
-##   1.3638
-##   1.0169
-##   0.9131
-##   0.2003
-##   1.0300
-##   1.2445
-##  -0.9155
+##  0.6104
+##  -0.3963
+##   1.7272
+##  -1.0369
+##   0.5221
+##   1.7633
+##   1.0381
+##   0.8285
+##  -1.3319
+##   1.4353
+##   1.4429
+##  -0.6866
 ## [ CPUFloatType{12,1} ]</code></pre>
 <p>et que le résultat est comparable à la solution classique obtenue par
 OLS :</p>
@@ -1339,21 +1339,21 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="#cb1
 <span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>  myPLN_classical <span class="ot">&lt;-</span> <span class="fu">PLN</span>(Abundance <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(Offset)), <span class="at">data =</span> oaks,</span>
 <span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">control =</span> <span class="fu">list</span>(<span class="at">trace =</span> <span class="dv">0</span>)))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   3.355   0.825   2.106</code></pre>
+##   1.519   0.415   0.989</code></pre>
 <div class="sourceCode" id="cb105"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
 <span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>  myPLN <span class="ot">&lt;-</span> PLN<span class="sc">$</span><span class="fu">new</span>(<span class="at">Y =</span> Y, <span class="at">O =</span> <span class="fu">log</span>(O), <span class="at">X =</span> X)</span>
 <span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a>  myPLN<span class="sc">$</span><span class="fu">fit</span>(<span class="dv">30</span>, <span class="fl">0.1</span>, <span class="at">tol =</span> <span class="fl">1e-5</span>)}</span>
 <span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.128   0.304   0.721</code></pre>
+##   1.180   0.375   0.797</code></pre>
 <p>On est proche en terme d’objectif</p>
 <div class="sourceCode" id="cb107"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>myPLN_classical<span class="sc">$</span>loglik</span></code></pre></div>
-<pre><code>## [1] -32248.93</code></pre>
+<pre><code>## [1] -32274.96</code></pre>
 <div class="sourceCode" id="cb109"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">last</span>(myPLN<span class="sc">$</span>ELBO_list)</span></code></pre></div>
-<pre><code>## [1] -32278.62</code></pre>
+<pre><code>## [1] -32279.25</code></pre>
 </div>
 </div>
 <div id="les-modules-torch" class="section level1">
@@ -1383,16 +1383,16 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="#cb1
 <span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">mylinearmod</span>(data)</span>
 <span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a>out</span></code></pre></div>
 <pre><code>## torch_tensor
-##  0.8833
-##  0.1028
-## -0.1857
-##  1.2264
-##  1.0556
-## -0.6526
-##  0.1083
-## -0.2492
-##  1.0852
-##  0.0635
+## -0.1027
+##  0.5850
+##  0.4351
+## -0.4638
+##  0.3336
+##  0.4434
+##  0.8248
+##  1.5499
+## -0.2262
+## -0.3440
 ## [ CPUFloatType{10,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 <div class="sourceCode" id="cb115"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>grad_fn</span></code></pre></div>
@@ -1414,7 +1414,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="#cb1
 <span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span><span class="fu">backward</span>(<span class="at">gradient =</span> d_avg_d_out)</span>
 <span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>mylinearmod<span class="sc">$</span>weight<span class="sc">$</span>grad</span></code></pre></div>
 <pre><code>## torch_tensor
-##  -0.7201  -2.0733  34.1054
+## -15.3155   2.7496   0.0337
 ## [ CPUFloatType{1,3} ]</code></pre>
 <div class="sourceCode" id="cb123"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>mylinearmod<span class="sc">$</span>bias<span class="sc">$</span>grad</span></code></pre></div>
@@ -1444,16 +1444,16 @@ class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="#cb1
 <span id="cb127-3"><a href="#cb127-3" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">model</span>(data)</span>
 <span id="cb127-4"><a href="#cb127-4" aria-hidden="true" tabindex="-1"></a>output</span></code></pre></div>
 <pre><code>## torch_tensor
-##  0.3782
-##  0.2234
-##  0.1586
-##  0.3429
-##  0.2957
-##  0.1505
-##  0.3820
-##  0.1402
-##  0.2267
-##  0.0524
+##  0.1153
+##  0.0601
+## -0.1326
+## -0.1329
+## -0.0096
+##  0.0539
+## -0.0036
+##  0.2299
+## -0.0194
+## -0.1654
 ## [ CPUFloatType{10,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</code></pre>
 </div>
 </div>

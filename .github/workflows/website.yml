@@ -20,6 +20,7 @@ jobs:
         run: |
           quarto render QuartoTest.qmd --to html
           cp QuartoTest.html build/.
+          cp -R QuartoTest_files build/.
       - name: GitHub Pages action
         uses: peaceiris/actions-gh-pages@v3
         with:
